@@ -1,0 +1,77 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: Inter, system-ui, Arial, sans-serif;
+}
+
+body {
+  background: #0b1220;
+  color: #fff;
+}
+
+.stage {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.video-box {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+}
+
+.video-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9fb2d0;
+  font-size: 24px;
+  letter-spacing: 2px;
+}
+
+.scoreboard {
+  margin-top: 20px;
+  background: #111b2e;
+  border-radius: 18px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.player {
+  width: 40%;
+}
+
+.name {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.score {
+  display: flex;
+  gap: 14px;
+  font-size: 32px;
+  font-weight: bold;
+}
+
+.score span {
+  background: #0f1729;
+  padding: 10px 16px;
+  border-radius: 12px;
+  min-width: 48px;
+  text-align: center;
+}
+
+.divider {
+  font-size: 18px;
+  color: #9fb2d0;
+}
