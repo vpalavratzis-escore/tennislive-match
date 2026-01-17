@@ -1,50 +1,105 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Tennis Live – Court 1</title>
-
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Viewer · e-Scoreboards</title>
+  <link rel="stylesheet" href="/assets/styles.css"/>
 </head>
 <body>
-
-  <div class="stage">
-
-    <!-- VIDEO -->
-    <div class="video-box">
-      <div class="video-placeholder">
-        LIVE VIDEO
+  <div class="container">
+    <div class="nav">
+      <div class="brand"><span style="font-size:18px">🎾</span><span>e-Scoreboards</span></div>
+      <div class="navlinks">
+        <a href="/">Home</a>
+        <a href="/demo/">Demo</a>
+        <a class="btn small" href="/demo/">Change club</a>
       </div>
     </div>
 
-    <!-- SCOREBOARD -->
-    <div class="scoreboard">
-
-      <div class="player">
-        <div class="name">PLAYER A</div>
-        <div class="score">
-          <span class="sets">0</span>
-          <span class="games">0</span>
-          <span class="points">0</span>
-        </div>
+    <div class="viewerTop">
+      <div class="viewerTitle">
+        <h2 id="title">Loading…</h2>
+        <div class="sub" id="subtitle">Preparing viewer</div>
       </div>
-
-      <div class="divider">VS</div>
-
-      <div class="player">
-        <div class="name">PLAYER B</div>
-        <div class="score">
-          <span class="sets">0</span>
-          <span class="games">0</span>
-          <span class="points">0</span>
-        </div>
+      <div class="statusRow">
+        <div class="dot" id="dot"></div>
+        <div class="smallText" id="status">Connecting…</div>
+        <a class="btn small" href="#" id="openApi" target="_blank" rel="noreferrer">API</a>
       </div>
-
     </div>
 
+    <div class="viewerGrid">
+      <div class="scoreboard">
+        <div class="sbHeader">
+          <div class="live" id="liveLabel">LIVE</div>
+          <div class="meta" id="meta">—</div>
+        </div>
+
+        <div class="colsHead">
+          <div>Player</div><div style="text-align:center">Sets</div><div style="text-align:center">Games</div><div style="text-align:center">Points</div>
+        </div>
+
+        <div class="row" id="rowA">
+          <div class="pname"><div class="serve" id="serveA"></div><span id="nameA">Player A</span></div>
+          <div class="cell" id="setsA">0</div>
+          <div class="cell" id="gamesA">0</div>
+          <div class="cell" id="pointsA">0</div>
+        </div>
+
+        <div class="row" id="rowB">
+          <div class="pname"><div class="serve" id="serveB"></div><span id="nameB">Player B</span></div>
+          <div class="cell" id="setsB">0</div>
+          <div class="cell" id="gamesB">0</div>
+          <div class="cell" id="pointsB">0</div>
+        </div>
+
+        <div class="notice" id="note">
+          If you see “Disconnected”, check the API base URL in <code>/config/clubs.json</code>
+          and make sure it’s <b>HTTPS</b> (Cloudflare proxy is perfect).
+        </div>
+      </div>
+
+      <div class="photos">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px">
+          <div style="font-weight:900">Player photos</div>
+          <div class="badge" id="updated">—</div>
+        </div>
+
+        <div class="photoGrid" style="margin-top:12px">
+          <div class="pcard">
+            <img id="imgA" alt="Player A photo" src="" />
+            <div class="cap">
+              <div>
+                <div class="n" id="capA">Player A</div>
+                <div class="mini">A</div>
+              </div>
+              <div class="badge" id="statusA">—</div>
+            </div>
+          </div>
+          <div class="pcard">
+            <img id="imgB" alt="Player B photo" src="" />
+            <div class="cap">
+              <div>
+                <div class="n" id="capB">Player B</div>
+                <div class="mini">B</div>
+              </div>
+              <div class="badge" id="statusB">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="notice" style="margin-top:12px">
+          Tip: Share this link with spectators. It auto-refreshes.
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span id="foot"></span>
+    </div>
   </div>
 
-  <script src="app.js"></script>
+  <script src="/assets/viewer.js"></script>
 </body>
 </html>
