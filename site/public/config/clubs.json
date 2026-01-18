@@ -1,0 +1,31 @@
+{
+  "countries": [
+    {
+      "id": "gr",
+      "name": "Greece",
+      "cities": [
+        {
+          "id": "attica",
+          "name": "Attica",
+          "clubs": [
+            {
+              "id": "kavouri-tennis-club",
+              "name": "Kavouri Tennis Club",
+              "courts": [
+                {
+                  "id": "court-1",
+                  "name": "Court 1",
+                  "state": "https://api.escoreboards.eu/api/state/gr/attica/kavouri-tennis-club/court-1",
+                  "stream": {
+                    "type": "hls",
+                    "url": "https://api.escoreboards.eu/hls/court1.m3u8"
+                  }                  
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
