@@ -11,7 +11,7 @@ function parseRoute() {
 }
 
 async function loadClubs() {
-  const r = await fetch("./config/clubs.json", { cache: "no-store" });
+  const r = await fetch("config/clubs.json", { cache: "no-store" });
   if (!r.ok) throw new Error(`Cannot load config/clubs.json (${r.status})`);
   return r.json();
 }
