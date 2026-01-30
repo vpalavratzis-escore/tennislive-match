@@ -10,11 +10,12 @@ function parseRoute() {
   return { clubId: decodeURIComponent(m[1]), courtId: decodeURIComponent(m[2]) };
 }
 
-async function loadConfig() {
-  const r = await fetch('/config/clubs.json', { cache: 'no-store' });
-  if (!r.ok) throw new Error('Cannot load /config/clubs.json');
+async function loadClubs() {
+  const r = await fetch("./config/clubs.json", { cache: "no-store" });
+  if (!r.ok) throw new Error(`Cannot load config/clubs.json (${r.status})`);
   return r.json();
 }
+
 
 function pickCourt(cfg, clubId, courtId) {
   const clubs = cfg.clubs || [];
