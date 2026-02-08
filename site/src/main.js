@@ -1,54 +1,26 @@
-import "./style.css";
-import { renderHome } from "./pages/home.js";
-import { renderLive } from "./pages/live.js";
-import { renderViewer } from "./pages/viewer.js";
-
-function getPath() {
-  const base = import.meta.env.BASE_URL || "/";
+function route() {
+  const base = import.meta.env.BASE_URL || "/"; // "/tennislive-match/"
   const url = new URL(window.location.href);
 
-  // αν ήρθαμε από 404 redirect
-  if (url.searchParams.has("p")) {
-    return decodeURIComponent(url.searchParams.get("p") || "/");
+  // αν υπάρχει ?p=..., αυτό έχει προτεραιότητα (viewer)
+  const p = url.searchParams.get("p");
+  if (p) {
+    const decoded = decodeURIComponent(p);
+    return renderViewer(decoded);
   }
-  
 
+  // normal pages (home/live) με base prefix
   let path = url.pathname;
 
   if (path.startsWith(base)) {
-    path = path.slice(base.length - 1);
+    path = path.slice(base.length - 1); // "/tennislive-match/live" -> "/live"
   }
 
-  return path || "/";
-}
-
-function route() {
-  const url = new URL(window.location.href);
-  const base = import.meta.env.BASE_URL || "/";
-
-  // path from ?p=... or from normal URL
-  let path = url.searchParams.has("p")
-    ? decodeURIComponent(url.searchParams.get("p") || "/")
-    : url.pathname;
-
-  // strip /tennislive-match prefix if present
-  if (path.startsWith(base)) path = path.slice(base.length - 1);
-
-  // normalize
-  path = (path || "/").replace(/\/+$/, "") || "/";
+  path = path.replace(/\/+$/, "") || "/";
 
   if (path === "/") return renderHome();
   if (path === "/live") return renderLive();
 
-  // Viewer: /v/<country>/<city>/<club>/<court>
-  if (path.startsWith("/v/")) return renderViewer(path);
-
-  // ALSO accept: /<country>/<city>/<club>/<court>
-  const parts = path.split("/").filter(Boolean);
-  if (parts.length === 4) return renderViewer("/v/" + parts.join("/"));
-
+  // fallback
   return renderHome();
 }
-
-window.addEventListener("popstate", route);
-route();
