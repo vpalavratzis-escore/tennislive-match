@@ -1,21 +1,13 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Redirecting…</title>
     <script>
-      (function () {
-        var base = "/tennislive-match/";
-        var full = location.pathname + location.search + location.hash;
-
-        // κρατάμε μόνο το κομμάτι ΜΕΤΑ το base
-        var p = full.startsWith(base) ? full.slice(base.length - 1) : full;
-
-        // πάμε στη root σελίδα και περνάμε το path
-        location.replace(base + "?p=" + encodeURIComponent(p));
-      })();
+      const base = "/tennislive-match/";
+      const path = window.location.pathname.replace(base, "");
+      const query = encodeURIComponent("/" + path);
+      window.location.replace(base + "?p=" + query);
     </script>
   </head>
-  <body>Redirecting…</body>
+  <body></body>
 </html>
