@@ -23,13 +23,29 @@ function getPath() {
 }
 
 function route() {
-  let path = getPath();
+  const url = new URL(window.location.href);
+  const base = import.meta.env.BASE_URL || "/";
 
-  path = path.replace(/\/+$/, "") || "/";
+  // path from ?p=... or from normal URL
+  let path = url.searchParams.has("p")
+    ? decodeURIComponent(url.searchParams.get("p") || "/")
+    : url.pathname;
+
+  // strip /tennislive-match prefix if present
+  if (path.startsWith(base)) path = path.slice(base.length - 1);
+
+  // normalize
+  path = (path || "/").replace(/\/+$/, "") || "/";
 
   if (path === "/") return renderHome();
   if (path === "/live") return renderLive();
+
+  // Viewer: /v/<country>/<city>/<club>/<court>
   if (path.startsWith("/v/")) return renderViewer(path);
+
+  // ALSO accept: /<country>/<city>/<club>/<court>
+  const parts = path.split("/").filter(Boolean);
+  if (parts.length === 4) return renderViewer("/v/" + parts.join("/"));
 
   return renderHome();
 }
