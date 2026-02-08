@@ -9,8 +9,9 @@ function getPath() {
 
   // αν ήρθαμε από 404 redirect
   if (url.searchParams.has("p")) {
-    return url.searchParams.get("p");
+    return decodeURIComponent(url.searchParams.get("p") || "/");
   }
+  
 
   let path = url.pathname;
 
