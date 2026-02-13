@@ -22,9 +22,12 @@ export function renderHome() {
           </p>
 
           <div class="actions">
-            <a class="btn primary" href="/live" data-nav>Find courts</a>
-            <a class="btn" href="/v/gr/attica/kavouri-tennis-club/court-1" data-nav>Open demo court</a>
-          </div>
+          <a class="btn primary" href="/live" data-nav>Find courts</a>
+          <a class="btn" href="/?p=/gr/attica/kavouri-tennis-club/court-1" data-nav>
+            Open demo court
+          </a>
+        </div>
+        
 
           <div class="bullets">
             <div><span class="tick">✓</span> Real-time names, score, sets, match clock</div>
