@@ -1,127 +1,127 @@
+import { header } from "../ui/header.js";
+
+function opt(value, label) {
+  const o = document.createElement("option");
+  o.value = value;
+  o.textContent = label;
+  return o;
+}
+
+function setOptions(select, items, placeholder) {
+  select.innerHTML = "";
+  select.appendChild(opt("", placeholder));
+  for (const it of items) {
+    select.appendChild(opt(it.id, it.name));
+  }
+  select.disabled = items.length === 0;
+}
+
 async function loadClubs() {
-  const r = await fetch("/config/clubs.json", { cache: "no-store" });
-  if (!r.ok) throw new Error("Cannot load /config/clubs.json");
+  const url = `${import.meta.env.BASE_URL}config/clubs.json`;
+  const r = await fetch(url, { cache: "no-store" });
+  if (!r.ok) throw new Error(`Failed to load clubs.json: ${r.status}`);
   return r.json();
 }
 
-function uniq(arr) {
-  return [...new Set(arr)];
-}
-
-function slugify(s) {
-  return String(s)
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
-}
-
-export async function renderLive() {
+export function renderLive() {
   const app = document.getElementById("app");
+  app.innerHTML = "";
 
-  app.innerHTML = `
-    <div class="wrap">
-      <div class="nav">
-        <div class="brand"><div class="logo"></div><div>e-Scoreboards</div></div>
-        <div class="navlinks">
-          <a href="/" data-nav>Home</a>
-          <a href="/live" data-nav>Find courts</a>
-        </div>
-        <a class="cta" href="/" data-nav>Back</a>
-      </div>
+  app.appendChild(
+    header([
+      { label: "Home", href: "/" },
+      { label: "Find courts", href: "/live" }
+    ], { back: true })
+  );
 
-      <div class="panel section">
-        <div class="badge"><i></i> Find a court</div>
-        <div class="hint">
-          Select Country → City → Club → Court and open the viewer.
-        </div>
+  const wrap = document.createElement("div");
+  wrap.className = "card";
+  wrap.innerHTML = `
+    <h2>Find a court</h2>
+    <p>Select Country → City → Club → Court and open the viewer.</p>
 
-        <div class="selectRow">
-          <select id="country"></select>
-          <select id="city"></select>
-          <select id="club"></select>
-          <select id="court"></select>
-          <a class="btn primary" id="open" href="#">Open</a>
-        </div>
+    <div class="row">
+      <select id="selCountry"></select>
+      <select id="selCity" disabled></select>
+      <select id="selClub" disabled></select>
+      <select id="selCourt" disabled></select>
+      <button id="btnOpen" class="btn primary" disabled>Open</button>
+    </div>
 
-        <div class="hint" style="margin-top:10px">
-          Demo: <a class="btn" style="padding:10px 12px" href="/v/gr/attica/kavouri-tennis-club/court-1" data-nav>Open Kavouri Court 1</a>
-        </div>
-      </div>
-
-      <div class="footer">© <span id="y"></span> e-Scoreboards.</div>
+    <div class="demo">
+      Demo:
+      <a class="btn" href="/?p=/gr/attica/kavouri-tennis-club/court-1" data-nav>Open Kavouri Court 1</a>
+      <a class="btn" href="/?p=/gr/attica/kavouri-tennis-club/court-2" data-nav>Open Kavouri Court 2</a>
     </div>
   `;
+  app.appendChild(wrap);
 
-  app.querySelector("#y").textContent = String(new Date().getFullYear());
+  const selCountry = wrap.querySelector("#selCountry");
+  const selCity = wrap.querySelector("#selCity");
+  const selClub = wrap.querySelector("#selClub");
+  const selCourt = wrap.querySelector("#selCourt");
+  const btnOpen = wrap.querySelector("#btnOpen");
 
-  const cfg = await loadClubs();
+  let data = null;
 
-  const countrySel = app.querySelector("#country");
-  const citySel = app.querySelector("#city");
-  const clubSel = app.querySelector("#club");
-  const courtSel = app.querySelector("#court");
-  const openBtn = app.querySelector("#open");
+  const getCountry = () => data.countries.find(c => c.id === selCountry.value);
+  const getCity = () => (getCountry()?.cities || []).find(c => c.id === selCity.value);
+  const getClub = () => (getCity()?.clubs || []).find(c => c.id === selClub.value);
+  const getCourt = () => (getClub()?.courts || []).find(c => c.id === selCourt.value);
 
-  const countries = uniq(cfg.clubs.map((c) => c.country));
-  countrySel.innerHTML = countries.map((c) => `<option value="${c}">${c}</option>`).join("");
-
-  function fillCities() {
-    const country = countrySel.value;
-    const cities = uniq(cfg.clubs.filter((c) => c.country === country).map((c) => c.city));
-    citySel.innerHTML = cities.map((c) => `<option value="${c}">${c}</option>`).join("");
+  function updateCities() {
+    const c = getCountry();
+    setOptions(selCity, c?.cities || [], "City");
+    setOptions(selClub, [], "Club");
+    setOptions(selCourt, [], "Court");
+    btnOpen.disabled = true;
   }
 
-  function fillClubs() {
-    const country = countrySel.value;
-    const city = citySel.value;
-    const clubs = cfg.clubs.filter((c) => c.country === country && c.city === city);
-    clubSel.innerHTML = clubs.map((c) => `<option value="${c.id}">${c.name}</option>`).join("");
+  function updateClubs() {
+    const city = getCity();
+    setOptions(selClub, city?.clubs || [], "Club");
+    setOptions(selCourt, [], "Court");
+    btnOpen.disabled = true;
   }
 
-  function fillCourts() {
-    const country = countrySel.value;
-    const city = citySel.value;
-    const clubs = cfg.clubs.filter((c) => c.country === country && c.city === city);
-    const club = clubs.find((c) => c.id === clubSel.value) || clubs[0];
-    if (!club) return (courtSel.innerHTML = "");
-    courtSel.innerHTML = club.courts.map((ct) => `<option value="${ct.id}">${ct.name}</option>`).join("");
+  function updateCourts() {
+    const club = getClub();
+    setOptions(selCourt, club?.courts || [], "Court");
+    btnOpen.disabled = true;
   }
 
-  function updateOpenLink() {
-    const country = countrySel.value;
-    const city = citySel.value;
-    const clubs = cfg.clubs.filter((c) => c.country === country && c.city === city);
-    const club = clubs.find((c) => c.id === clubSel.value);
-    if (!club) return;
-    const court = club.courts.find((ct) => ct.id === courtSel.value);
-    if (!court) return;
-
-    const url = `/v/${slugify(club.country)}/${slugify(club.city)}/${slugify(club.id)}/${slugify(court.id)}`;
-    openBtn.setAttribute("href", url);
+  function updateOpen() {
+    const country = getCountry();
+    const city = getCity();
+    const club = getClub();
+    const court = getCourt();
+    btnOpen.disabled = !(country && city && club && court);
   }
 
-  ["change"].forEach((ev) => {
-    countrySel.addEventListener(ev, () => {
-      fillCities(); fillClubs(); fillCourts(); updateOpenLink();
-    });
-    citySel.addEventListener(ev, () => {
-      fillClubs(); fillCourts(); updateOpenLink();
-    });
-    clubSel.addEventListener(ev, () => {
-      fillCourts(); updateOpenLink();
-    });
-    courtSel.addEventListener(ev, updateOpenLink);
+  selCountry.addEventListener("change", () => { updateCities(); updateOpen(); });
+  selCity.addEventListener("change", () => { updateClubs(); updateOpen(); });
+  selClub.addEventListener("change", () => { updateCourts(); updateOpen(); });
+  selCourt.addEventListener("change", () => updateOpen());
+
+  btnOpen.addEventListener("click", () => {
+    const country = getCountry();
+    const city = getCity();
+    const club = getClub();
+    const court = getCourt();
+    if (!(country && city && club && court)) return;
+
+    const p = `/${country.id}/${city.id}/${club.id}/${court.id}`;
+    // ανοίγει viewer μέσω ?p=
+    window.location.href = `${import.meta.env.BASE_URL}?p=${encodeURIComponent(p)}`;
   });
 
-  openBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    history.pushState({}, "", openBtn.getAttribute("href"));
-    window.dispatchEvent(new PopStateEvent("popstate"));
-  });
-
-  fillCities();
-  fillClubs();
-  fillCourts();
-  updateOpenLink();
+  // load data + init country dropdown
+  (async () => {
+    try {
+      data = await loadClubs();
+      setOptions(selCountry, data.countries || [], "Country");
+    } catch (e) {
+      app.innerHTML = `<div class="card"><h2>Error</h2><pre>${String(e)}</pre></div>`;
+    }
+  })();
 }
