@@ -1,4 +1,4 @@
-import { header } from "../ui/header.js";
+
 
 function opt(value, label) {
   const o = document.createElement("option");
@@ -27,12 +27,7 @@ export function renderLive() {
   const app = document.getElementById("app");
   app.innerHTML = "";
 
-  app.appendChild(
-    header([
-      { label: "Home", href: "/" },
-      { label: "Find courts", href: "/live" }
-    ], { back: true })
-  );
+ 
 
   const wrap = document.createElement("div");
   wrap.className = "card";
