@@ -16,11 +16,52 @@
                   "id": "court-1",
                   "name": "Court 1",
                   "state": "https://api.escoreboards.eu/api/state/gr/attica/kavouri-tennis-club/court-1",
-                  "stream": {
-                    "type": "hls",
-                    "url": "https://api.escoreboards.eu/hls/court1.m3u8"
-                  }                  
+                  "stream": { "type": "hls", "url": "https://api.escoreboards.eu/hls/court1.m3u8" }
+                },
+                {
+                  "id": "court-2",
+                  "name": "Court 2",
+                  "state": "https://api.escoreboards.eu/api/state/gr/attica/kavouri-tennis-club/court-2",
+                  "stream": { "type": "hls", "url": "" }
                 }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "chalkida",
+          "name": "Chalkida",
+          "clubs": [
+            {
+              "id": "chalkida-tennis-club",
+              "name": "Chalkida Tennis Club",
+              "courts": [
+                { "id": "court-1", "name": "Court 1", "state": "", "stream": { "type": "hls", "url": "" } },
+                { "id": "court-2", "name": "Court 2", "state": "", "stream": { "type": "hls", "url": "" } },
+                { "id": "court-3", "name": "Court 3", "state": "", "stream": { "type": "hls", "url": "" } }
+              ]
+            },
+            {
+              "id": "chalkida-sports-center",
+              "name": "Chalkida Sports Center",
+              "courts": [
+                { "id": "court-1", "name": "Court 1", "state": "", "stream": { "type": "hls", "url": "" } },
+                { "id": "court-2", "name": "Court 2", "state": "", "stream": { "type": "hls", "url": "" } }
+              ]
+            },
+            {
+              "id": "evia-tennis-academy",
+              "name": "Evia Tennis Academy",
+              "courts": [
+                { "id": "court-1", "name": "Court 1", "state": "", "stream": { "type": "hls", "url": "" } },
+                { "id": "court-2", "name": "Court 2", "state": "", "stream": { "type": "hls", "url": "" } }
+              ]
+            },
+            {
+              "id": "neos-tennis-club",
+              "name": "Neos Tennis Club",
+              "courts": [
+                { "id": "court-1", "name": "Court 1", "state": "", "stream": { "type": "hls", "url": "" } }
               ]
             }
           ]
