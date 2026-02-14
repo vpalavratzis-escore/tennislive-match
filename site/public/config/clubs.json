@@ -22,7 +22,7 @@
                   "id": "court-2",
                   "name": "Court 2",
                   "state": "https://api.escoreboards.eu/api/state/gr/attica/kavouri-tennis-club/court-2",
-                  "stream": { "type": "hls", "url": "" }
+                  "stream": { "type": "hls", "url": "https://api.escoreboards.eu/hls/court2.m3u8" }
                 }
               ]
             }
