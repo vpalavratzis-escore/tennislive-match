@@ -314,3 +314,79 @@ h1{
   .selectRow{ grid-template-columns: 1fr; }
   .viewerWrap{ grid-template-columns: 1fr; }
 }
+/*εξτραααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααα*/
+
+/* ===== FINAL HERO + NAV BOOST (safe overrides) ===== */
+
+/* 1) Πιο καθαρό “focus” στο πάνω μέρος (hero) */
+body {
+  background:
+    radial-gradient(1100px 720px at 14% -10%, rgba(208,107,45,.26), transparent 62%),
+    radial-gradient(1100px 720px at 88% -10%, rgba(228,176,122,.18), transparent 62%),
+    radial-gradient(1000px 760px at 50% 115%, rgba(106,168,79,.12), transparent 62%),
+    linear-gradient(180deg, var(--bg2), var(--bg));
+}
+
+/* 2) Nav να ξεχωρίζει πιο πολύ (λιγότερο “χάνεται”) */
+.nav {
+  background: rgba(10, 8, 6, 0.62);
+  border: 1px solid rgba(244,241,234,.18);
+  box-shadow: 0 16px 50px rgba(0,0,0,.45);
+}
+
+/* 3) Panel πιο “solid” (λιγότερο see-through) */
+.panel {
+  background: linear-gradient(180deg, rgba(22,16,12,.78), rgba(16,12,9,.68));
+  border: 1px solid rgba(244,241,234,.16);
+  box-shadow: 0 26px 90px rgba(0,0,0,.62);
+}
+
+/* 4) Hero-left: δίνουμε “contrast slab” πίσω από κείμενο */
+.hero-left {
+  position: relative;
+  overflow: hidden;
+}
+.hero-left:before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(900px 420px at 20% 10%, rgba(0,0,0,.35), transparent 62%),
+    radial-gradient(900px 420px at 85% 0%, rgba(0,0,0,.30), transparent 60%),
+    linear-gradient(180deg, rgba(0,0,0,.20), rgba(0,0,0,.34));
+  pointer-events: none;
+}
+.hero-left > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* 5) Τίτλος/κείμενο: πιο “προ” και καθαρό */
+h1 {
+  text-shadow: 0 14px 34px rgba(0,0,0,.62);
+}
+.sub {
+  color: rgba(244,241,234,.86);
+  font-size: 16.5px;
+}
+
+/* 6) Kicker λίγο πιο διακριτικό, να μην “φωνάζει” */
+.kicker {
+  border: 1px solid rgba(244,241,234,.14);
+  background: rgba(244,241,234,.06);
+  color: rgba(244,241,234,.92);
+}
+
+/* 7) Buttons λίγο πιο “βαριά” */
+.btn, .cta {
+  box-shadow: 0 14px 40px rgba(0,0,0,.35);
+}
+.btn.primary, .cta {
+  border-color: rgba(244,241,234,.22);
+}
+
+/* 8) Hero-right (preview) πιο καθαρό frame */
+.screen {
+  border: 1px solid rgba(244,241,234,.18);
+  box-shadow: 0 22px 70px rgba(0,0,0,.55);
+}
