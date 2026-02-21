@@ -48,6 +48,7 @@ function setPhoto(img, ph, url) {
 }
 
 function attachHlsToVideo(video, url) {
+  document.title = "ATTACH RUN " + Date.now();
   if (!video) return;
 
   const u = String(url || "").trim();
@@ -86,6 +87,7 @@ function attachHlsToVideo(video, url) {
   }
 
   // ✅ IMPORTANT: take Hls from window (loaded by index.html)
+  document.title = "NEW HLS " + Date.now();
   const Hls = window.Hls;
   if (!Hls) {
     log("window.Hls missing");
