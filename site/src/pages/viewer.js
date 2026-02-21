@@ -51,7 +51,14 @@ function setPhoto(img, ph, url) {
 function attachHlsToVideo(video, url) {
   if (!video) return;
 
-  // Cleanup previous instance
+  const u = String(url || "").trim();
+  if (!u) return;
+
+  const DEBUG = false; // βάλε true αν θες logs
+
+  const log = (...a) => { if (DEBUG) console.log("[HLS]", ...a); };
+
+  // --- cleanup previous ---
   try {
     if (video._hls) {
       video._hls.destroy();
@@ -59,91 +66,142 @@ function attachHlsToVideo(video, url) {
     }
   } catch (_) {}
 
-  const u = String(url || "").trim();
-  if (!u) return;
-
-  // Make autoplay predictable
+  // --- video baseline ---
   video.muted = true;
   video.playsInline = true;
   video.autoplay = true;
   video.preload = "auto";
 
+  // reset src (important when re-attaching)
+  try {
+    video.pause();
+    video.removeAttribute("src");
+    video.load();
+  } catch (_) {}
+
   // Safari native HLS
   if (video.canPlayType("application/vnd.apple.mpegurl")) {
+    log("native HLS", u);
     video.src = u;
     video.play?.().catch(() => {});
     return;
   }
 
-  // Chromium/Opera: must use hls.js
-  if (Hls.isSupported()) {
-    const hls = new Hls({
-      lowLatencyMode: true,
-      backBufferLength: 30,
-      enableWorker: true,
-
-      // tolerant retries
-      manifestLoadingTimeOut: 20000,
-      manifestLoadingMaxRetry: 3,
-      levelLoadingTimeOut: 20000,
-      levelLoadingMaxRetry: 3,
-      fragLoadingTimeOut: 20000,
-      fragLoadingMaxRetry: 3,
-    });
-
-    video._hls = hls;
-
-    // Correct attach sequence for Chromium:
-    // attach -> MEDIA_ATTACHED -> loadSource -> MANIFEST_PARSED -> play
-    hls.attachMedia(video);
-
-    hls.on(Hls.Events.MEDIA_ATTACHED, () => {
-      try {
-        hls.loadSource(u);
-      } catch (_) {}
-    });
-
-    hls.on(Hls.Events.MANIFEST_PARSED, () => {
-      video.play?.().catch(() => {});
-    });
-
-    // Extra safety
-    video.addEventListener(
-      "loadedmetadata",
-      () => {
-        video.play?.().catch(() => {});
-      },
-      { once: true }
-    );
-
-    hls.on(Hls.Events.ERROR, (_evt, data) => {
-      if (!data) return;
-
-      // Non-fatal errors are common; don't destroy too aggressively
-      if (data.fatal) {
-        try {
-          switch (data.type) {
-            case Hls.ErrorTypes.NETWORK_ERROR:
-              hls.startLoad();
-              break;
-            case Hls.ErrorTypes.MEDIA_ERROR:
-              hls.recoverMediaError();
-              break;
-            default:
-              hls.destroy();
-              video._hls = null;
-              break;
-          }
-        } catch (_) {}
-      }
-    });
-
+  if (!window.Hls && typeof Hls === "undefined") {
+    // hls.js not present (should not happen with static import)
+    log("Hls missing");
     return;
   }
 
-  // Last resort (won't play HLS on Chromium)
-  video.src = u;
-  video.play?.().catch(() => {});
+  if (!Hls.isSupported()) {
+    // Chromium without MSE support (rare)
+    log("Hls not supported, fallback src", u);
+    video.src = u;
+    video.play?.().catch(() => {});
+    return;
+  }
+
+  // --- create instance ---
+  const hls = new Hls({
+    lowLatencyMode: true,
+    backBufferLength: 30,
+    enableWorker: true,
+
+    // tolerant retries
+    manifestLoadingTimeOut: 20000,
+    manifestLoadingMaxRetry: 3,
+    levelLoadingTimeOut: 20000,
+    levelLoadingMaxRetry: 3,
+    fragLoadingTimeOut: 20000,
+    fragLoadingMaxRetry: 3,
+  });
+
+  video._hls = hls;
+
+  // helpful for diagnosing real failures (optional)
+  video.addEventListener("error", () => {
+    log("VIDEO error", video.error);
+  });
+
+  // --- attach sequence ---
+  log("attachMedia");
+  hls.attachMedia(video);
+
+  hls.on(Hls.Events.MEDIA_ATTACHED, () => {
+    log("MEDIA_ATTACHED -> loadSource");
+    try {
+      hls.loadSource(u);
+      // IMPORTANT: some builds need explicit startLoad
+      hls.startLoad();
+    } catch (e) {
+      log("loadSource/startLoad error", e);
+    }
+  });
+
+  hls.on(Hls.Events.MANIFEST_PARSED, () => {
+    log("MANIFEST_PARSED -> play");
+    video.play?.().catch((e) => log("play blocked", e));
+  });
+
+  // extra safety: play when metadata is ready
+  video.addEventListener(
+    "loadedmetadata",
+    () => {
+      log("loadedmetadata -> play");
+      video.play?.().catch((e) => log("play blocked", e));
+    },
+    { once: true }
+  );
+
+  // watchdog: if stuck at 0:00 while segments are loading, re-attach once
+  let watchdogTries = 0;
+  const watchdog = setInterval(() => {
+    if (!video._hls) return clearInterval(watchdog);
+
+    const paused = video.paused;
+    const t = video.currentTime || 0;
+    const rs = video.readyState || 0;
+
+    // if never advances for a while, kick it
+    if (rs === 0 && t === 0 && watchdogTries < 1) {
+      watchdogTries++;
+      log("watchdog kick: re-attach");
+      try {
+        hls.detachMedia();
+        hls.attachMedia(video);
+      } catch (_) {}
+    }
+
+    // stop watchdog once we start playing
+    if (t > 0.1 || (!paused && rs >= 2)) {
+      clearInterval(watchdog);
+    }
+  }, 1500);
+
+  hls.on(Hls.Events.ERROR, (_evt, data) => {
+    if (!data) return;
+
+    log("ERROR", data.type, data.details, "fatal:", data.fatal);
+
+    if (data.fatal) {
+      try {
+        switch (data.type) {
+          case Hls.ErrorTypes.NETWORK_ERROR:
+            // retry network
+            hls.startLoad();
+            break;
+          case Hls.ErrorTypes.MEDIA_ERROR:
+            hls.recoverMediaError();
+            break;
+          default:
+            // hard reset
+            hls.destroy();
+            video._hls = null;
+            break;
+        }
+      } catch (_) {}
+    }
+  });
 }
 
 export async function renderViewer(path) {
