@@ -1,5 +1,5 @@
 // src/pages/viewer.js
-import Hls from "hls.js";
+
 
 function segs(path) {
   return String(path || "").split("/").filter(Boolean);
