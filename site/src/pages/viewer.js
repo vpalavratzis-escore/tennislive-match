@@ -1,37 +1,5 @@
 // src/pages/viewer.js
-
-// --- Bulletproof HLS loader (bundle -> CDN fallback) ---
-let _Hls = null;
-
-async function getHls() {
-  if (_Hls) return _Hls;
-
-  // 1) try bundled module (Vite)
-  try {
-    const mod = await import("hls.js");
-    _Hls = mod?.default || mod;
-    if (_Hls) return _Hls;
-  } catch (_) {}
-
-  // 2) fallback: load from CDN
-  try {
-    await new Promise((resolve, reject) => {
-      if (window.Hls) return resolve();
-      const s = document.createElement("script");
-      s.src = "https://cdn.jsdelivr.net/npm/hls.js@latest";
-      s.async = true;
-      s.onload = resolve;
-      s.onerror = reject;
-      document.head.appendChild(s);
-    });
-
-    _Hls = window.Hls || null;
-    return _Hls;
-  } catch (_) {
-    _Hls = null;
-    return null;
-  }
-}
+import Hls from "hls.js";
 
 function segs(path) {
   return String(path || "").split("/").filter(Boolean);
@@ -80,18 +48,8 @@ function setPhoto(img, ph, url) {
   }
 }
 
-// --- IMPORTANT: async (because Hls may be loaded dynamically) ---
-async function attachHlsToVideo(video, url) {
+function attachHlsToVideo(video, url) {
   if (!video) return;
-
-  const u = String(url || "").trim();
-  if (!u) return;
-
-  // Make autoplay consistent across browsers
-  video.muted = true;
-  video.playsInline = true;
-  video.autoplay = true;
-  video.preload = "auto";
 
   // Cleanup previous instance
   try {
@@ -101,6 +59,15 @@ async function attachHlsToVideo(video, url) {
     }
   } catch (_) {}
 
+  const u = String(url || "").trim();
+  if (!u) return;
+
+  // Make autoplay predictable
+  video.muted = true;
+  video.playsInline = true;
+  video.autoplay = true;
+  video.preload = "auto";
+
   // Safari native HLS
   if (video.canPlayType("application/vnd.apple.mpegurl")) {
     video.src = u;
@@ -108,9 +75,8 @@ async function attachHlsToVideo(video, url) {
     return;
   }
 
-  const Hls = await getHls();
-
-  if (Hls && Hls.isSupported()) {
+  // Chromium/Opera: must use hls.js
+  if (Hls.isSupported()) {
     const hls = new Hls({
       lowLatencyMode: true,
       backBufferLength: 30,
@@ -127,15 +93,21 @@ async function attachHlsToVideo(video, url) {
 
     video._hls = hls;
 
-    hls.loadSource(u);
+    // Correct attach sequence for Chromium:
+    // attach -> MEDIA_ATTACHED -> loadSource -> MANIFEST_PARSED -> play
     hls.attachMedia(video);
 
-    // Try to play when ready
+    hls.on(Hls.Events.MEDIA_ATTACHED, () => {
+      try {
+        hls.loadSource(u);
+      } catch (_) {}
+    });
+
     hls.on(Hls.Events.MANIFEST_PARSED, () => {
       video.play?.().catch(() => {});
     });
 
-    // Extra safety: some Chromium builds need loadedmetadata trigger
+    // Extra safety
     video.addEventListener(
       "loadedmetadata",
       () => {
@@ -145,7 +117,10 @@ async function attachHlsToVideo(video, url) {
     );
 
     hls.on(Hls.Events.ERROR, (_evt, data) => {
-      if (data && data.fatal) {
+      if (!data) return;
+
+      // Non-fatal errors are common; don't destroy too aggressively
+      if (data.fatal) {
         try {
           switch (data.type) {
             case Hls.ErrorTypes.NETWORK_ERROR:
@@ -166,7 +141,7 @@ async function attachHlsToVideo(video, url) {
     return;
   }
 
-  // Last resort (Chromium won't play HLS natively, but keep fallback)
+  // Last resort (won't play HLS on Chromium)
   video.src = u;
   video.play?.().catch(() => {});
 }
@@ -212,18 +187,7 @@ export async function renderViewer(path) {
 
     <div style="height:16px;"></div>
 
-    <!-- ✅ MOBILE SAFE: one column on narrow screens -->
-    <div class="viewerWrap"
-         style="
-           grid-template-columns: 1fr 1fr;
-           gap:16px;
-           align-items:stretch;
-         ">
-      <style>
-        @media (max-width: 900px){
-          .viewerWrap { grid-template-columns: 1fr !important; }
-        }
-      </style>
+    <div class="viewerWrap" style="grid-template-columns: 1fr 1fr; gap:16px; align-items:stretch;">
 
       <div class="panel section" style="display:flex; flex-direction:column;">
         <div class="badge"><i></i> Live score</div>
@@ -251,7 +215,8 @@ export async function renderViewer(path) {
                 display:flex; align-items:center; justify-content:center;
                 flex:0 0 auto;
               ">
-              <img id="photoA" alt="A" style="width:100%;height:100%;object-fit:cover;display:none;" />
+              <img id="photoA" alt="A"
+                   style="width:100%;height:100%;object-fit:cover;display:none;" />
               <span id="photoAph" style="opacity:.65; font-weight:900; letter-spacing:.5px;">A</span>
             </div>
 
@@ -307,7 +272,8 @@ export async function renderViewer(path) {
                 display:flex; align-items:center; justify-content:center;
                 flex:0 0 auto;
               ">
-              <img id="photoB" alt="B" style="width:100%;height:100%;object-fit:cover;display:none;" />
+              <img id="photoB" alt="B"
+                   style="width:100%;height:100%;object-fit:cover;display:none;" />
               <span id="photoBph" style="opacity:.65; font-weight:900; letter-spacing:.5px;">B</span>
             </div>
 
@@ -351,6 +317,7 @@ export async function renderViewer(path) {
               <th>Sets</th>
             </tr>
           </thead>
+
           <tbody>
             <tr>
               <td id="nameA" style="font-weight:900; font-size:15px;">—</td>
@@ -358,10 +325,10 @@ export async function renderViewer(path) {
               <td id="gamesA">—</td>
               <td id="setsA">—</td>
             </tr>
+
             <tr>
               <td id="nameB" style="font-weight:900; font-size:15px;">—</td>
               <td id="pointB">—</td>
-              <td id="gamesB">—</td>
               <td id="gamesB">—</td>
               <td id="setsB">—</td>
             </tr>
@@ -466,8 +433,8 @@ export async function renderViewer(path) {
     miTitle.textContent = `🎾 ${clubObj.name} – ${courtObj.name}`;
     miLine2.textContent = `📍 ${cityObj.name}, ${countryObj.name}  •  🔴 LIVE`;
 
-    // ✅ IMPORTANT: await (attach is async)
-    await attachHlsToVideo(videoEl, streamUrl);
+    // Video (STATIC hls.js attach)
+    attachHlsToVideo(videoEl, streamUrl);
 
     if (!stateUrl) {
       status.textContent = "No state URL configured for this court.";
@@ -490,7 +457,7 @@ export async function renderViewer(path) {
         const setsA = s.setsA ?? s.playerA?.sets ?? "—";
         const setsB = s.setsB ?? s.playerB?.sets ?? "—";
 
-        const server = String(s.server || "").toUpperCase();
+        const server = String(s.server || "").toUpperCase(); // "A" or "B"
         serveAIcon.style.display = server === "A" ? "" : "none";
         serveBIcon.style.display = server === "B" ? "" : "none";
 
