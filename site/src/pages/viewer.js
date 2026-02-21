@@ -1,5 +1,32 @@
 // src/pages/viewer.js
-import Hls from "hls.js";
+
+// --- Bulletproof HLS loader (bundle -> CDN fallback) ---
+let _Hls = null;
+
+async function getHls() {
+  if (_Hls) return _Hls;
+
+  // 1) try bundled module (Vite)
+  try {
+    const mod = await import("hls.js");
+    _Hls = mod?.default || mod;
+    if (_Hls) return _Hls;
+  } catch (_) {}
+
+  // 2) fallback: load from CDN
+  await new Promise((resolve, reject) => {
+    if (window.Hls) return resolve();
+    const s = document.createElement("script");
+    s.src = "https://cdn.jsdelivr.net/npm/hls.js@latest";
+    s.async = true;
+    s.onload = resolve;
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+
+  _Hls = window.Hls || null;
+  return _Hls;
+}
 
 function segs(path) {
   return String(path || "").split("/").filter(Boolean);
@@ -23,8 +50,6 @@ async function loadClubs() {
   if (!r.ok) throw new Error(`Cannot load ${base}config/clubs.json (${r.status})`);
   return r.json();
 }
-
-
 
 async function fetchJson(url) {
   const r = await fetch(url, { cache: "no-store" });
@@ -50,8 +75,14 @@ function setPhoto(img, ph, url) {
   }
 }
 
-function attachHlsToVideo(video, url) {
+// --- IMPORTANT: now async (because Hls may be loaded dynamically) ---
+async function attachHlsToVideo(video, url) {
   if (!video) return;
+
+  // make autoplay consistent across browsers
+  video.muted = true;
+  video.playsInline = true;
+  video.autoplay = true;
 
   try {
     if (video._hls) {
@@ -70,11 +101,21 @@ function attachHlsToVideo(video, url) {
     return;
   }
 
-  if (Hls.isSupported()) {
+  const Hls = await getHls();
+
+  if (Hls && Hls.isSupported()) {
     const hls = new Hls({
       lowLatencyMode: true,
       backBufferLength: 30,
       enableWorker: true,
+
+      // a bit more tolerant
+      manifestLoadingTimeOut: 20000,
+      manifestLoadingMaxRetry: 3,
+      levelLoadingTimeOut: 20000,
+      levelLoadingMaxRetry: 3,
+      fragLoadingTimeOut: 20000,
+      fragLoadingMaxRetry: 3,
     });
 
     video._hls = hls;
@@ -108,6 +149,7 @@ function attachHlsToVideo(video, url) {
     return;
   }
 
+  // last resort: will NOT work on Chromium for HLS, but keep fallback
   video.src = u;
   video.play?.().catch(() => {});
 }
@@ -124,8 +166,8 @@ export async function renderViewer(path) {
   const clubId = parts[i + 2] || "";
   const courtId = parts[i + 3] || "";
 
-// ===== RENDER (HTML layout) =====
-app.innerHTML = `
+  // ===== RENDER (HTML layout) =====
+  app.innerHTML = `
   <div class="wrap">
     <!-- ===================== -->
     <!-- TOP NAV BAR (header)  -->
@@ -193,9 +235,9 @@ app.innerHTML = `
           <div
             style="
               position:relative;
-              flex:1 1 0;             /* IMPORTANT: equal width with B */
-              min-width:0;            /* IMPORTANT: allow text clamp instead of resizing */
-              height:82px;            /* FIXED HEIGHT: stable layout always */
+              flex:1 1 0;
+              min-width:0;
+              height:82px;
               display:flex;
               align-items:center;
               gap:12px;
@@ -205,57 +247,49 @@ app.innerHTML = `
               border: 1px solid rgba(255,255,255,.10);
             "
           >
-            <!-- PHOTO CIRCLE (BIGGER + FIXED SIZE) -->
             <div
               style="
-                width:56px; height:56px;     /* bigger */
-                border-radius:999px;         /* circle */
+                width:56px; height:56px;
+                border-radius:999px;
                 background: rgba(255,255,255,.08);
                 border: 1px solid rgba(255,255,255,.15);
                 overflow:hidden;
                 display:flex; align-items:center; justify-content:center;
-                flex:0 0 auto;               /* fixed; never shrinks */
+                flex:0 0 auto;
               "
             >
-              <!-- Actual photo (hidden if empty) -->
               <img id="photoA" alt="A"
                    style="width:100%;height:100%;object-fit:cover;display:none;" />
-              <!-- Placeholder letter if no photo -->
               <span id="photoAph" style="opacity:.65; font-weight:900; letter-spacing:.5px;">A</span>
             </div>
 
-            <!-- TEXT AREA (fixed space reserved for serve ball) -->
             <div style="min-width:0; flex:1 1 auto; padding-right:54px;">
-              <!-- PLAYER NAME (2 lines MAX, no card resizing) -->
               <div
                 id="photoATitle"
                 style="
                   font-weight:900;
-                  font-size:10px;            /* change this to 15px/17px if you want */
+                  font-size:10px;
                   line-height:1.15;
-                  display:-webkit-box;       /* needed for clamp */
-                  -webkit-line-clamp:2;      /* MAX 2 lines */
+                  display:-webkit-box;
+                  -webkit-line-clamp:2;
                   -webkit-box-orient:vertical;
-                  overflow:hidden;           /* hide extra lines */
-                  word-break:break-word;     /* better for greek long names */
+                  overflow:hidden;
+                  word-break:break-word;
                 "
               >Player A</div>
-
-              <!-- Small helper label -->
               <div class="hint" style="margin:3px 0 0 0;">Photo</div>
             </div>
 
-            <!-- SERVE INDICATOR (BALL) - ABSOLUTE so it NEVER pushes text -->
             <span
               id="serveAIcon"
               style="
-                display:none;                /* will be toggled by JS */
+                display:none;
                 position:absolute;
                 right:14px;
                 top:50%;
-                transform:translateY(-50%);  /* perfect vertical centering */
+                transform:translateY(-50%);
                 width:16px;
-                height:16px;                 /* bigger ball */
+                height:16px;
                 border-radius:999px;
                 background:#ffd34d;
                 box-shadow:
@@ -269,9 +303,9 @@ app.innerHTML = `
           <div
             style="
               position:relative;
-              flex:1 1 0;             /* IMPORTANT: equal width with A */
-              min-width:0;            /* IMPORTANT: allow text clamp instead of resizing */
-              height:82px;            /* FIXED HEIGHT: stable layout always */
+              flex:1 1 0;
+              min-width:0;
+              height:82px;
               display:flex;
               align-items:center;
               gap:12px;
@@ -281,7 +315,6 @@ app.innerHTML = `
               border: 1px solid rgba(255,255,255,.10);
             "
           >
-            <!-- PHOTO CIRCLE (SAME AS A) -->
             <div
               style="
                 width:56px; height:56px;
@@ -298,14 +331,12 @@ app.innerHTML = `
               <span id="photoBph" style="opacity:.65; font-weight:900; letter-spacing:.5px;">B</span>
             </div>
 
-            <!-- TEXT AREA (same spacing as A) -->
             <div style="min-width:0; flex:1 1 auto; padding-right:54px;">
-              <!-- PLAYER NAME (2 lines MAX, same behavior as A) -->
               <div
                 id="photoBTitle"
                 style="
                   font-weight:900;
-                  font-size:10px;            /* keep same as A */
+                  font-size:10px;
                   line-height:1.15;
                   display:-webkit-box;
                   -webkit-line-clamp:2;
@@ -314,11 +345,9 @@ app.innerHTML = `
                   word-break:break-word;
                 "
               >Player B</div>
-
               <div class="hint" style="margin:3px 0 0 0;">Photo</div>
             </div>
 
-            <!-- SERVE INDICATOR (BALL) -->
             <span
               id="serveBIcon"
               style="
@@ -340,9 +369,6 @@ app.innerHTML = `
 
         </div>
 
-        <!-- ===================== -->
-        <!-- SCORE TABLE -->
-        <!-- ===================== -->
         <table class="table">
           <thead>
             <tr>
@@ -355,7 +381,6 @@ app.innerHTML = `
 
           <tbody>
             <tr>
-              <!-- Name A (you can change font-size here too) -->
               <td id="nameA" style="font-weight:900; font-size:15px;">—</td>
               <td id="pointA">—</td>
               <td id="gamesA">—</td>
@@ -371,11 +396,9 @@ app.innerHTML = `
           </tbody>
         </table>
 
-        <!-- Status lines -->
         <div class="hint" id="status">Waiting for data…</div>
         <div class="hint" id="photostatus" style="margin-top:6px;">PHOTOS / —</div>
 
-        <!-- (optional) This makes left panel height “feel” balanced with right one without forcing fixed height -->
         <div style="flex:1 1 auto;"></div>
       </div>
 
@@ -385,7 +408,6 @@ app.innerHTML = `
       <div class="panel section" style="display:flex; flex-direction:column;">
         <div class="badge"><i></i> Camera / Stream</div>
 
-        <!-- VIDEO BOX (keeps 16:9 always) -->
         <div class="cam" style="margin-top:10px;">
           <video
             id="camVideo"
@@ -395,26 +417,21 @@ app.innerHTML = `
             style="
               width:100%;
               height:100%;
-              object-fit:cover;    /* fills without changing box size */
+              object-fit:cover;
               display:block;
               background:black;
             "
           ></video>
         </div>
 
-        <!-- This pushes the video box up and prevents weird empty feel -->
         <div style="flex:1 1 auto;"></div>
       </div>
 
     </div>
 
-    <!-- ===================== -->
-    <!-- FOOTER -->
-    <!-- ===================== -->
     <div class="footer">© <span id="y"></span> e-Scoreboards.</div>
   </div>
 `;
-
 
   app.querySelector("#y").textContent = String(new Date().getFullYear());
 
@@ -481,8 +498,8 @@ app.innerHTML = `
     miTitle.textContent = `🎾 ${clubObj.name} – ${courtObj.name}`;
     miLine2.textContent = `📍 ${cityObj.name}, ${countryObj.name}  •  🔴 LIVE`;
 
-    // Video
-    attachHlsToVideo(videoEl, streamUrl);
+    // Video (NOW AWAIT)
+    await attachHlsToVideo(videoEl, streamUrl);
 
     if (!stateUrl) {
       status.textContent = "No state URL configured for this court.";
@@ -518,7 +535,6 @@ app.innerHTML = `
         setsAEl.textContent = String(setsA);
         setsBEl.textContent = String(setsB);
 
-        // titles on player cards (single-line ellipsis)
         photoATitle.textContent = clampText(nameA, 30);
         photoBTitle.textContent = clampText(nameB, 30);
 
