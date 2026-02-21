@@ -495,7 +495,13 @@ export async function renderViewer(path) {
     miLine2.textContent = `📍 ${cityObj.name}, ${countryObj.name}  •  🔴 LIVE`;
 
     // Video
+    status.textContent = "VIDEO DEBUG: calling attach...";
     attachHlsToVideo(videoEl, streamUrl);
+    setTimeout(() => {
+      const v = document.querySelector("video");
+      const has = !!(v && v._hls);
+      status.textContent = "VIDEO DEBUG: attached=" + has + " readyState=" + (v ? v.readyState : -1);
+    }, 1500);
 
     if (!stateUrl) {
       status.textContent = "No state URL configured for this court.";
