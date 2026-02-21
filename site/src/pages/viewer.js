@@ -14,18 +14,23 @@ async function getHls() {
   } catch (_) {}
 
   // 2) fallback: load from CDN
-  await new Promise((resolve, reject) => {
-    if (window.Hls) return resolve();
-    const s = document.createElement("script");
-    s.src = "https://cdn.jsdelivr.net/npm/hls.js@latest";
-    s.async = true;
-    s.onload = resolve;
-    s.onerror = reject;
-    document.head.appendChild(s);
-  });
+  try {
+    await new Promise((resolve, reject) => {
+      if (window.Hls) return resolve();
+      const s = document.createElement("script");
+      s.src = "https://cdn.jsdelivr.net/npm/hls.js@latest";
+      s.async = true;
+      s.onload = resolve;
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
 
-  _Hls = window.Hls || null;
-  return _Hls;
+    _Hls = window.Hls || null;
+    return _Hls;
+  } catch (_) {
+    _Hls = null;
+    return null;
+  }
 }
 
 function segs(path) {
@@ -75,24 +80,26 @@ function setPhoto(img, ph, url) {
   }
 }
 
-// --- IMPORTANT: now async (because Hls may be loaded dynamically) ---
+// --- IMPORTANT: async (because Hls may be loaded dynamically) ---
 async function attachHlsToVideo(video, url) {
   if (!video) return;
 
-  // make autoplay consistent across browsers
+  const u = String(url || "").trim();
+  if (!u) return;
+
+  // Make autoplay consistent across browsers
   video.muted = true;
   video.playsInline = true;
   video.autoplay = true;
+  video.preload = "auto";
 
+  // Cleanup previous instance
   try {
     if (video._hls) {
       video._hls.destroy();
       video._hls = null;
     }
   } catch (_) {}
-
-  const u = String(url || "").trim();
-  if (!u) return;
 
   // Safari native HLS
   if (video.canPlayType("application/vnd.apple.mpegurl")) {
@@ -109,7 +116,7 @@ async function attachHlsToVideo(video, url) {
       backBufferLength: 30,
       enableWorker: true,
 
-      // a bit more tolerant
+      // tolerant retries
       manifestLoadingTimeOut: 20000,
       manifestLoadingMaxRetry: 3,
       levelLoadingTimeOut: 20000,
@@ -123,9 +130,19 @@ async function attachHlsToVideo(video, url) {
     hls.loadSource(u);
     hls.attachMedia(video);
 
+    // Try to play when ready
     hls.on(Hls.Events.MANIFEST_PARSED, () => {
       video.play?.().catch(() => {});
     });
+
+    // Extra safety: some Chromium builds need loadedmetadata trigger
+    video.addEventListener(
+      "loadedmetadata",
+      () => {
+        video.play?.().catch(() => {});
+      },
+      { once: true }
+    );
 
     hls.on(Hls.Events.ERROR, (_evt, data) => {
       if (data && data.fatal) {
@@ -149,7 +166,7 @@ async function attachHlsToVideo(video, url) {
     return;
   }
 
-  // last resort: will NOT work on Chromium for HLS, but keep fallback
+  // Last resort (Chromium won't play HLS natively, but keep fallback)
   video.src = u;
   video.play?.().catch(() => {});
 }
@@ -169,71 +186,50 @@ export async function renderViewer(path) {
   // ===== RENDER (HTML layout) =====
   app.innerHTML = `
   <div class="wrap">
-    <!-- ===================== -->
-    <!-- TOP NAV BAR (header)  -->
-    <!-- ===================== -->
     <div class="nav">
-      <!-- Brand (logo + title) -->
       <div class="brand">
         <div class="logo"></div>
         <div>e-Scoreboards</div>
       </div>
-
-      <!-- Nav links (hidden on mobile via CSS) -->
       <div class="navlinks">
         <a href="/" data-nav>Home</a>
         <a href="/live" data-nav>Find courts</a>
       </div>
-
-      <!-- CTA button -->
       <a class="cta" href="/live" data-nav>Change court</a>
     </div>
 
-    <!-- ===================== -->
-    <!-- MATCH INFO (top panel) -->
-    <!-- ===================== -->
     <div class="panel section" style="min-height:120px;">
-      <!-- Panel badge -->
       <div class="badge" style="margin-bottom:18px;">
         <i></i> Match info
       </div>
-
-      <!-- Title + info line -->
       <div style="display:flex; flex-direction:column; gap:18px;">
-        <!-- Big title (club + court) -->
         <div id="miTitle" style="font-weight:900; font-size:18px; letter-spacing:.2px;">
           Loading…
         </div>
-
-        <!-- Small line (city + LIVE) -->
         <div class="hint" id="miLine2">—</div>
       </div>
     </div>
 
-    <!-- Small visual gap between match panel and the grid -->
     <div style="height:16px;"></div>
 
-    <!-- ===================== -->
-    <!-- TWO COLUMN GRID (left score, right video) -->
-    <!-- IMPORTANT: 1fr 1fr => stable equal columns -->
-    <!-- ===================== -->
-    <div class="viewerWrap" style="grid-template-columns: 1fr 1fr; gap:16px; align-items:stretch;">
+    <!-- ✅ MOBILE SAFE: one column on narrow screens -->
+    <div class="viewerWrap"
+         style="
+           grid-template-columns: 1fr 1fr;
+           gap:16px;
+           align-items:stretch;
+         ">
+      <style>
+        @media (max-width: 900px){
+          .viewerWrap { grid-template-columns: 1fr !important; }
+        }
+      </style>
 
-      <!-- ================================= -->
-      <!-- LEFT PANEL: LIVE SCORE -->
-      <!-- ================================= -->
       <div class="panel section" style="display:flex; flex-direction:column;">
-        <!-- Panel badge -->
         <div class="badge"><i></i> Live score</div>
 
-        <!-- ===================== -->
-        <!-- PLAYER CARDS ROW (ALWAYS SAME HEIGHT) -->
-        <!-- ===================== -->
         <div style="display:flex; gap:16px; margin: 10px 0 12px 0;">
-
-          <!-- ---------- PLAYER A CARD ---------- -->
-          <div
-            style="
+          <div style="
               position:relative;
               flex:1 1 0;
               min-width:0;
@@ -245,10 +241,8 @@ export async function renderViewer(path) {
               border-radius:14px;
               background: rgba(255,255,255,.04);
               border: 1px solid rgba(255,255,255,.10);
-            "
-          >
-            <div
-              style="
+            ">
+            <div style="
                 width:56px; height:56px;
                 border-radius:999px;
                 background: rgba(255,255,255,.08);
@@ -256,17 +250,13 @@ export async function renderViewer(path) {
                 overflow:hidden;
                 display:flex; align-items:center; justify-content:center;
                 flex:0 0 auto;
-              "
-            >
-              <img id="photoA" alt="A"
-                   style="width:100%;height:100%;object-fit:cover;display:none;" />
+              ">
+              <img id="photoA" alt="A" style="width:100%;height:100%;object-fit:cover;display:none;" />
               <span id="photoAph" style="opacity:.65; font-weight:900; letter-spacing:.5px;">A</span>
             </div>
 
             <div style="min-width:0; flex:1 1 auto; padding-right:54px;">
-              <div
-                id="photoATitle"
-                style="
+              <div id="photoATitle" style="
                   font-weight:900;
                   font-size:10px;
                   line-height:1.15;
@@ -275,14 +265,11 @@ export async function renderViewer(path) {
                   -webkit-box-orient:vertical;
                   overflow:hidden;
                   word-break:break-word;
-                "
-              >Player A</div>
+                ">Player A</div>
               <div class="hint" style="margin:3px 0 0 0;">Photo</div>
             </div>
 
-            <span
-              id="serveAIcon"
-              style="
+            <span id="serveAIcon" style="
                 display:none;
                 position:absolute;
                 right:14px;
@@ -295,13 +282,10 @@ export async function renderViewer(path) {
                 box-shadow:
                   0 0 0 4px rgba(255,211,77,.16),
                   0 0 14px rgba(255,211,77,.55);
-              "
-            ></span>
+              "></span>
           </div>
 
-          <!-- ---------- PLAYER B CARD ---------- -->
-          <div
-            style="
+          <div style="
               position:relative;
               flex:1 1 0;
               min-width:0;
@@ -313,10 +297,8 @@ export async function renderViewer(path) {
               border-radius:14px;
               background: rgba(255,255,255,.04);
               border: 1px solid rgba(255,255,255,.10);
-            "
-          >
-            <div
-              style="
+            ">
+            <div style="
                 width:56px; height:56px;
                 border-radius:999px;
                 background: rgba(255,255,255,.08);
@@ -324,17 +306,13 @@ export async function renderViewer(path) {
                 overflow:hidden;
                 display:flex; align-items:center; justify-content:center;
                 flex:0 0 auto;
-              "
-            >
-              <img id="photoB" alt="B"
-                   style="width:100%;height:100%;object-fit:cover;display:none;" />
+              ">
+              <img id="photoB" alt="B" style="width:100%;height:100%;object-fit:cover;display:none;" />
               <span id="photoBph" style="opacity:.65; font-weight:900; letter-spacing:.5px;">B</span>
             </div>
 
             <div style="min-width:0; flex:1 1 auto; padding-right:54px;">
-              <div
-                id="photoBTitle"
-                style="
+              <div id="photoBTitle" style="
                   font-weight:900;
                   font-size:10px;
                   line-height:1.15;
@@ -343,14 +321,11 @@ export async function renderViewer(path) {
                   -webkit-box-orient:vertical;
                   overflow:hidden;
                   word-break:break-word;
-                "
-              >Player B</div>
+                ">Player B</div>
               <div class="hint" style="margin:3px 0 0 0;">Photo</div>
             </div>
 
-            <span
-              id="serveBIcon"
-              style="
+            <span id="serveBIcon" style="
                 display:none;
                 position:absolute;
                 right:14px;
@@ -363,10 +338,8 @@ export async function renderViewer(path) {
                 box-shadow:
                   0 0 0 4px rgba(255,211,77,.16),
                   0 0 14px rgba(255,211,77,.55);
-              "
-            ></span>
+              "></span>
           </div>
-
         </div>
 
         <table class="table">
@@ -378,7 +351,6 @@ export async function renderViewer(path) {
               <th>Sets</th>
             </tr>
           </thead>
-
           <tbody>
             <tr>
               <td id="nameA" style="font-weight:900; font-size:15px;">—</td>
@@ -386,10 +358,10 @@ export async function renderViewer(path) {
               <td id="gamesA">—</td>
               <td id="setsA">—</td>
             </tr>
-
             <tr>
               <td id="nameB" style="font-weight:900; font-size:15px;">—</td>
               <td id="pointB">—</td>
+              <td id="gamesB">—</td>
               <td id="gamesB">—</td>
               <td id="setsB">—</td>
             </tr>
@@ -398,13 +370,9 @@ export async function renderViewer(path) {
 
         <div class="hint" id="status">Waiting for data…</div>
         <div class="hint" id="photostatus" style="margin-top:6px;">PHOTOS / —</div>
-
         <div style="flex:1 1 auto;"></div>
       </div>
 
-      <!-- ================================= -->
-      <!-- RIGHT PANEL: CAMERA / STREAM -->
-      <!-- ================================= -->
       <div class="panel section" style="display:flex; flex-direction:column;">
         <div class="badge"><i></i> Camera / Stream</div>
 
@@ -414,6 +382,7 @@ export async function renderViewer(path) {
             controls
             playsinline
             muted
+            autoplay
             style="
               width:100%;
               height:100%;
@@ -494,11 +463,10 @@ export async function renderViewer(path) {
     const photosCourt = String(courtObj.photosCourt || courtId || "court-1").trim() || "court-1";
     const apiBase = isAbsUrl(stateUrl) ? new URL(stateUrl).origin : window.location.origin;
 
-    // Match info (no timer)
     miTitle.textContent = `🎾 ${clubObj.name} – ${courtObj.name}`;
     miLine2.textContent = `📍 ${cityObj.name}, ${countryObj.name}  •  🔴 LIVE`;
 
-    // Video (NOW AWAIT)
+    // ✅ IMPORTANT: await (attach is async)
     await attachHlsToVideo(videoEl, streamUrl);
 
     if (!stateUrl) {
@@ -522,7 +490,7 @@ export async function renderViewer(path) {
         const setsA = s.setsA ?? s.playerA?.sets ?? "—";
         const setsB = s.setsB ?? s.playerB?.sets ?? "—";
 
-        const server = String(s.server || "").toUpperCase(); // "A" or "B"
+        const server = String(s.server || "").toUpperCase();
         serveAIcon.style.display = server === "A" ? "" : "none";
         serveBIcon.style.display = server === "B" ? "" : "none";
 
