@@ -79,7 +79,10 @@ function attachHlsToVideo(video, url) {
   } catch (_) {}
 
   // Safari native HLS
-  if (video.canPlayType("application/vnd.apple.mpegurl")) {
+
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+if (isSafari && video.canPlayType("application/vnd.apple.mpegurl")) {
     log("native HLS", u);
     video.src = u;
     video.play?.().catch(() => {});
