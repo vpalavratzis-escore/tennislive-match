@@ -54,11 +54,9 @@ function attachHlsToVideo(video, url) {
   if (!u) return;
 
   const DEBUG = false;
-  const log = (...a) => {
-    if (DEBUG) console.log("[HLS]", ...a);
-  };
+  const log = (...a) => { if (DEBUG) console.log("[HLS]", ...a); };
 
-  // --- cleanup previous ---
+  // cleanup previous
   try {
     if (video._hls) {
       video._hls.destroy();
@@ -66,13 +64,13 @@ function attachHlsToVideo(video, url) {
     }
   } catch (_) {}
 
-  // --- video baseline ---
+  // baseline
   video.muted = true;
   video.playsInline = true;
   video.autoplay = true;
   video.preload = "auto";
 
-  // reset src (important when re-attaching)
+  // reset src
   try {
     video.pause();
     video.removeAttribute("src");
@@ -87,98 +85,65 @@ function attachHlsToVideo(video, url) {
     return;
   }
 
-  // IMPORTANT: we load hls.js via index.html => window.Hls
+  // ✅ IMPORTANT: take Hls from window (loaded by index.html)
   const Hls = window.Hls;
   if (!Hls) {
-    log("window.Hls missing (script not loaded)");
+    log("window.Hls missing");
     return;
   }
 
   if (!Hls.isSupported()) {
-    // Chromium without MSE support (rare)
-    log("Hls not supported, fallback src", u);
+    log("Hls not supported -> fallback src", u);
     video.src = u;
     video.play?.().catch(() => {});
     return;
   }
 
-  // --- create instance ---
-  const hls = new Hls({
-    lowLatencyMode: true,
-    backBufferLength: 30,
-    enableWorker: true,
-
-    // tolerant retries
-    manifestLoadingTimeOut: 20000,
-    manifestLoadingMaxRetry: 3,
-    levelLoadingTimeOut: 20000,
-    levelLoadingMaxRetry: 3,
-    fragLoadingTimeOut: 20000,
-    fragLoadingMaxRetry: 3,
-  });
+  // create instance
+  let hls;
+  try {
+    hls = new Hls({
+      lowLatencyMode: true,
+      backBufferLength: 30,
+      enableWorker: true,
+      manifestLoadingTimeOut: 20000,
+      manifestLoadingMaxRetry: 3,
+      levelLoadingTimeOut: 20000,
+      levelLoadingMaxRetry: 3,
+      fragLoadingTimeOut: 20000,
+      fragLoadingMaxRetry: 3,
+    });
+  } catch (e) {
+    console.log("[HLS] new Hls() failed", e);
+    return;
+  }
 
   video._hls = hls;
 
-  // helpful for diagnosing real failures (optional)
   video.addEventListener("error", () => {
     log("VIDEO error", video.error);
   });
 
-  // --- attach sequence ---
-  log("attachMedia");
+  // attach sequence
   hls.attachMedia(video);
 
   hls.on(Hls.Events.MEDIA_ATTACHED, () => {
     log("MEDIA_ATTACHED -> loadSource");
     try {
       hls.loadSource(u);
-      // some builds benefit from explicit startLoad
       hls.startLoad();
     } catch (e) {
-      log("loadSource/startLoad error", e);
+      console.log("[HLS] loadSource/startLoad error", e);
     }
   });
 
   hls.on(Hls.Events.MANIFEST_PARSED, () => {
     log("MANIFEST_PARSED -> play");
-    video.play?.().catch((e) => log("play blocked", e));
+    video.play?.().catch(() => {});
   });
-
-  // extra safety: play when metadata is ready
-  video.addEventListener(
-    "loadedmetadata",
-    () => {
-      log("loadedmetadata -> play");
-      video.play?.().catch((e) => log("play blocked", e));
-    },
-    { once: true }
-  );
-
-  // watchdog: if stuck at 0:00 while segments are loading, re-attach once
-  let watchdogTries = 0;
-  const watchdog = setInterval(() => {
-    if (!video._hls) return clearInterval(watchdog);
-
-    const t = video.currentTime || 0;
-    const rs = video.readyState || 0;
-
-    if (rs === 0 && t === 0 && watchdogTries < 1) {
-      watchdogTries++;
-      log("watchdog kick: re-attach");
-      try {
-        hls.detachMedia();
-        hls.attachMedia(video);
-      } catch (_) {}
-    }
-
-    if (t > 0.1 || (!video.paused && rs >= 2)) {
-      clearInterval(watchdog);
-    }
-  }, 1500);
 
   hls.on(Hls.Events.ERROR, (_evt, data) => {
     if (!data) return;
-
     log("ERROR", data.type, data.details, "fatal:", data.fatal);
 
     if (data.fatal) {
