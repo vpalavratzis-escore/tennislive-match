@@ -48,16 +48,12 @@ function setPhoto(img, ph, url) {
 }
 
 function attachHlsToVideo(video, url) {
-  document.title = "ATTACH RUN " + Date.now();
   if (!video) return;
 
   const u = String(url || "").trim();
   if (!u) return;
 
-  const DEBUG = false;
-  const log = (...a) => { if (DEBUG) console.log("[HLS]", ...a); };
-
-  // cleanup previous
+  // cleanup previous instance
   try {
     if (video._hls) {
       video._hls.destroy();
@@ -71,102 +67,79 @@ function attachHlsToVideo(video, url) {
   video.autoplay = true;
   video.preload = "auto";
 
-  // reset src
+  // reset element state
   try {
     video.pause();
     video.removeAttribute("src");
     video.load();
   } catch (_) {}
 
-  // Safari native HLS
+  // Safari native HLS only (Chromium may claim canPlayType but can't actually play)
+  const ua = navigator.userAgent || "";
+  const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
 
-  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-
-if (isSafari && video.canPlayType("application/vnd.apple.mpegurl")) {
-    log("native HLS", u);
+  if (isSafari && video.canPlayType("application/vnd.apple.mpegurl")) {
     video.src = u;
     video.play?.().catch(() => {});
     return;
   }
 
-  // ✅ IMPORTANT: take Hls from window (loaded by index.html)
-  document.title = "NEW HLS " + Date.now();
+  // hls.js via <script> in index.html
   const Hls = window.Hls;
-  if (!Hls) {
-    log("window.Hls missing");
-    return;
-  }
-
-  if (!Hls.isSupported()) {
-    log("Hls not supported -> fallback src", u);
+  if (!Hls || !Hls.isSupported()) {
+    // last resort (won't play HLS on Chromium, but keep it safe)
     video.src = u;
     video.play?.().catch(() => {});
     return;
   }
 
-  // create instance
-  let hls;
-  try {
-    hls = new Hls({
-      lowLatencyMode: true,
-      backBufferLength: 30,
-      enableWorker: true,
-      manifestLoadingTimeOut: 20000,
-      manifestLoadingMaxRetry: 3,
-      levelLoadingTimeOut: 20000,
-      levelLoadingMaxRetry: 3,
-      fragLoadingTimeOut: 20000,
-      fragLoadingMaxRetry: 3,
-    });
-  } catch (e) {
-    console.log("[HLS] new Hls() failed", e);
-    return;
-  }
+  const hls = new Hls({
+    lowLatencyMode: true,
+    backBufferLength: 30,
+    enableWorker: true,
+
+    // more tolerant networking
+    manifestLoadingTimeOut: 20000,
+    manifestLoadingMaxRetry: 3,
+    levelLoadingTimeOut: 20000,
+    levelLoadingMaxRetry: 3,
+    fragLoadingTimeOut: 20000,
+    fragLoadingMaxRetry: 3,
+  });
 
   video._hls = hls;
 
-  video.addEventListener("error", () => {
-    log("VIDEO error", video.error);
-  });
-
-  // attach sequence
+  // attach -> loadSource -> play
   hls.attachMedia(video);
 
   hls.on(Hls.Events.MEDIA_ATTACHED, () => {
-    log("MEDIA_ATTACHED -> loadSource");
     try {
       hls.loadSource(u);
-      hls.startLoad();
-    } catch (e) {
-      console.log("[HLS] loadSource/startLoad error", e);
-    }
+      hls.startLoad(); // safe
+    } catch (_) {}
   });
 
   hls.on(Hls.Events.MANIFEST_PARSED, () => {
-    log("MANIFEST_PARSED -> play");
     video.play?.().catch(() => {});
   });
 
   hls.on(Hls.Events.ERROR, (_evt, data) => {
-    if (!data) return;
-    log("ERROR", data.type, data.details, "fatal:", data.fatal);
+    if (!data || !data.fatal) return;
 
-    if (data.fatal) {
-      try {
-        switch (data.type) {
-          case Hls.ErrorTypes.NETWORK_ERROR:
-            hls.startLoad();
-            break;
-          case Hls.ErrorTypes.MEDIA_ERROR:
-            hls.recoverMediaError();
-            break;
-          default:
-            hls.destroy();
-            video._hls = null;
-            break;
-        }
-      } catch (_) {}
-    }
+    try {
+      switch (data.type) {
+        case Hls.ErrorTypes.NETWORK_ERROR:
+          hls.startLoad();
+          break;
+        case Hls.ErrorTypes.MEDIA_ERROR:
+          hls.recoverMediaError();
+          break;
+        default:
+          hls.destroy();
+          video._hls = null;
+          break;
+      }
+    } catch (_) {}
   });
 }
 
