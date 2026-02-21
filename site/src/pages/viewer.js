@@ -1,6 +1,5 @@
 // src/pages/viewer.js
 
-
 function segs(path) {
   return String(path || "").split("/").filter(Boolean);
 }
@@ -54,9 +53,10 @@ function attachHlsToVideo(video, url) {
   const u = String(url || "").trim();
   if (!u) return;
 
-  const DEBUG = false; // βάλε true αν θες logs
-
-  const log = (...a) => { if (DEBUG) console.log("[HLS]", ...a); };
+  const DEBUG = false;
+  const log = (...a) => {
+    if (DEBUG) console.log("[HLS]", ...a);
+  };
 
   // --- cleanup previous ---
   try {
@@ -87,9 +87,10 @@ function attachHlsToVideo(video, url) {
     return;
   }
 
-  if (!window.Hls && typeof Hls === "undefined") {
-    // hls.js not present (should not happen with static import)
-    log("Hls missing");
+  // IMPORTANT: we load hls.js via index.html => window.Hls
+  const Hls = window.Hls;
+  if (!Hls) {
+    log("window.Hls missing (script not loaded)");
     return;
   }
 
@@ -131,7 +132,7 @@ function attachHlsToVideo(video, url) {
     log("MEDIA_ATTACHED -> loadSource");
     try {
       hls.loadSource(u);
-      // IMPORTANT: some builds need explicit startLoad
+      // some builds benefit from explicit startLoad
       hls.startLoad();
     } catch (e) {
       log("loadSource/startLoad error", e);
@@ -158,11 +159,9 @@ function attachHlsToVideo(video, url) {
   const watchdog = setInterval(() => {
     if (!video._hls) return clearInterval(watchdog);
 
-    const paused = video.paused;
     const t = video.currentTime || 0;
     const rs = video.readyState || 0;
 
-    // if never advances for a while, kick it
     if (rs === 0 && t === 0 && watchdogTries < 1) {
       watchdogTries++;
       log("watchdog kick: re-attach");
@@ -172,8 +171,7 @@ function attachHlsToVideo(video, url) {
       } catch (_) {}
     }
 
-    // stop watchdog once we start playing
-    if (t > 0.1 || (!paused && rs >= 2)) {
+    if (t > 0.1 || (!video.paused && rs >= 2)) {
       clearInterval(watchdog);
     }
   }, 1500);
@@ -187,14 +185,12 @@ function attachHlsToVideo(video, url) {
       try {
         switch (data.type) {
           case Hls.ErrorTypes.NETWORK_ERROR:
-            // retry network
             hls.startLoad();
             break;
           case Hls.ErrorTypes.MEDIA_ERROR:
             hls.recoverMediaError();
             break;
           default:
-            // hard reset
             hls.destroy();
             video._hls = null;
             break;
@@ -244,6 +240,13 @@ export async function renderViewer(path) {
     </div>
 
     <div style="height:16px;"></div>
+
+    <!-- ✅ MOBILE WRAP: κάτω από 900px γίνεται 1 στήλη (score πάνω, video κάτω) -->
+    <style>
+      @media (max-width: 900px){
+        .viewerWrap { grid-template-columns: 1fr !important; }
+      }
+    </style>
 
     <div class="viewerWrap" style="grid-template-columns: 1fr 1fr; gap:16px; align-items:stretch;">
 
@@ -491,7 +494,7 @@ export async function renderViewer(path) {
     miTitle.textContent = `🎾 ${clubObj.name} – ${courtObj.name}`;
     miLine2.textContent = `📍 ${cityObj.name}, ${countryObj.name}  •  🔴 LIVE`;
 
-    // Video (STATIC hls.js attach)
+    // Video
     attachHlsToVideo(videoEl, streamUrl);
 
     if (!stateUrl) {
@@ -515,7 +518,7 @@ export async function renderViewer(path) {
         const setsA = s.setsA ?? s.playerA?.sets ?? "—";
         const setsB = s.setsB ?? s.playerB?.sets ?? "—";
 
-        const server = String(s.server || "").toUpperCase(); // "A" or "B"
+        const server = String(s.server || "").toUpperCase();
         serveAIcon.style.display = server === "A" ? "" : "none";
         serveBIcon.style.display = server === "B" ? "" : "none";
 
