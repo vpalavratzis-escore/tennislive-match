@@ -25,19 +25,34 @@ function parseRoute() {
 }
 
 async function loadClubs() {
-  const r = await fetch("config/clubs.json", { cache: "no-store" });
-  if (!r.ok) throw new Error(`Cannot load config/clubs.json (${r.status})`);
+  // Use the "site" config (countries/cities/clubs/courts)
+  const r = await fetch("site/dist/config/clubs.json", { cache: "no-store" });
+  if (!r.ok) throw new Error(`Cannot load site/dist/config/clubs.json (${r.status})`);
   return r.json();
 }
 
 function pickCourt(cfg, clubId, courtId) {
-  const clubs = cfg.clubs || [];
+  // cfg structure:
+  // { countries:[ { cities:[ { clubs:[ { id,name,courts:[ {id,name,state,stream:{type,url}} ] } ] } ] } ] }
 
-  const club = (clubId ? clubs.find((c) => c.id === clubId) : null) || clubs[0];
+  const countries = cfg.countries || [];
+  const firstCountry = countries[0];
+  const firstCity = firstCountry?.cities?.[0];
+  const allClubs = [];
+
+  for (const country of countries) {
+    for (const city of (country.cities || [])) {
+      for (const club of (city.clubs || [])) {
+        allClubs.push({ ...club, __city: city, __country: country });
+      }
+    }
+  }
+
+  const club = (clubId ? allClubs.find(c => c.id === clubId) : null) || allClubs[0];
   if (!club) throw new Error("No clubs in config");
 
   const courts = club.courts || [];
-  const court = (courtId ? courts.find((c) => c.id === courtId) : null) || courts[0];
+  const court = (courtId ? courts.find(c => c.id === courtId) : null) || courts[0];
   if (!court) throw new Error("No courts in config");
 
   return { club, court };
@@ -116,9 +131,9 @@ async function main() {
   const cfg = await loadClubs();
   const { club, court } = pickCourt(cfg, route.clubId, route.courtId);
 
-  const apiBase = String(court.apiBase || "").replace(/\/+$/, "");
-  const statePath = String(court.statePath || "/api/state");
-  const stateUrl = apiBase + statePath;
+  // In the big config, court.state is already a full URL
+  const stateUrl = String(court.state || "");
+  if (!stateUrl) throw new Error("Court has empty state URL in config");
 
   if (el("title")) el("title").textContent = `${club.name} · ${court.name}`;
   if (el("subtitle")) el("subtitle").textContent = `Route: club=${club.id} court=${court.id}`;
