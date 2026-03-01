@@ -99,6 +99,8 @@ async function main() {
   const apiBase = (court.apiBase || "").replace(/\/+$/, "");
   const statePath = court.statePath || "/api/state";
   const stateUrl = apiBase + statePath;
+  el('subtitle').textContent = `Using: ${stateUrl}`;
+  el('openApi').href = stateUrl;
 
   if (el("title")) el("title").textContent = `${club.name} · ${court.name}`;
 
