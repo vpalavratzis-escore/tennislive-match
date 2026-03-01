@@ -9,18 +9,27 @@ const el = (id) => document.getElementById(id);
  * Returns { clubId, courtId } or { null, null } to fall back to defaults.
  */
 function parseRoute() {
+  // 1) Preferred: query param ?p=/gr/attica/<clubId>/<courtId>
   const params = new URLSearchParams(location.search);
-  let p = params.get("p"); // e.g. "/gr/attica/kavouri-tennis-club/court-2"
+  let p = params.get("p");
+
   if (p) {
-    p = String(p).trim();
-    p = p.replace(/^\/+/, "").replace(/\/+$/, "");
+    p = String(p).trim().replace(/^\/+/, "").replace(/\/+$/, "");
     const parts = p.split("/").filter(Boolean).map(decodeURIComponent);
 
-    // Case A: "club/<clubId>/court/<courtId>"
-    const iClub = parts.indexOf("club");
-    if (iClub !== -1 && parts[iClub + 2] === "court" && parts[iClub + 3]) {
-      return { clubId: parts[iClub + 1] || null, courtId: parts[iClub + 3] || null };
+    // If format is ".../<clubId>/<courtId>" take last 2
+    if (parts.length >= 2) {
+      return { clubId: parts[parts.length - 2] || null, courtId: parts[parts.length - 1] || null };
     }
+    return { clubId: null, courtId: null };
+  }
+
+  // 2) Fallback: /club/<clubId>/court/<courtId>
+  const path = location.pathname.replace(/\/+$/, "");
+  const m = path.match(/\/club\/([^/]+)\/court\/([^/]+)$/);
+  if (!m) return { clubId: null, courtId: null };
+  return { clubId: decodeURIComponent(m[1]), courtId: decodeURIComponent(m[2]) };
+}
 
     // Case B: "gr/attica/<clubId>/<courtId>" (assume last two segments are ids)
     if (parts.length >= 2) {
