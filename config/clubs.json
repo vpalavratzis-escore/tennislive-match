@@ -1,17 +1,34 @@
 {
-  "clubs": [
+  "countries": [
     {
-      "id": "schimatari",
-      "name": "Tennis Club Schimatari",
-      "courts": [
+      "id": "gr",
+      "name": "Greece",
+      "cities": [
         {
-          "id": "court1",
-          "name": "Court 1",
-          "apiBase": "https://api.YOURDOMAIN.com",
-          "statePath": "/api/state"
+          "id": "attica",
+          "name": "Attica",
+          "clubs": [
+            {
+              "id": "kavouri-tennis-club",
+              "name": "Kavouri Tennis Club",
+              "courts": [
+                {
+                  "id": "court-1",
+                  "name": "Court 1",
+                  "state": "https://escoreboards.eu/api/state/gr/attica/kavouri-tennis-club/court-1",
+                  "stream": { "type": "hls", "url": "https://escoreboards.eu/hls/court1.m3u8" }
+                },
+                {
+                  "id": "court-2",
+                  "name": "Court 2",
+                  "state": "https://escoreboards.eu/api/state/gr/attica/kavouri-tennis-club/court-2",
+                  "stream": { "type": "hls", "url": "https://escoreboards.eu/hls/court2.m3u8" }
+                }
+              ]
+            }
+          ]
         }
       ]
     }
   ]
 }
-
