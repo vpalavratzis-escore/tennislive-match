@@ -1,5 +1,7 @@
 const el = (id) => document.getElementById(id);
 
+console.log("VIEWER_JS_VERSION = 2026-03-01-A");
+
 /**
  * Routes supported:
  * - /club/<clubId>/court/<courtId>
@@ -9,19 +11,23 @@ function parseRoute() {
   const params = new URLSearchParams(location.search);
   let p = params.get("p");
 
-  if (p) {
-    p = String(p).trim().replace(/^\/+/, "").replace(/\/+$/, "");
-    const parts = p.split("/").filter(Boolean).map(decodeURIComponent);
-    if (parts.length >= 2) {
-      return { clubId: parts[parts.length - 2] || null, courtId: parts[parts.length - 1] || null };
-    }
-    return { clubId: null, courtId: null };
+  if (!p) {
+    return { countryId: null, cityId: null, clubId: null, courtId: null };
   }
 
-  const path = location.pathname.replace(/\/+$/, "");
-  const m = path.match(/\/club\/([^/]+)\/court\/([^/]+)$/);
-  if (!m) return { clubId: null, courtId: null };
-  return { clubId: decodeURIComponent(m[1]), courtId: decodeURIComponent(m[2]) };
+  p = p.replace(/^\/+/, "").replace(/\/+$/, "");
+  const parts = p.split("/");
+
+  if (parts.length < 4) {
+    return { countryId: null, cityId: null, clubId: null, courtId: null };
+  }
+
+  return {
+    countryId: parts[0],
+    cityId: parts[1],
+    clubId: parts[2],
+    courtId: parts[3]
+  };
 }
 
 async function loadClubs() {
@@ -127,6 +133,7 @@ function normalizeState(s) {
 }
 
 async function main() {
+  if (el("subtitle")) el("subtitle").textContent = "JS VERSION 2026-03-01-A";
   const route = parseRoute();
   const cfg = await loadClubs();
   const { club, court } = pickCourt(cfg, route.clubId, route.courtId);
