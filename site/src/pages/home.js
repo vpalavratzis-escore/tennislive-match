@@ -21,12 +21,12 @@ export function renderHome() {
         <a class="cta" href="/live" data-nav>Open a court</a>
       </div>
 
-           <!-- ===== HERO ===== -->
+              <!-- ===== HERO ===== -->
       <section class="hero hero-cinematic">
         <div class="hero-bg"></div>
         <div class="hero-overlay"></div>
 
-        <div class="hero-inner">
+        <div class="hero-shell">
           <div class="hero-copy">
             <div class="hero-kicker">
               <span class="dot"></span>
@@ -34,23 +34,22 @@ export function renderHome() {
             </div>
 
             <h1 class="hero-title">
-              Smart scoring & live streaming for racquet courts.
+              Smart scoring & live streaming
+              for modern racquet courts.
             </h1>
 
             <p class="hero-text">
-              One connected system for live score, court streaming and LED scoreboard
-              sync across Tennis, Padel and Pickleball.
+              One connected system for live score, court streaming and
+              LED scoreboard sync across Tennis, Padel and Pickleball.
             </p>
 
             <div class="hero-actions">
-              <a class="btn primary" href="/live" data-nav>Find courts</a>
-              <a class="btn" href="/?p=/gr/attica/kavouri-tennis-club/court-1" data-nav>
-                Watch demo
-              </a>
+              <a class="btn primary" href="/live" data-nav>Find Courts</a>
+              <a class="btn" href="/?p=/gr/attica/kavouri-tennis-club/court-1" data-nav>Watch Demo</a>
             </div>
 
             <div class="sport-chips">
-              <span class="sport-chip">🎾 Tennis</span>
+              <span class="sport-chip">🟢 Tennis</span>
               <span class="sport-chip">🟢 Padel</span>
               <span class="sport-chip">🟡 Pickleball</span>
             </div>
@@ -63,19 +62,19 @@ export function renderHome() {
             </div>
 
             <div class="feature-scorebox">
-              <div class="feature-player">
-                <div class="feature-name">Player A</div>
-                <div class="feature-big">15</div>
+              <div class="feature-side">
+                <div class="feature-label">Player A</div>
+                <div class="feature-score">15</div>
               </div>
 
-              <div class="feature-meta">
-                <span>G <b>2</b></span>
-                <span>S <b>0</b></span>
+              <div class="feature-center">
+                <div>G <b>2</b></div>
+                <div>S <b>0</b></div>
               </div>
 
-              <div class="feature-player" style="text-align:right;">
-                <div class="feature-name">Player B</div>
-                <div class="feature-big">30</div>
+              <div class="feature-side right">
+                <div class="feature-label">Player B</div>
+                <div class="feature-score">30</div>
               </div>
             </div>
 
@@ -91,7 +90,6 @@ export function renderHome() {
           </div>
         </div>
       </section>
-      
 
       <!-- ===== HOW IT WORKS ===== -->
       <div id="how" class="panel section">
