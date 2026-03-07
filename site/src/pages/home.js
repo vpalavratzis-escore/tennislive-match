@@ -13,84 +13,95 @@ export function renderHome() {
         <div class="navlinks">
           <a href="/" data-nav>Home</a>
           <a href="/live" data-nav>Find courts</a>
-          <a href="https://escoreboards.eu/matches/" target="_blank">Recent Matches</a>
           <a href="#how" data-nav>How it works</a>
           <a href="#contact">Contact</a>
         </div>
 
         <a class="cta" href="/live" data-nav>Open a court</a>
       </div>
-           <!-- ===== HERO ===== -->
-      <section class="hero hero-cinematic">
-        <div class="hero-bg"></div>
-        <div class="hero-overlay"></div>
 
-        <div class="hero-inner">
-          <div class="hero-copy">
-            <div class="hero-kicker">
-              <span class="dot"></span>
-              Live score • Court stream • LED sync
-            </div>
+      <!-- ===== HERO ===== -->
+      <div class="hero">
+        <div class="panel hero-left">
 
-            <h1 class="hero-title">
-              Smart scoring & live streaming for racquet courts.
-            </h1>
-
-            <p class="hero-text">
-              One connected system for live score, court streaming and LED scoreboard
-              sync across Tennis, Padel and Pickleball.
-            </p>
-
-            <div class="hero-actions">
-              <a class="btn primary" href="/live" data-nav>Find courts</a>
-              <a class="btn" href="/?p=/gr/attica/kavouri-tennis-club/court-1" data-nav>
-                Watch demo
-              </a>
-            </div>
-
-            <div class="sport-chips">
-              <span class="sport-chip">🎾 Tennis</span>
-              <span class="sport-chip">🟢 Padel</span>
-              <span class="sport-chip">🟡 Pickleball</span>
-            </div>
+          <div class="kicker">
+            <span class="dot"></span>
+            Live courts • Smart scoring • Streaming • LED integration
           </div>
 
-          <div class="hero-feature-card">
-            <div class="feature-head">
-              <div class="feature-led"></div>
-              <div>Live Score</div>
-            </div>
+          <h1>
+            Professional live scoring & streaming
+            for Tennis, Padel & Pickleball courts.
+          </h1>
 
-            <div class="feature-scorebox">
-              <div class="feature-player">
-                <div class="feature-name">Player A</div>
-                <div class="feature-big">15</div>
+          <p class="sub">
+            Tablet-controlled live scoring, camera streaming and LED scoreboard
+            integration — all connected to a clean online viewer.
+            Built for clubs, academies and tournaments.
+          </p>
+
+          <div class="actions">
+            <a class="btn primary" href="/live" data-nav>Find courts</a>
+            <a class="btn" href="/?p=/gr/attica/kavouri-tennis-club/court-1" data-nav>
+              Open demo court
+            </a>
+          </div>
+
+          <div class="bullets">
+            <div><span class="tick">✓</span> Real-time names, points, games & sets</div>
+            <div><span class="tick">✓</span> Works with RTSP IP cameras (low latency HLS)</div>
+            <div><span class="tick">✓</span> LED scoreboard sync (Raspberry Pi)</div>
+            <div><span class="tick">✓</span> Multi-court ready & cloud connected</div>
+          </div>
+        </div>
+
+        <!-- ===== PREVIEW PANEL ===== -->
+        <div class="panel hero-right">
+          <div class="mock-top">
+            <div style="font-weight:900">Live Court Preview</div>
+            <div class="pill">Score ✓ • Stream ✓ • LED ✓</div>
+          </div>
+
+          <div class="mock">
+            <div class="screen">
+              <div class="bar">
+                <div class="live"><i></i> LIVE • Court 1</div>
+                <div>api.escoreboards.eu</div>
               </div>
 
-              <div class="feature-meta">
-                <span>G <b>2</b></span>
-                <span>S <b>0</b></span>
+              <div class="grid2">
+                <div class="card">
+                  <div class="label">Player A</div>
+                  <div class="value">Player A</div>
+                  <div class="score">
+                    <div class="big">15</div>
+                    <div class="mini">
+                      <span>G <b>2</b></span>
+                      <span>S <b>0</b></span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="card">
+                  <div class="label">Player B</div>
+                  <div class="value">Player B</div>
+                  <div class="score">
+                    <div class="big">30</div>
+                    <div class="mini">
+                      <span>G <b>3</b></span>
+                      <span>S <b>0</b></span>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div class="feature-player" style="text-align:right;">
-                <div class="feature-name">Player B</div>
-                <div class="feature-big">30</div>
+              <div style="padding:0 12px 12px">
+                <div class="cam"></div>
               </div>
-            </div>
-
-            <div class="feature-row">
-              <span>📹 Court Stream</span>
-              <span>→</span>
-            </div>
-
-            <div class="feature-row">
-              <span>🟩 LED Sync</span>
-              <span>→</span>
             </div>
           </div>
         </div>
-      </section>
-     
+      </div>
 
       <!-- ===== HOW IT WORKS ===== -->
       <div id="how" class="panel section">
