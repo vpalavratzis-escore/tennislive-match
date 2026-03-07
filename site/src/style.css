@@ -410,10 +410,10 @@ h1 {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(90deg, rgba(5,8,7,.88) 0%, rgba(5,8,7,.62) 40%, rgba(5,8,7,.42) 100%),
-    url("https://images.unsplash.com/photo-1595435934014-0f9f38e7b1b3?auto=format&fit=crop&w=2000&q=80");
+    linear-gradient(90deg, rgba(4,7,7,.86) 0%, rgba(4,7,7,.58) 36%, rgba(4,7,7,.28) 100%),
+    url("https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?auto=format&fit=crop&w=2000&q=80");
   background-size: cover;
-  background-position: center;
+  background-position: center center;
 }
 
 .hero-overlay{
@@ -430,14 +430,14 @@ h1 {
   z-index: 2;
   min-height: 680px;
   display: grid;
-  grid-template-columns: 1.2fr .8fr;
-  gap: 28px;
+  grid-template-columns: 1.15fr .85fr;
+  gap: 40px;
   align-items: center;
-  padding: 56px;
+  padding: 64px 56px;
 }
 
 .hero-copy{
-  max-width: 760px;
+  max-width: 560px;
 }
 
 .hero-kicker{
@@ -501,13 +501,13 @@ h1 {
 }
 
 .hero-feature-card{
-  justify-self: end;
-  width: min(100%, 440px);
+  justify-self: center;
+  width: min(100%, 360px);
   border-radius: 26px;
   padding: 24px;
-  background: rgba(10,15,13,.72);
+  background: rgba(8,12,11,.72);
   border: 1px solid rgba(255,255,255,.10);
-  box-shadow: 0 20px 60px rgba(0,0,0,.28);
+  box-shadow: 0 20px 60px rgba(0,0,0,.34);
   backdrop-filter: blur(10px);
 }
 
