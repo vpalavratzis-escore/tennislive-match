@@ -11,7 +11,7 @@ export function renderHome() {
         </div>
 
         <div class="navlinks">
-          <a href="/" data-nav>Home</a>
+          <a href="/" data-nav>Hom</a>
           <a href="/live" data-nav>Find courts</a>
           <a href="#how" data-nav>How it works</a>
           <a href="#contact">Contact</a>
