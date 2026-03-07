@@ -410,11 +410,10 @@ h1 {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(90deg, rgba(6,10,8,.82) 0%, rgba(6,10,8,.58) 38%, rgba(6,10,8,.44) 100%),
-    url("https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=1800&q=80");
+    linear-gradient(90deg, rgba(5,8,7,.88) 0%, rgba(5,8,7,.62) 40%, rgba(5,8,7,.42) 100%),
+    url("https://images.unsplash.com/photo-1595435934014-0f9f38e7b1b3?auto=format&fit=crop&w=2000&q=80");
   background-size: cover;
-  background-position: center center;
-  transform: scale(1.02);
+  background-position: center;
 }
 
 .hero-overlay{
