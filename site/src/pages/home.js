@@ -13,6 +13,7 @@ export function renderHome() {
         <div class="navlinks">
           <a href="/" data-nav>Hom</a>
           <a href="/live" data-nav>Find courts</a>
+          <a href="/matches/">Match Results</a>
           <a href="#how" data-nav>How it works</a>
           <a href="#contact">Contact</a>
         </div>
