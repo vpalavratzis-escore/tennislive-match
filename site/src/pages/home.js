@@ -34,8 +34,8 @@ export function renderHome() {
             </div>
 
             <h1 class="hero-title">
-              Smart scoring & live streaming
-              for modern racquet courts.
+              Smart Scoring & Live Streaming
+              for Racquet Courts.
             </h1>
 
             <p class="hero-text">
