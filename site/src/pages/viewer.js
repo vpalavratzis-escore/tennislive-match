@@ -91,14 +91,15 @@ function attachHlsToVideo(video, url) {
     return true;
   }
 
-  const hls = new Hls({
+const hls = new Hls({
   lowLatencyMode: true,
-  backBufferLength: 10,
+  backBufferLength: 15,
   enableWorker: true,
 
-  liveSyncDurationCount: 1,
-  liveMaxLatencyDurationCount: 3,
-  maxLiveSyncPlaybackRate: 1.2,
+  liveSyncDurationCount: 2,
+  liveMaxLatencyDurationCount: 5,
+  maxLiveSyncPlaybackRate: 1.08,
+  liveSyncOnStallIncrease: 0.5,
 
   manifestLoadingTimeOut: 10000,
   manifestLoadingMaxRetry: 2,
