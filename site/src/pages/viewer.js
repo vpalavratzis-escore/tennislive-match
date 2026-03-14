@@ -16,7 +16,6 @@ function resolveUrl(u) {
 }
 
 async function loadClubs() {
-  // GitHub Pages friendly: respects Vite base (/tennislive-match/)
   const base = import.meta.env.BASE_URL || "/";
   const r = await fetch(`${base}config/clubs.json`, { cache: "no-store" });
   if (!r.ok) throw new Error(`Cannot load ${base}config/clubs.json (${r.status})`);
@@ -31,7 +30,7 @@ async function fetchJson(url) {
 
 function clampText(s, max = 28) {
   const t = String(s ?? "");
-  return t.length > max ? t.slice(0, max - 1) + "…" : t;
+  return t.length > max ? `${t.slice(0, max - 1)}…` : t;
 }
 
 function setPhoto(img, ph, url) {
@@ -47,75 +46,70 @@ function setPhoto(img, ph, url) {
   }
 }
 
-function attachHlsToVideo(video, url) {
+function destroyVideoHls(video) {
   if (!video) return;
-
-  const u = String(url || "").trim();
-  if (!u) return;
-
-  // cleanup previous instance
   try {
     if (video._hls) {
       video._hls.destroy();
       video._hls = null;
     }
   } catch (_) {}
+}
 
-  // baseline
+function attachHlsToVideo(video, url) {
+  if (!video) return false;
+
+  const u = String(url || "").trim();
+  if (!u) return false;
+
+  destroyVideoHls(video);
+
   video.muted = true;
   video.playsInline = true;
   video.autoplay = true;
   video.preload = "auto";
 
-  // reset element state
   try {
     video.pause();
     video.removeAttribute("src");
     video.load();
   } catch (_) {}
 
-  // Safari native HLS only (Chromium may claim canPlayType but can't actually play)
   const ua = navigator.userAgent || "";
   const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
 
   if (isSafari && video.canPlayType("application/vnd.apple.mpegurl")) {
     video.src = u;
     video.play?.().catch(() => {});
-    return;
+    return true;
   }
 
-  // hls.js via <script> in index.html
   const Hls = window.Hls;
   if (!Hls || !Hls.isSupported()) {
-    // last resort (won't play HLS on Chromium, but keep it safe)
     video.src = u;
     video.play?.().catch(() => {});
-    return;
+    return true;
   }
 
   const hls = new Hls({
     lowLatencyMode: true,
     backBufferLength: 30,
     enableWorker: true,
-
-    // more tolerant networking
     manifestLoadingTimeOut: 20000,
     manifestLoadingMaxRetry: 3,
     levelLoadingTimeOut: 20000,
     levelLoadingMaxRetry: 3,
     fragLoadingTimeOut: 20000,
-    fragLoadingMaxRetry: 3,
+    fragLoadingMaxRetry: 3
   });
 
   video._hls = hls;
-
-  // attach -> loadSource -> play
   hls.attachMedia(video);
 
   hls.on(Hls.Events.MEDIA_ATTACHED, () => {
     try {
       hls.loadSource(u);
-      hls.startLoad(); // safe
+      hls.startLoad();
     } catch (_) {}
   });
 
@@ -141,6 +135,79 @@ function attachHlsToVideo(video, url) {
       }
     } catch (_) {}
   });
+
+  return true;
+}
+
+function buildMobileHlsUrl(apiBase, courtId, camRole) {
+  const base = String(apiBase || "").replace(/\/+$/, "");
+  const court = String(courtId || "").trim();
+  const cam = String(camRole || "").trim();
+  if (!base || !court || !cam) return "";
+  return `${base}/hls/${court}-${cam}.m3u8`;
+}
+
+async function pickBestStreamSource({ apiBase, courtObj, courtId }) {
+  const fallbackUrlRaw =
+    typeof courtObj.stream === "string"
+      ? courtObj.stream
+      : (courtObj.stream && typeof courtObj.stream === "object" ? courtObj.stream.url : "");
+
+  const fallbackUrl = resolveUrl(fallbackUrlRaw || "");
+
+  const result = {
+    selectedUrl: fallbackUrl,
+    sourceLabel: fallbackUrl ? "Default / Config stream" : "No stream configured",
+    fallbackUrl,
+    mobileSources: []
+  };
+
+  try {
+    const sourcesUrl = `${apiBase}/api/court/sources?courtId=${encodeURIComponent(courtId)}`;
+    const payload = await fetchJson(sourcesUrl);
+
+    const sources = Array.isArray(payload?.sources) ? payload.sources : [];
+    result.mobileSources = sources;
+
+    const activeCam1 = sources.find(
+      (s) => s && s.camRole === "cam1" && s.liveActive === true
+    );
+    const activeCam2 = sources.find(
+      (s) => s && s.camRole === "cam2" && s.liveActive === true
+    );
+
+    if (activeCam1) {
+      result.selectedUrl = buildMobileHlsUrl(apiBase, courtId, "cam1");
+      result.sourceLabel = `Mobile cam1 • ${activeCam1.deviceName || "Unknown device"}`;
+      return result;
+    }
+
+    if (activeCam2) {
+      result.selectedUrl = buildMobileHlsUrl(apiBase, courtId, "cam2");
+      result.sourceLabel = `Mobile cam2 • ${activeCam2.deviceName || "Unknown device"}`;
+      return result;
+    }
+
+    if (fallbackUrl) {
+      result.selectedUrl = fallbackUrl;
+      result.sourceLabel = "Default / Pi stream";
+      return result;
+    }
+
+    result.selectedUrl = "";
+    result.sourceLabel = "No active source";
+    return result;
+  } catch (_) {
+    if (fallbackUrl) {
+      result.selectedUrl = fallbackUrl;
+      result.sourceLabel = "Default / Pi stream (sources API unavailable)";
+      return result;
+    }
+
+    result.selectedUrl = "";
+    result.sourceLabel = "No stream available";
+    return result;
+  }
 }
 
 export async function renderViewer(path) {
@@ -155,7 +222,6 @@ export async function renderViewer(path) {
   const clubId = parts[i + 2] || "";
   const courtId = parts[i + 3] || "";
 
-  // ===== RENDER (HTML layout) =====
   app.innerHTML = `
   <div class="wrap">
     <div class="nav">
@@ -184,7 +250,6 @@ export async function renderViewer(path) {
 
     <div style="height:16px;"></div>
 
-    <!-- ✅ MOBILE WRAP: κάτω από 900px γίνεται 1 στήλη (score πάνω, video κάτω) -->
     <style>
       @media (max-width: 900px){
         .viewerWrap { grid-template-columns: 1fr !important; }
@@ -347,6 +412,8 @@ export async function renderViewer(path) {
       <div class="panel section" style="display:flex; flex-direction:column;">
         <div class="badge"><i></i> Camera / Stream</div>
 
+        <div class="hint" id="streamSourceLabel" style="margin-top:10px;">Source: detecting…</div>
+
         <div class="cam" style="margin-top:10px;">
           <video
             id="camVideo"
@@ -375,12 +442,12 @@ export async function renderViewer(path) {
 
   app.querySelector("#y").textContent = String(new Date().getFullYear());
 
-  // ===== ELEMENTS =====
   const miTitle = app.querySelector("#miTitle");
   const miLine2 = app.querySelector("#miLine2");
 
   const status = app.querySelector("#status");
   const photoStatus = app.querySelector("#photostatus");
+  const streamSourceLabel = app.querySelector("#streamSourceLabel");
   const videoEl = app.querySelector("#camVideo");
 
   const nameAEl = app.querySelector("#nameA");
@@ -402,7 +469,8 @@ export async function renderViewer(path) {
   const serveAIcon = app.querySelector("#serveAIcon");
   const serveBIcon = app.querySelector("#serveBIcon");
 
-  // ===== DATA LOAD =====
+  let currentSelectedStreamUrl = "";
+
   try {
     const data = await loadClubs();
 
@@ -423,28 +491,45 @@ export async function renderViewer(path) {
     if (!courtObj) throw new Error(`Court not found: ${courtId}`);
 
     const stateUrl = resolveUrl(courtObj.state || "");
-
-    const streamUrlRaw =
-      typeof courtObj.stream === "string"
-        ? courtObj.stream
-        : (courtObj.stream && typeof courtObj.stream === "object" ? courtObj.stream.url : "");
-
-    const streamUrl = resolveUrl(streamUrlRaw || "");
-
     const photosCourt = String(courtObj.photosCourt || courtId || "court-1").trim() || "court-1";
     const apiBase = isAbsUrl(stateUrl) ? new URL(stateUrl).origin : window.location.origin;
 
     miTitle.textContent = `🎾 ${clubObj.name} – ${courtObj.name}`;
     miLine2.textContent = `📍 ${cityObj.name}, ${countryObj.name}  •  🔴 LIVE`;
 
-    // Video
-    status.textContent = "VIDEO DEBUG: calling attach...";
-    attachHlsToVideo(videoEl, streamUrl);
-    setTimeout(() => {
-      const v = document.querySelector("video");
-      const has = !!(v && v._hls);
-      status.textContent = "VIDEO DEBUG: attached=" + has + " readyState=" + (v ? v.readyState : -1);
-    }, 1500);
+    async function refreshStreamSource() {
+      try {
+        const picked = await pickBestStreamSource({
+          apiBase,
+          courtObj,
+          courtId
+        });
+
+        streamSourceLabel.textContent = `Source: ${picked.sourceLabel}`;
+
+        if (!picked.selectedUrl) {
+          status.textContent = "No stream source available.";
+          destroyVideoHls(videoEl);
+          try {
+            videoEl.pause();
+            videoEl.removeAttribute("src");
+            videoEl.load();
+          } catch (_) {}
+          currentSelectedStreamUrl = "";
+          return;
+        }
+
+        if (picked.selectedUrl !== currentSelectedStreamUrl) {
+          currentSelectedStreamUrl = picked.selectedUrl;
+          attachHlsToVideo(videoEl, picked.selectedUrl);
+        }
+      } catch (e) {
+        streamSourceLabel.textContent = `Source: error (${e.message})`;
+      }
+    }
+
+    await refreshStreamSource();
+    setInterval(refreshStreamSource, 5000);
 
     if (!stateUrl) {
       status.textContent = "No state URL configured for this court.";
