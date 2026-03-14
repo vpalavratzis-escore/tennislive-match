@@ -92,16 +92,21 @@ function attachHlsToVideo(video, url) {
   }
 
   const hls = new Hls({
-    lowLatencyMode: true,
-    backBufferLength: 30,
-    enableWorker: true,
-    manifestLoadingTimeOut: 20000,
-    manifestLoadingMaxRetry: 3,
-    levelLoadingTimeOut: 20000,
-    levelLoadingMaxRetry: 3,
-    fragLoadingTimeOut: 20000,
-    fragLoadingMaxRetry: 3
-  });
+  lowLatencyMode: true,
+  backBufferLength: 10,
+  enableWorker: true,
+
+  liveSyncDurationCount: 1,
+  liveMaxLatencyDurationCount: 3,
+  maxLiveSyncPlaybackRate: 1.2,
+
+  manifestLoadingTimeOut: 10000,
+  manifestLoadingMaxRetry: 2,
+  levelLoadingTimeOut: 10000,
+  levelLoadingMaxRetry: 2,
+  fragLoadingTimeOut: 10000,
+  fragLoadingMaxRetry: 2
+});
 
   video._hls = hls;
   hls.attachMedia(video);
