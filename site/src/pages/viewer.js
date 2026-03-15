@@ -158,10 +158,16 @@ async function pickBestStreamSource({ apiBase, courtObj, courtId }) {
 
   const fallbackUrl = resolveUrl(fallbackUrlRaw || "");
 
+  const courtLeaf = String(courtId || "").split("/").filter(Boolean).pop() || "";
+  const legacyCourtNum = (courtLeaf.match(/^court-(\d+)$/i) || [])[1] || "";
+  const legacyPiFallbackUrl =
+    apiBase && legacyCourtNum ? `${String(apiBase).replace(/\/+$/, "")}/hls/court${legacyCourtNum}.m3u8` : "";
+
   const result = {
     selectedUrl: fallbackUrl,
     sourceLabel: fallbackUrl ? "Default / Config stream" : "No stream configured",
     fallbackUrl,
+    legacyPiFallbackUrl,
     mobileSources: []
   };
 
@@ -191,9 +197,15 @@ async function pickBestStreamSource({ apiBase, courtObj, courtId }) {
       return result;
     }
 
+    if (legacyPiFallbackUrl) {
+      result.selectedUrl = legacyPiFallbackUrl;
+      result.sourceLabel = "Pi fallback stream";
+      return result;
+    }
+
     if (fallbackUrl) {
       result.selectedUrl = fallbackUrl;
-      result.sourceLabel = "Default / Pi stream";
+      result.sourceLabel = "Default / Config stream";
       return result;
     }
 
@@ -201,9 +213,15 @@ async function pickBestStreamSource({ apiBase, courtObj, courtId }) {
     result.sourceLabel = "No active source";
     return result;
   } catch (_) {
+    if (legacyPiFallbackUrl) {
+      result.selectedUrl = legacyPiFallbackUrl;
+      result.sourceLabel = "Pi fallback stream (sources API unavailable)";
+      return result;
+    }
+
     if (fallbackUrl) {
       result.selectedUrl = fallbackUrl;
-      result.sourceLabel = "Default / Pi stream (sources API unavailable)";
+      result.sourceLabel = "Default / Config stream (sources API unavailable)";
       return result;
     }
 
