@@ -18,7 +18,7 @@
                   "state": "https://api.escoreboards.eu/api/state/gr/attica/kavouri-tennis-club/court-1",
                   "stream": {
                     "type": "hls",
-                    "url": "https://api.escoreboards.eu/hls/court1.m3u8"
+                    "url": "https://api.escoreboards.eu/hls/gr-attica-kavouri-tennis-club-court-1-cam1.m3u8"
                   }
                 },
                 {
