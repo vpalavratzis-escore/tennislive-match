@@ -505,8 +505,8 @@ export async function renderViewer(path) {
         const picked = await pickBestStreamSource({
           apiBase,
           courtObj,
-          courtId
-        });
+          courtId: `${country}/${city}/${clubId}/${courtId}`
+        })
 
         streamSourceLabel.textContent = `Source: ${picked.sourceLabel}`;
 
