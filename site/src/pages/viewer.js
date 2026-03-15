@@ -91,23 +91,21 @@ function attachHlsToVideo(video, url) {
     return true;
   }
 
-const hls = new Hls({
-  lowLatencyMode: true,
-  backBufferLength: 15,
-  enableWorker: true,
-
-  liveSyncDurationCount: 2,
-  liveMaxLatencyDurationCount: 5,
-  maxLiveSyncPlaybackRate: 1.08,
-  liveSyncOnStallIncrease: 0.5,
-
-  manifestLoadingTimeOut: 10000,
-  manifestLoadingMaxRetry: 2,
-  levelLoadingTimeOut: 10000,
-  levelLoadingMaxRetry: 2,
-  fragLoadingTimeOut: 10000,
-  fragLoadingMaxRetry: 2
-});
+  const hls = new Hls({
+    lowLatencyMode: true,
+    backBufferLength: 15,
+    enableWorker: true,
+    liveSyncDurationCount: 2,
+    liveMaxLatencyDurationCount: 5,
+    maxLiveSyncPlaybackRate: 1.08,
+    liveSyncOnStallIncrease: 0.5,
+    manifestLoadingTimeOut: 10000,
+    manifestLoadingMaxRetry: 2,
+    levelLoadingTimeOut: 10000,
+    levelLoadingMaxRetry: 2,
+    fragLoadingTimeOut: 10000,
+    fragLoadingMaxRetry: 2
+  });
 
   video._hls = hls;
   hls.attachMedia(video);
@@ -145,12 +143,11 @@ const hls = new Hls({
   return true;
 }
 
-function buildMobileHlsUrl(apiBase, courtId, camRole) {
+function buildMobileHlsUrl(apiBase, streamKey) {
   const base = String(apiBase || "").replace(/\/+$/, "");
-  const court = String(courtId || "").trim();
-  const cam = String(camRole || "").trim();
-  if (!base || !court || !cam) return "";
-  return `${base}/hls/${court}-${cam}.m3u8`;
+  const key = String(streamKey || "").trim();
+  if (!base || !key) return "";
+  return `${base}/hls/${key}.m3u8`;
 }
 
 async function pickBestStreamSource({ apiBase, courtObj, courtId }) {
@@ -176,20 +173,20 @@ async function pickBestStreamSource({ apiBase, courtObj, courtId }) {
     result.mobileSources = sources;
 
     const activeCam1 = sources.find(
-      (s) => s && s.camRole === "cam1" && s.liveActive === true
+      (s) => s && s.camRole === "cam1" && s.liveActive === true && s.streamKey
     );
     const activeCam2 = sources.find(
-      (s) => s && s.camRole === "cam2" && s.liveActive === true
+      (s) => s && s.camRole === "cam2" && s.liveActive === true && s.streamKey
     );
 
     if (activeCam1) {
-      result.selectedUrl = buildMobileHlsUrl(apiBase, courtId, "cam1");
+      result.selectedUrl = buildMobileHlsUrl(apiBase, activeCam1.streamKey);
       result.sourceLabel = `Mobile cam1 • ${activeCam1.deviceName || "Unknown device"}`;
       return result;
     }
 
     if (activeCam2) {
-      result.selectedUrl = buildMobileHlsUrl(apiBase, courtId, "cam2");
+      result.selectedUrl = buildMobileHlsUrl(apiBase, activeCam2.streamKey);
       result.sourceLabel = `Mobile cam2 • ${activeCam2.deviceName || "Unknown device"}`;
       return result;
     }
