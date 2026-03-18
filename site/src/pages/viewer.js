@@ -73,6 +73,31 @@ function buildMobileHlsUrl(apiBase, streamKey) {
   return `${base}/hls/${key}.m3u8`;
 }
 
+async function probeStreamUrl(url, timeoutMs = 4500) {
+  const u = String(url || "").trim();
+  if (!u) return false;
+
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+
+  try {
+    const r = await fetch(u, {
+      method: "GET",
+      cache: "no-store",
+      signal: ctrl.signal
+    });
+
+    if (!r.ok) return false;
+
+    const text = await r.text();
+    return text.includes("#EXTM3U");
+  } catch (_) {
+    return false;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function pickBestStreamSource({ apiBase, courtObj, courtId }) {
   const fallbackUrlRaw =
     typeof courtObj.stream === "string"
@@ -87,8 +112,9 @@ async function pickBestStreamSource({ apiBase, courtObj, courtId }) {
     apiBase && legacyCourtNum ? `${String(apiBase).replace(/\/+$/, "")}/hls/court${legacyCourtNum}.m3u8` : "";
 
   const result = {
-    selectedUrl: fallbackUrl,
-    sourceLabel: fallbackUrl ? "Default / Config stream" : "No stream configured",
+    selectedUrl: "",
+    sourceLabel: "No stream available",
+    sourcesPayloadLabel: "",
     fallbackUrl,
     legacyPiFallbackUrl,
     mobileSources: []
@@ -97,7 +123,6 @@ async function pickBestStreamSource({ apiBase, courtObj, courtId }) {
   try {
     const sourcesUrl = `${apiBase}/api/court/sources?courtId=${encodeURIComponent(courtId)}`;
     const payload = await fetchJson(sourcesUrl);
-
     const sources = Array.isArray(payload?.sources) ? payload.sources : [];
     result.mobileSources = sources;
 
@@ -111,12 +136,14 @@ async function pickBestStreamSource({ apiBase, courtObj, courtId }) {
     if (activeCam1) {
       result.selectedUrl = buildMobileHlsUrl(apiBase, activeCam1.streamKey);
       result.sourceLabel = `Mobile cam1 • ${activeCam1.deviceName || "Unknown device"}`;
+      result.sourcesPayloadLabel = result.sourceLabel;
       return result;
     }
 
     if (activeCam2) {
       result.selectedUrl = buildMobileHlsUrl(apiBase, activeCam2.streamKey);
       result.sourceLabel = `Mobile cam2 • ${activeCam2.deviceName || "Unknown device"}`;
+      result.sourcesPayloadLabel = result.sourceLabel;
       return result;
     }
 
@@ -138,13 +165,13 @@ async function pickBestStreamSource({ apiBase, courtObj, courtId }) {
   } catch (_) {
     if (legacyPiFallbackUrl) {
       result.selectedUrl = legacyPiFallbackUrl;
-      result.sourceLabel = "Pi fallback stream (sources API unavailable)";
+      result.sourceLabel = "Pi fallback stream";
       return result;
     }
 
     if (fallbackUrl) {
       result.selectedUrl = fallbackUrl;
-      result.sourceLabel = "Default / Config stream (sources API unavailable)";
+      result.sourceLabel = "Default / Config stream";
       return result;
     }
 
@@ -152,6 +179,146 @@ async function pickBestStreamSource({ apiBase, courtObj, courtId }) {
     result.sourceLabel = "No stream available";
     return result;
   }
+}
+
+function showOverlay(overlayEl, title, text) {
+  if (!overlayEl) return;
+  const titleEl = overlayEl.querySelector(".videoOverlay__title");
+  const textEl = overlayEl.querySelector(".videoOverlay__text");
+  if (titleEl) titleEl.textContent = title || "";
+  if (textEl) textEl.textContent = text || "";
+  overlayEl.classList.add("videoOverlay--show");
+}
+
+function hideOverlay(overlayEl) {
+  if (!overlayEl) return;
+  overlayEl.classList.remove("videoOverlay--show");
+}
+
+function showVideoUnavailable(videoEl, overlayEl, title, text) {
+  resetVideoElement(videoEl);
+  if (videoEl) {
+    videoEl.style.display = "none";
+    videoEl.removeAttribute("controls");
+  }
+  showOverlay(
+    overlayEl,
+    title || "Video not available",
+    text || "No live video source."
+  );
+}
+
+function showVideoLoading(videoEl, overlayEl, title, text) {
+  if (videoEl) {
+    videoEl.style.display = "block";
+    videoEl.setAttribute("controls", "controls");
+  }
+  showOverlay(
+    overlayEl,
+    title || "Checking video…",
+    text || "Trying to open live stream."
+  );
+}
+
+function showVideoReady(videoEl, overlayEl) {
+  if (videoEl) {
+    videoEl.style.display = "block";
+    videoEl.setAttribute("controls", "controls");
+  }
+  hideOverlay(overlayEl);
+}
+
+function attachHlsToVideo(video, url, onReady, onFatal) {
+  if (!video) return false;
+
+  const u = String(url || "").trim();
+  if (!u) return false;
+
+  resetVideoElement(video);
+
+  video.muted = true;
+  video.playsInline = true;
+  video.autoplay = true;
+  video.preload = "auto";
+
+  const ua = navigator.userAgent || "";
+  const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
+
+  const safeReady = () => {
+    if (typeof onReady === "function") onReady();
+  };
+
+  const safeFatal = () => {
+    if (typeof onFatal === "function") onFatal();
+  };
+
+  video.onloadeddata = safeReady;
+  video.oncanplay = safeReady;
+  video.onplaying = safeReady;
+  video.onerror = safeFatal;
+  video.onstalled = safeFatal;
+  video.onabort = safeFatal;
+  video.onemptied = () => {};
+
+  if (isSafari && video.canPlayType("application/vnd.apple.mpegurl")) {
+    video.src = u;
+    video.play?.().catch(() => {});
+    return true;
+  }
+
+  const Hls = window.Hls;
+  if (!Hls || !Hls.isSupported()) {
+    video.src = u;
+    video.play?.().catch(() => {});
+    return true;
+  }
+
+  const hls = new Hls({
+    lowLatencyMode: true,
+    backBufferLength: 15,
+    enableWorker: true,
+    liveSyncDurationCount: 2,
+    liveMaxLatencyDurationCount: 5,
+    maxLiveSyncPlaybackRate: 1.08,
+    liveSyncOnStallIncrease: 0.5,
+    manifestLoadingTimeOut: 8000,
+    manifestLoadingMaxRetry: 1,
+    levelLoadingTimeOut: 8000,
+    levelLoadingMaxRetry: 1,
+    fragLoadingTimeOut: 8000,
+    fragLoadingMaxRetry: 1
+  });
+
+  video._hls = hls;
+  hls.attachMedia(video);
+
+  hls.on(Hls.Events.MEDIA_ATTACHED, () => {
+    try {
+      hls.loadSource(u);
+      hls.startLoad();
+    } catch (_) {
+      try {
+        hls.destroy();
+      } catch (_) {}
+      video._hls = null;
+      safeFatal();
+    }
+  });
+
+  hls.on(Hls.Events.MANIFEST_PARSED, () => {
+    video.play?.().catch(() => {});
+  });
+
+  hls.on(Hls.Events.ERROR, (_evt, data) => {
+    if (!data || !data.fatal) return;
+    try {
+      hls.destroy();
+    } catch (_) {}
+    video._hls = null;
+    safeFatal();
+  });
+
+  return true;
 }
 
 export async function renderViewer(path) {
@@ -197,6 +364,56 @@ export async function renderViewer(path) {
     <style>
       @media (max-width: 900px){
         .viewerWrap { grid-template-columns: 1fr !important; }
+      }
+
+      .cam--viewer {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .videoOverlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 18px;
+        background: linear-gradient(180deg, rgba(0,0,0,.58), rgba(0,0,0,.74));
+        z-index: 5;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .2s ease;
+      }
+
+      .videoOverlay--show {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .videoOverlay__box {
+        min-width: 220px;
+        max-width: 90%;
+        text-align: center;
+        padding: 18px 16px;
+        border-radius: 16px;
+        border: 1px solid rgba(255,255,255,.14);
+        background: rgba(12,12,12,.62);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 16px 50px rgba(0,0,0,.35);
+      }
+
+      .videoOverlay__title {
+        font-size: 18px;
+        font-weight: 900;
+        color: #fff;
+        letter-spacing: .2px;
+      }
+
+      .videoOverlay__text {
+        margin-top: 8px;
+        font-size: 13px;
+        line-height: 1.5;
+        color: rgba(255,255,255,.78);
       }
     </style>
 
@@ -361,7 +578,6 @@ export async function renderViewer(path) {
         <div class="cam cam--viewer" style="margin-top:10px;">
           <video
             id="camVideo"
-            controls
             playsinline
             muted
             autoplay
@@ -369,7 +585,7 @@ export async function renderViewer(path) {
               width:100%;
               height:100%;
               object-fit:cover;
-              display:block;
+              display:none;
               background:black;
             "
           ></video>
@@ -423,138 +639,34 @@ export async function renderViewer(path) {
 
   let currentSelectedStreamUrl = "";
   let streamCheckToken = 0;
-  let attachTimeoutId = null;
+  let lastFailedStreamUrl = "";
+  let lastFailedAt = 0;
+  let openAttemptTimer = null;
 
-  function showVideoOverlay(title, text = "") {
-    if (!videoOverlay) return;
-    const titleEl = videoOverlay.querySelector(".videoOverlay__title");
-    const textEl = videoOverlay.querySelector(".videoOverlay__text");
-    if (titleEl) titleEl.textContent = title;
-    if (textEl) textEl.textContent = text;
-    videoOverlay.classList.add("videoOverlay--show");
-  }
-
-  function hideVideoOverlay() {
-    if (!videoOverlay) return;
-    videoOverlay.classList.remove("videoOverlay--show");
-  }
-
-  function clearAttachTimeout() {
-    if (attachTimeoutId) {
-      clearTimeout(attachTimeoutId);
-      attachTimeoutId = null;
+  function clearOpenAttemptTimer() {
+    if (openAttemptTimer) {
+      clearTimeout(openAttemptTimer);
+      openAttemptTimer = null;
     }
   }
 
-  function markVideoUnavailable(reasonText) {
-    clearAttachTimeout();
-    resetVideoElement(videoEl);
+  function markCurrentVideoAsUnavailable(reasonText, customLabel) {
+    clearOpenAttemptTimer();
+    if (currentSelectedStreamUrl) {
+      lastFailedStreamUrl = currentSelectedStreamUrl;
+      lastFailedAt = Date.now();
+    }
     currentSelectedStreamUrl = "";
-    showVideoOverlay("Video not available", reasonText || "No live video source.");
-  }
-
-  function bindVideoStateHandlers() {
-    if (!videoEl) return;
-    if (videoEl._viewerHandlersBound) return;
-    videoEl._viewerHandlersBound = true;
-
-    const markReady = () => {
-      clearAttachTimeout();
-      hideVideoOverlay();
-    };
-
-    const markError = () => {
-      markVideoUnavailable("The stream could not be loaded.");
-    };
-
-    videoEl.addEventListener("loadeddata", markReady);
-    videoEl.addEventListener("playing", markReady);
-    videoEl.addEventListener("canplay", markReady);
-    videoEl.addEventListener("error", markError);
-    videoEl.addEventListener("stalled", () => {
-      showVideoOverlay("Video interrupted", "Trying to recover stream…");
-    });
-    videoEl.addEventListener("emptied", () => {
-      showVideoOverlay("Video not available", "No live video source.");
-    });
-  }
-
-  function attachHlsToVideo(video, url, onFatal) {
-    if (!video) return false;
-
-    const u = String(url || "").trim();
-    if (!u) return false;
-
-    resetVideoElement(video);
-
-    video.muted = true;
-    video.playsInline = true;
-    video.autoplay = true;
-    video.preload = "auto";
-
-    const ua = navigator.userAgent || "";
-    const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
-
-    if (isSafari && video.canPlayType("application/vnd.apple.mpegurl")) {
-      video.src = u;
-      video.play?.().catch(() => {});
-      return true;
+    if (customLabel) {
+      streamSourceLabel.textContent = `Source: ${customLabel}`;
     }
-
-    const Hls = window.Hls;
-    if (!Hls || !Hls.isSupported()) {
-      video.src = u;
-      video.play?.().catch(() => {});
-      return true;
-    }
-
-    const hls = new Hls({
-      lowLatencyMode: true,
-      backBufferLength: 15,
-      enableWorker: true,
-      liveSyncDurationCount: 2,
-      liveMaxLatencyDurationCount: 5,
-      maxLiveSyncPlaybackRate: 1.08,
-      liveSyncOnStallIncrease: 0.5,
-      manifestLoadingTimeOut: 8000,
-      manifestLoadingMaxRetry: 1,
-      levelLoadingTimeOut: 8000,
-      levelLoadingMaxRetry: 1,
-      fragLoadingTimeOut: 8000,
-      fragLoadingMaxRetry: 1
-    });
-
-    video._hls = hls;
-    hls.attachMedia(video);
-
-    hls.on(Hls.Events.MEDIA_ATTACHED, () => {
-      try {
-        hls.loadSource(u);
-        hls.startLoad();
-      } catch (_) {
-        if (typeof onFatal === "function") onFatal();
-      }
-    });
-
-    hls.on(Hls.Events.MANIFEST_PARSED, () => {
-      video.play?.().catch(() => {});
-    });
-
-    hls.on(Hls.Events.ERROR, (_evt, data) => {
-      if (!data || !data.fatal) return;
-
-      try {
-        hls.destroy();
-        video._hls = null;
-      } catch (_) {}
-
-      if (typeof onFatal === "function") onFatal(data);
-    });
-
-    return true;
+    showVideoUnavailable(
+      videoEl,
+      videoOverlay,
+      "Video not available",
+      reasonText || "No live video source."
+    );
   }
-
-  bindVideoStateHandlers();
 
   try {
     const data = await loadClubs();
@@ -594,38 +706,121 @@ export async function renderViewer(path) {
 
         if (myToken !== streamCheckToken) return;
 
+        const selectedUrl = String(picked.selectedUrl || "").trim();
+
+        if (!selectedUrl) {
+          status.textContent = "No stream source available.";
+          streamSourceLabel.textContent = "Source: No live source";
+          currentSelectedStreamUrl = "";
+          showVideoUnavailable(
+            videoEl,
+            videoOverlay,
+            "Video not available",
+            "No active video source for this court."
+          );
+          return;
+        }
+
+        const now = Date.now();
+        if (selectedUrl === lastFailedStreamUrl && now - lastFailedAt < 15000) {
+          const cachedLabel = picked.sourcesPayloadLabel
+            ? `${picked.sourcesPayloadLabel} (offline)`
+            : `${picked.sourceLabel} (offline)`;
+
+          streamSourceLabel.textContent = `Source: ${cachedLabel}`;
+          currentSelectedStreamUrl = "";
+          showVideoUnavailable(
+            videoEl,
+            videoOverlay,
+            "Video not available",
+            "Last detected source is offline."
+          );
+          return;
+        }
+
+        if (selectedUrl === currentSelectedStreamUrl && videoEl.currentSrc) {
+          return;
+        }
+
+        showVideoLoading(
+          videoEl,
+          videoOverlay,
+          "Checking video…",
+          "Trying to open live stream."
+        );
+
+        const isReachable = await probeStreamUrl(selectedUrl, 4500);
+
+        if (myToken !== streamCheckToken) return;
+
+        if (!isReachable) {
+          lastFailedStreamUrl = selectedUrl;
+          lastFailedAt = Date.now();
+          currentSelectedStreamUrl = "";
+
+          const badLabel = picked.sourcesPayloadLabel
+            ? `${picked.sourcesPayloadLabel} (offline)`
+            : `${picked.sourceLabel} (offline)`;
+
+          streamSourceLabel.textContent = `Source: ${badLabel}`;
+
+          showVideoUnavailable(
+            videoEl,
+            videoOverlay,
+            "Video not available",
+            "The selected source exists in API but no live stream is responding."
+          );
+          return;
+        }
+
+        currentSelectedStreamUrl = selectedUrl;
         streamSourceLabel.textContent = `Source: ${picked.sourceLabel}`;
 
-        if (!picked.selectedUrl) {
-          status.textContent = "No stream source available.";
-          markVideoUnavailable("No active video source for this court.");
-          return;
-        }
-
-        if (picked.selectedUrl === currentSelectedStreamUrl && videoEl.currentSrc) {
-          return;
-        }
-
-        currentSelectedStreamUrl = picked.selectedUrl;
-        showVideoOverlay("Checking video…", "Trying to open live stream.");
-        clearAttachTimeout();
-
-        const ok = attachHlsToVideo(videoEl, picked.selectedUrl, () => {
-          markVideoUnavailable("The live stream is currently unavailable.");
-        });
+        const ok = attachHlsToVideo(
+          videoEl,
+          selectedUrl,
+          () => {
+            clearOpenAttemptTimer();
+            showVideoReady(videoEl, videoOverlay);
+          },
+          () => {
+            markCurrentVideoAsUnavailable(
+              "The live stream could not be opened.",
+              picked.sourcesPayloadLabel
+                ? `${picked.sourcesPayloadLabel} (offline)`
+                : `${picked.sourceLabel} (offline)`
+            );
+          }
+        );
 
         if (!ok) {
-          markVideoUnavailable("No valid video URL.");
+          markCurrentVideoAsUnavailable(
+            "No valid video URL.",
+            picked.sourcesPayloadLabel
+              ? `${picked.sourcesPayloadLabel} (offline)`
+              : `${picked.sourceLabel} (offline)`
+          );
           return;
         }
 
-        attachTimeoutId = setTimeout(() => {
-          markVideoUnavailable("The live stream did not respond.");
+        clearOpenAttemptTimer();
+        openAttemptTimer = setTimeout(() => {
+          markCurrentVideoAsUnavailable(
+            "The live stream did not start in time.",
+            picked.sourcesPayloadLabel
+              ? `${picked.sourcesPayloadLabel} (offline)`
+              : `${picked.sourceLabel} (offline)`
+          );
         }, 9000);
       } catch (e) {
         if (myToken !== streamCheckToken) return;
-        streamSourceLabel.textContent = `Source: error (${e.message})`;
-        markVideoUnavailable("Unable to check video source.");
+        streamSourceLabel.textContent = "Source: unavailable";
+        showVideoUnavailable(
+          videoEl,
+          videoOverlay,
+          "Video not available",
+          `Unable to check stream source: ${e.message}`
+        );
       }
     }
 
@@ -634,7 +829,12 @@ export async function renderViewer(path) {
 
     if (!stateUrl) {
       status.textContent = "No state URL configured for this court.";
-      showVideoOverlay("Video not available", "No state URL configured.");
+      showVideoUnavailable(
+        videoEl,
+        videoOverlay,
+        "Video not available",
+        "No state URL configured."
+      );
       return;
     }
 
@@ -698,6 +898,12 @@ export async function renderViewer(path) {
     miTitle.textContent = "Config load error";
     miLine2.textContent = String(e.message || e);
     status.textContent = "Fix config and refresh.";
-    showVideoOverlay("Video not available", "Viewer configuration error.");
+    streamSourceLabel.textContent = "Source: unavailable";
+    showVideoUnavailable(
+      videoEl,
+      videoOverlay,
+      "Video not available",
+      "Viewer configuration error."
+    );
   }
 }
