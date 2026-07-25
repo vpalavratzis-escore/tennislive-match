@@ -1298,7 +1298,7 @@ textarea {
     inset 0 1px 0 rgba(255,255,255,.035);
 }
 
-.home-hero-bg {
+.home-hero-bg-unused {
   position: absolute;
   inset: 0;
   z-index: -5;
@@ -1583,7 +1583,7 @@ textarea {
     border-radius: 22px;
   }
 
-  .home-hero-bg {
+  .home-hero-bg-unused {
     background:
       linear-gradient(
         180deg,
@@ -1678,7 +1678,7 @@ textarea {
    Uses: site/public/background (2).png
 ========================================================= */
 
-.home-hero-bg {
+.home-hero-bg-unused {
   background:
     linear-gradient(
       90deg,
@@ -1722,13 +1722,13 @@ textarea {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .home-hero-bg {
+  .home-hero-bg-unused {
     background-position: 62% center;
   }
 }
 
 @media (max-width: 900px) {
-  .home-hero-bg {
+  .home-hero-bg-unused {
     background:
       linear-gradient(
         180deg,
@@ -1752,7 +1752,7 @@ textarea {
 }
 
 @media (max-width: 640px) {
-  .home-hero-bg {
+  .home-hero-bg-unused {
     background:
       linear-gradient(
         180deg,
@@ -1793,7 +1793,7 @@ textarea {
     inset 0 1px 0 rgba(255, 255, 255, 0.035);
 }
 
-.home-hero-bg {
+.home-hero-bg-unused {
   position: absolute;
   inset: 0;
   z-index: 0;
@@ -1867,7 +1867,7 @@ textarea {
     min-height: auto;
   }
 
-  .home-hero-bg {
+  .home-hero-bg-unused {
     object-position: 62% center;
   }
 
@@ -1878,7 +1878,7 @@ textarea {
 }
 
 @media (max-width: 900px) {
-  .home-hero-bg {
+  .home-hero-bg-unused {
     object-position: 68% center;
   }
 
@@ -1907,7 +1907,7 @@ textarea {
     border-radius: 22px;
   }
 
-  .home-hero-bg {
+  .home-hero-bg-unused {
     object-position: 72% center;
   }
 
@@ -1932,5 +1932,104 @@ textarea {
     grid-template-columns: 1fr;
     max-height: 250px;
     overflow-y: auto;
+  }
+}
+
+
+/* =========================================================
+   SINGLE ACTIVE HOME HERO IMAGE RULE
+   This is the only active .home-hero-bg definition.
+========================================================= */
+
+.home-hero-bg {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+
+  object-fit: cover !important;
+  object-position: center center !important;
+
+  opacity: 1 !important;
+  visibility: visible !important;
+
+  background: none !important;
+  background-image: none !important;
+
+  filter: none !important;
+  transform: none !important;
+}
+
+.home-hero-final {
+  position: relative !important;
+  isolation: isolate !important;
+  overflow: hidden !important;
+  background: #02080a !important;
+}
+
+.home-hero-overlay {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 1 !important;
+  pointer-events: none !important;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(1, 7, 9, 0.90) 0%,
+      rgba(1, 8, 10, 0.76) 28%,
+      rgba(1, 8, 10, 0.34) 52%,
+      rgba(1, 8, 10, 0.05) 78%,
+      rgba(1, 8, 10, 0.00) 100%
+    ) !important;
+}
+
+.home-hero-content {
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+.home-stats-bar {
+  z-index: 3 !important;
+}
+
+@media (max-width: 1180px) {
+  .home-hero-bg {
+    object-position: 62% center !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .home-hero-bg {
+    object-position: 68% center !important;
+  }
+
+  .home-hero-overlay {
+    background:
+      linear-gradient(
+        180deg,
+        rgba(1, 7, 9, 0.88) 0%,
+        rgba(1, 8, 10, 0.66) 50%,
+        rgba(1, 8, 10, 0.28) 100%
+      ) !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .home-hero-bg {
+    object-position: 72% center !important;
+  }
+
+  .home-hero-overlay {
+    background:
+      linear-gradient(
+        180deg,
+        rgba(1, 7, 9, 0.92) 0%,
+        rgba(1, 8, 10, 0.72) 52%,
+        rgba(1, 8, 10, 0.34) 100%
+      ) !important;
   }
 }
