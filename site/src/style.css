@@ -1675,7 +1675,7 @@ textarea {
 
 /* =========================================================
    FINAL HERO BACKGROUND OVERRIDES
-   Uses: site/public/hero/home-bg.png
+   Uses: site/public/background (2).png
 ========================================================= */
 
 .home-hero-bg {
@@ -1771,5 +1771,174 @@ textarea {
 
   .home-stats-bar {
     position: absolute;
+  }
+}
+
+/* =========================================================
+   FINAL DEFINITIVE HOME HERO FIX
+   Image: site/public/hero/home-bg.png
+========================================================= */
+
+.home-hero-final {
+  position: relative;
+  isolation: isolate;
+  min-height: 920px;
+  margin-top: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(76, 228, 229, 0.17);
+  border-radius: 34px;
+  background: #02080a;
+  box-shadow:
+    0 40px 110px rgba(0, 0, 0, 0.60),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+.home-hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(1, 7, 9, 0.94) 0%,
+      rgba(1, 8, 10, 0.82) 27%,
+      rgba(1, 8, 10, 0.42) 50%,
+      rgba(1, 8, 10, 0.08) 74%,
+      rgba(1, 8, 10, 0.00) 100%
+    ),
+    url("/tennislive-match/hero/home-bg.png");
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  filter: saturate(1.04) contrast(1.06) brightness(1);
+  transform: scale(1.01);
+  transform-origin: center;
+}
+
+.home-hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      circle at 20% 40%,
+      rgba(0, 0, 0, 0.14),
+      transparent 36%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.02),
+      rgba(0, 0, 0, 0.18)
+    );
+}
+
+.home-hero-content {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  align-items: center;
+  min-height: 790px;
+  padding: clamp(48px, 5.5vw, 82px);
+  padding-bottom: 160px;
+}
+
+.home-hero-copy {
+  position: relative;
+  z-index: 2;
+  max-width: 700px;
+}
+
+.home-product-stage,
+.home-product-glow,
+.home-product-image {
+  display: none !important;
+}
+
+.home-stats-bar {
+  position: absolute;
+  right: 5%;
+  bottom: 28px;
+  left: 5%;
+  z-index: 3;
+}
+
+@media (max-width: 1180px) {
+  .home-hero-final {
+    min-height: auto;
+  }
+
+  .home-hero-bg {
+    background-position: 62% center;
+  }
+
+  .home-hero-content {
+    min-height: auto;
+    grid-template-columns: minmax(0, 1fr);
+    padding-bottom: 150px;
+  }
+}
+
+@media (max-width: 900px) {
+  .home-hero-bg {
+    background:
+      linear-gradient(
+        180deg,
+        rgba(1, 7, 9, 0.92) 0%,
+        rgba(1, 8, 10, 0.74) 48%,
+        rgba(1, 8, 10, 0.34) 100%
+      ),
+      url("/tennislive-match/hero/home-bg.png");
+    background-size: cover;
+    background-position: 68% center;
+    background-repeat: no-repeat;
+  }
+
+  .home-hero-content {
+    padding: 38px 28px 150px;
+  }
+
+  .home-hero-copy {
+    max-width: 620px;
+  }
+
+  .home-stats-bar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .home-hero-final {
+    min-height: auto;
+    border-radius: 22px;
+  }
+
+  .home-hero-bg {
+    background:
+      linear-gradient(
+        180deg,
+        rgba(1, 7, 9, 0.95) 0%,
+        rgba(1, 8, 10, 0.78) 52%,
+        rgba(1, 8, 10, 0.42) 100%
+      ),
+      url("/tennislive-match/hero/home-bg.png");
+    background-size: cover;
+    background-position: 72% center;
+    background-repeat: no-repeat;
+  }
+
+  .home-hero-content {
+    padding: 28px 17px 290px;
+  }
+
+  .home-stats-bar {
+    right: 14px;
+    bottom: 14px;
+    left: 14px;
+    grid-template-columns: 1fr;
+    max-height: 250px;
+    overflow-y: auto;
   }
 }
