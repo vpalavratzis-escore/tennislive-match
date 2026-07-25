@@ -38,7 +38,12 @@ export function renderHome() {
       <main>
         <!-- ===== FINAL CINEMATIC HERO ===== -->
         <section class="home-hero-final">
-          <div class="home-hero-bg" aria-hidden="true"></div>
+          <img
+            class="home-hero-bg"
+            src="${base}hero/home-bg.png"
+            alt=""
+            aria-hidden="true"
+          />
           <div class="home-hero-overlay" aria-hidden="true"></div>
 
           <div class="home-hero-content">
