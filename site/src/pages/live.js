@@ -28,7 +28,7 @@ export function renderLive() {
   wrap.innerHTML = `
     <!-- ===== NAV (same as Home) ===== -->
     <div class="nav">
-      <div class="brand"><div class="logo"></div><div>e-Scoreboards</div></div>
+      <div class="brand"><div class="logo"></div><div>VoxCourt</div></div>
       <div class="navlinks">
         <a href="/" data-nav>Home</a>
         <a href="/live" data-nav>Find courts</a>
@@ -102,7 +102,7 @@ export function renderLive() {
       </div>
     </div>
 
-    <div class="footer">© <span id="y"></span> e-Scoreboards.</div>
+    <div class="footer">© <span id="y"></span> VoxCourt.</div>
   `;
 
   app.appendChild(wrap);
