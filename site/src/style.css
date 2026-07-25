@@ -1122,3 +1122,238 @@ a {
     white-space: nowrap;
   }
 }
+
+/* =========================================================
+   VOXCOURT HERO V2 — CINEMATIC PRODUCT BLEND
+   Paste this block at the VERY END of site/src/style.css
+========================================================= */
+
+.premium-hero-v2 {
+  position: relative;
+  isolation: isolate;
+  grid-template-columns: minmax(0, .92fr) minmax(500px, 1.08fr);
+  min-height: 760px;
+  padding: clamp(42px, 6vw, 84px);
+  overflow: hidden;
+  background: #07100d;
+}
+
+.premium-hero-court-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -4;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(5, 8, 7, .96) 0%,
+      rgba(5, 8, 7, .88) 34%,
+      rgba(5, 8, 7, .42) 66%,
+      rgba(5, 8, 7, .24) 100%
+    ),
+    url("/tennislive-match/hero/tenis.jpg");
+  background-position: center;
+  background-size: cover;
+  filter: saturate(.86) contrast(1.05);
+  transform: scale(1.015);
+}
+
+.premium-hero-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 76% 44%, rgba(0,170,162,.14), transparent 28%),
+    radial-gradient(circle at 8% 18%, rgba(167,215,52,.10), transparent 24%),
+    linear-gradient(180deg, rgba(0,0,0,.02), rgba(0,0,0,.26)),
+    linear-gradient(90deg, rgba(5,8,7,.12), transparent 56%, rgba(5,8,7,.22));
+}
+
+.premium-hero-v2::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  z-index: -2;
+  height: 38%;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent, rgba(7,16,13,.92));
+}
+
+.premium-hero-v2 .premium-hero-copy {
+  padding: 26px 0;
+  text-shadow: 0 16px 42px rgba(0,0,0,.56);
+}
+
+.premium-hero-v2 .premium-hero-title {
+  max-width: 720px;
+}
+
+.premium-hero-v2 .premium-hero-text {
+  color: rgba(247,248,245,.82);
+}
+
+.premium-hero-media-v2 {
+  position: relative;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 580px;
+}
+
+.hero-product-glow {
+  position: absolute;
+  inset: 10% -4% 5% 4%;
+  z-index: -1;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 55% 50%, rgba(0,170,162,.21), transparent 54%),
+    radial-gradient(circle at 50% 56%, rgba(209,163,58,.13), transparent 64%);
+  filter: blur(18px);
+}
+
+.product-hero-image-v2 {
+  width: 112%;
+  max-width: none;
+  height: 620px;
+  min-height: 0;
+  object-fit: cover;
+  object-position: center;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+
+  -webkit-mask-image:
+    linear-gradient(to right, transparent 0%, #000 10%, #000 92%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, #000 8%, #000 88%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to right, transparent 0%, #000 10%, #000 92%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, #000 8%, #000 88%, transparent 100%);
+  mask-composite: intersect;
+
+  filter:
+    saturate(.96)
+    contrast(1.04)
+    drop-shadow(0 28px 46px rgba(0,0,0,.44));
+}
+
+.hero-product-label,
+.hero-product-specs {
+  position: absolute;
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  max-width: calc(100% - 40px);
+  border: 1px solid rgba(255,255,255,.15);
+  background: rgba(6,9,8,.72);
+  color: #fff;
+  box-shadow: 0 14px 38px rgba(0,0,0,.34);
+  backdrop-filter: blur(14px);
+}
+
+.hero-product-label {
+  top: 15%;
+  left: 8%;
+  gap: 9px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.hero-product-specs {
+  right: 5%;
+  bottom: 14%;
+  padding: 10px 13px;
+  border-radius: 12px;
+  color: rgba(255,255,255,.86);
+  font-size: 11px;
+  font-weight: 780;
+}
+
+/* HERO V2 — TABLET */
+@media (max-width: 1180px) {
+  .premium-hero-v2 {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+
+  .premium-hero-court-bg {
+    background:
+      linear-gradient(
+        180deg,
+        rgba(5,8,7,.92) 0%,
+        rgba(5,8,7,.74) 47%,
+        rgba(5,8,7,.48) 100%
+      ),
+      url("/tennislive-match/hero/tenis.jpg");
+    background-position: center;
+  }
+
+  .premium-hero-media-v2 {
+    min-height: 520px;
+  }
+
+  .product-hero-image-v2 {
+    width: 100%;
+    height: 560px;
+    object-fit: cover;
+  }
+}
+
+/* HERO V2 — MOBILE */
+@media (max-width: 640px) {
+  .premium-hero-v2 {
+    gap: 20px;
+    min-height: auto;
+    padding: 28px 18px 16px;
+  }
+
+  .premium-hero-court-bg {
+    background:
+      linear-gradient(
+        180deg,
+        rgba(5,8,7,.96) 0%,
+        rgba(5,8,7,.82) 54%,
+        rgba(5,8,7,.54) 100%
+      ),
+      url("/tennislive-match/hero/tenis.jpg");
+    background-position: 58% center;
+  }
+
+  .premium-hero-media-v2 {
+    min-height: 350px;
+  }
+
+  .product-hero-image-v2 {
+    width: 116%;
+    height: 390px;
+    object-position: 51% center;
+
+    -webkit-mask-image:
+      linear-gradient(to right, transparent 0%, #000 8%, #000 94%, transparent 100%),
+      linear-gradient(to bottom, transparent 0%, #000 6%, #000 88%, transparent 100%);
+    mask-image:
+      linear-gradient(to right, transparent 0%, #000 8%, #000 94%, transparent 100%),
+      linear-gradient(to bottom, transparent 0%, #000 6%, #000 88%, transparent 100%);
+  }
+
+  .hero-product-label {
+    top: 10%;
+    left: 4%;
+    padding: 8px 10px;
+    font-size: 10px;
+  }
+
+  .hero-product-specs {
+    right: 3%;
+    bottom: 9%;
+    padding: 8px 9px;
+    font-size: 9px;
+  }
+}
+
+
+
+
