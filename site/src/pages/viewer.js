@@ -338,7 +338,7 @@ export async function renderViewer(path) {
     <div class="nav">
       <div class="brand">
         <div class="logo"></div>
-        <div>e-Scoreboards</div>
+        <div>VoxCourt</div>
       </div>
       <div class="navlinks">
         <a href="/" data-nav>Home</a>
@@ -603,7 +603,7 @@ export async function renderViewer(path) {
 
     </div>
 
-    <div class="footer">© <span id="y"></span> e-Scoreboards.</div>
+    <div class="footer">© <span id="y"></span> VoxCourt.</div>
   </div>
 `;
 
