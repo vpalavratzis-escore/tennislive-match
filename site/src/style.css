@@ -280,7 +280,7 @@ textarea {
       rgba(1, 8, 10, .58) 58%,
       rgba(1, 8, 10, .24) 100%
     ),
-    url("/tennislive-match/hero/background%20(2).png");
+    url("/tennislive-match/hero/home-bg.png");
   background-position: center;
   background-size: cover;
   filter: saturate(.78) contrast(1.12) brightness(.68);
@@ -963,7 +963,7 @@ textarea {
         rgba(1,8,10,.80) 44%,
         rgba(1,8,10,.55) 100%
       ),
-      url("/tennislive-match/background%20(2).png");
+      url("/tennislive-match/hero/home-bg.png");
     background-position: center;
   }
 
@@ -1132,7 +1132,7 @@ textarea {
         rgba(1,8,10,.88) 53%,
         rgba(1,8,10,.60) 100%
       ),
-      url("/tennislive-match/background%20(2).png");
+      url("/tennislive-match/hero/home-bg.png");
     background-position: 58% center;
   }
 
@@ -1310,7 +1310,7 @@ textarea {
       rgba(1,8,10,.66) 52%,
       rgba(1,8,10,.20) 100%
     ),
-    url("/tennislive-match/background%20(2).png");
+    url("/tennislive-match/hero/home-bg.png");
   background-size: cover;
   background-position: center;
   filter: saturate(.90) contrast(1.13) brightness(.78);
@@ -1591,7 +1591,7 @@ textarea {
         rgba(1,8,10,.90) 52%,
         rgba(1,8,10,.56) 100%
       ),
-      url("/tennislive-match/background%20(2).png");
+      url("/tennislive-match/hero/home-bg.png");
     background-position: 58% center;
   }
 
@@ -1675,7 +1675,7 @@ textarea {
 
 /* =========================================================
    FINAL HERO BACKGROUND OVERRIDES
-   Uses: site/public/background (2).png
+   Uses: site/public/hero/home-bg.png
 ========================================================= */
 
 .home-hero-bg {
@@ -1688,7 +1688,7 @@ textarea {
       rgba(1, 8, 10, 0.18) 72%,
       rgba(1, 8, 10, 0.04) 100%
     ),
-    url("/tennislive-match/background%20(2).png");
+    url("/tennislive-match/hero/home-bg.png");
   background-size: cover;
   background-position: center center;
   filter: saturate(1.03) contrast(1.08) brightness(0.94);
@@ -1736,7 +1736,7 @@ textarea {
         rgba(1, 8, 10, 0.78) 48%,
         rgba(1, 8, 10, 0.42) 100%
       ),
-      url("/tennislive-match/background%20(2).png");
+      url("/tennislive-match/hero/home-bg.png");
     background-size: cover;
     background-position: 68% center;
   }
@@ -1760,7 +1760,7 @@ textarea {
         rgba(1, 8, 10, 0.84) 52%,
         rgba(1, 8, 10, 0.54) 100%
       ),
-      url("/tennislive-match/background%20(2).png");
+      url("/tennislive-match/hero/home-bg.png");
     background-size: cover;
     background-position: 72% center;
   }
