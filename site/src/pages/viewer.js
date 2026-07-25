@@ -323,6 +323,7 @@ function attachHlsToVideo(video, url, onReady, onFatal) {
 
 export async function renderViewer(path) {
   const app = document.getElementById("app");
+  const base = import.meta.env.BASE_URL || "/";
   const parts = segs(path);
 
   const hasV = parts[0] === "v";
@@ -335,17 +336,27 @@ export async function renderViewer(path) {
 
   app.innerHTML = `
   <div class="wrap">
-    <div class="nav">
-      <div class="brand">
-        <div class="logo"></div>
-        <div>VoxCourt</div>
-      </div>
-      <div class="navlinks">
+    <header class="nav premium-nav">
+      <a
+        class="brand brand-image"
+        href="/"
+        data-nav
+        aria-label="Go to VoxCourt home"
+      >
+        <img
+          src="${base}logoText.png"
+          alt="VoxCourt"
+          class="brand-logo-image"
+        />
+      </a>
+
+      <nav class="navlinks" aria-label="Main navigation">
         <a href="/" data-nav>Home</a>
         <a href="/live" data-nav>Find courts</a>
-      </div>
+      </nav>
+
       <a class="cta" href="/live" data-nav>Change court</a>
-    </div>
+    </header>
 
     <div class="panel section" style="min-height:120px;">
       <div class="badge" style="margin-bottom:18px;">
