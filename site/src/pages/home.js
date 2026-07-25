@@ -7,14 +7,14 @@ export function renderHome() {
       <div class="nav">
         <div class="brand">
           <div class="logo"></div>
-          <div>e-Scoreboards</div>
+          <div>VoxCourt</div>
         </div>
 
         <div class="navlinks">
           <a href="/" data-nav>Home</a>
           <a href="/live" data-nav>Find courts</a>
           <a href="#how" data-nav>How it works</a>
-          <a href="https://escoreboards.eu/matches/">Match Results</a>
+          <a href="https://voxcourt.com/matches/">Match Results</a>
           <a href="#contact">Contact</a>
         </div>
 
@@ -110,7 +110,7 @@ export function renderHome() {
         </div>
       </div>
 
-      <div class="footer">© <span id="y"></span> e-Scoreboards.</div>
+      <div class="footer">© <span id="y"></span> VoxCourt.</div>
     </div>
   `;
 
