@@ -111,16 +111,6 @@ export function renderHome() {
                 </div>
               </div>
             </div>
-
-            <div class="home-product-stage">
-              <div class="home-product-glow" aria-hidden="true"></div>
-
-              <img
-                src="${base}product.png"
-                alt="VoxCourt connected scoring system"
-                class="home-product-image"
-              />
-            </div>
           </div>
 
           <div class="home-stats-bar">
