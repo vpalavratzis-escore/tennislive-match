@@ -280,7 +280,7 @@ textarea {
       rgba(1, 8, 10, .58) 58%,
       rgba(1, 8, 10, .24) 100%
     ),
-    url("/tennislive-match/hero/tenis.jpg");
+    url("/tennislive-match/background%20(2).png");
   background-position: center;
   background-size: cover;
   filter: saturate(.78) contrast(1.12) brightness(.68);
@@ -963,7 +963,7 @@ textarea {
         rgba(1,8,10,.80) 44%,
         rgba(1,8,10,.55) 100%
       ),
-      url("/tennislive-match/hero/tenis.jpg");
+      url("/tennislive-match/background%20(2).png");
     background-position: center;
   }
 
@@ -1132,7 +1132,7 @@ textarea {
         rgba(1,8,10,.88) 53%,
         rgba(1,8,10,.60) 100%
       ),
-      url("/tennislive-match/hero/tenis.jpg");
+      url("/tennislive-match/background%20(2).png");
     background-position: 58% center;
   }
 
@@ -1310,7 +1310,7 @@ textarea {
       rgba(1,8,10,.66) 52%,
       rgba(1,8,10,.20) 100%
     ),
-    url("/tennislive-match/hero/tenis.jpg");
+    url("/tennislive-match/background%20(2).png");
   background-size: cover;
   background-position: center;
   filter: saturate(.90) contrast(1.13) brightness(.78);
@@ -1591,7 +1591,7 @@ textarea {
         rgba(1,8,10,.90) 52%,
         rgba(1,8,10,.56) 100%
       ),
-      url("/tennislive-match/hero/tenis.jpg");
+      url("/tennislive-match/background%20(2).png");
     background-position: 58% center;
   }
 
@@ -1670,5 +1670,106 @@ textarea {
 
   .home-stat div span {
     font-size: 10px;
+  }
+}
+
+/* =========================================================
+   FINAL HERO BACKGROUND OVERRIDES
+   Uses: site/public/background (2).png
+========================================================= */
+
+.home-hero-bg {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(1, 7, 9, 0.96) 0%,
+      rgba(1, 8, 10, 0.90) 25%,
+      rgba(1, 8, 10, 0.58) 48%,
+      rgba(1, 8, 10, 0.18) 72%,
+      rgba(1, 8, 10, 0.04) 100%
+    ),
+    url("/tennislive-match/background%20(2).png");
+  background-size: cover;
+  background-position: center center;
+  filter: saturate(1.03) contrast(1.08) brightness(0.94);
+  transform: scale(1.01);
+}
+
+.home-hero-overlay {
+  background:
+    radial-gradient(circle at 20% 32%, rgba(0, 0, 0, 0.16), transparent 34%),
+    radial-gradient(circle at 76% 28%, rgba(255, 162, 62, 0.18), transparent 26%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.04), rgba(0, 0, 0, 0.28));
+}
+
+.home-hero-content {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+}
+
+.home-hero-copy {
+  max-width: 700px;
+}
+
+.home-product-stage,
+.home-product-glow,
+.home-product-image {
+  display: none !important;
+}
+
+@media (max-width: 1180px) {
+  .home-hero-content {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .home-hero-bg {
+    background-position: 62% center;
+  }
+}
+
+@media (max-width: 900px) {
+  .home-hero-bg {
+    background:
+      linear-gradient(
+        180deg,
+        rgba(1, 7, 9, 0.93) 0%,
+        rgba(1, 8, 10, 0.78) 48%,
+        rgba(1, 8, 10, 0.42) 100%
+      ),
+      url("/tennislive-match/background%20(2).png");
+    background-size: cover;
+    background-position: 68% center;
+  }
+
+  .home-hero-content {
+    min-height: auto;
+    padding: 38px 28px 150px;
+  }
+
+  .home-hero-copy {
+    max-width: 620px;
+  }
+}
+
+@media (max-width: 640px) {
+  .home-hero-bg {
+    background:
+      linear-gradient(
+        180deg,
+        rgba(1, 7, 9, 0.96) 0%,
+        rgba(1, 8, 10, 0.84) 52%,
+        rgba(1, 8, 10, 0.54) 100%
+      ),
+      url("/tennislive-match/background%20(2).png");
+    background-size: cover;
+    background-position: 72% center;
+  }
+
+  .home-hero-content {
+    padding: 28px 17px 290px;
+  }
+
+  .home-stats-bar {
+    position: absolute;
   }
 }
