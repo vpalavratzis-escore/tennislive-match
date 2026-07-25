@@ -40,7 +40,7 @@ export function renderHome() {
         <section class="home-hero-final">
           <img
             class="home-hero-bg"
-            src="${base}hero/home-bg.png"
+            src="/tennislive-match/hero/home-bg.png"
             alt=""
             aria-hidden="true"
           />
