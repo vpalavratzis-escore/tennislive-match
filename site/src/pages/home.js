@@ -27,9 +27,12 @@ export function renderHome() {
         <a class="cta" href="/live" data-nav>Open a court</a>
       </header>
 
-      <!-- ===== HERO ===== -->
       <main>
-        <section class="premium-hero">
+        <!-- ===== CINEMATIC PRODUCT HERO ===== -->
+        <section class="premium-hero premium-hero-v2">
+          <div class="premium-hero-court-bg" aria-hidden="true"></div>
+          <div class="premium-hero-vignette" aria-hidden="true"></div>
+
           <div class="premium-hero-copy">
             <div class="hero-kicker">
               <span class="dot"></span>
@@ -68,22 +71,22 @@ export function renderHome() {
             </div>
           </div>
 
-          <div class="premium-hero-media">
-            <div class="product-image-frame">
-              <img
-                src="${base}product.png"
-                alt="VoxCourt smart scoring system installed on a tennis court"
-                class="product-hero-image"
-              />
+          <div class="premium-hero-media premium-hero-media-v2">
+            <div class="hero-product-glow" aria-hidden="true"></div>
 
-              <div class="product-image-badge product-image-badge-top">
-                <span class="product-status-dot"></span>
-                Complete court system
-              </div>
+            <img
+              src="${base}product.png"
+              alt="VoxCourt smart scoring system installed on a tennis court"
+              class="product-hero-image product-hero-image-v2"
+            />
 
-              <div class="product-image-badge product-image-badge-bottom">
-                Tablet • LED • Cloud • Live stream
-              </div>
+            <div class="hero-product-label">
+              <span class="product-status-dot"></span>
+              Complete court system
+            </div>
+
+            <div class="hero-product-specs">
+              Tablet&nbsp;&nbsp;•&nbsp;&nbsp;LED&nbsp;&nbsp;•&nbsp;&nbsp;Cloud&nbsp;&nbsp;•&nbsp;&nbsp;Live stream
             </div>
           </div>
         </section>
