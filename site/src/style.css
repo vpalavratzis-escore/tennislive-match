@@ -280,7 +280,7 @@ textarea {
       rgba(1, 8, 10, .58) 58%,
       rgba(1, 8, 10, .24) 100%
     ),
-    url("/tennislive-match/background%20(2).png");
+    url("/tennislive-match/hero/background%20(2).png")
   background-position: center;
   background-size: cover;
   filter: saturate(.78) contrast(1.12) brightness(.68);
