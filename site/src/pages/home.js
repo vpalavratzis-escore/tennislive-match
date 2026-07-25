@@ -5,9 +5,14 @@ export function renderHome() {
   app.innerHTML = `
     <div class="wrap home-page">
 
-      <!-- ===== PREMIUM NAVBAR ===== -->
+      <!-- ===== GLOBAL NAVBAR ===== -->
       <header class="nav premium-nav">
-        <a class="brand brand-image" href="/" data-nav aria-label="VoxCourt home">
+        <a
+          class="brand brand-image"
+          href="/"
+          data-nav
+          aria-label="VoxCourt home"
+        >
           <img
             src="${base}logoText.png"
             alt="VoxCourt"
@@ -24,69 +29,131 @@ export function renderHome() {
           <a href="https://voxcourt.com/matches/">Match Results</a>
         </nav>
 
-        <a class="cta" href="/live" data-nav>Open a court</a>
+        <a class="cta" href="/live" data-nav>
+          Open a court
+          <span aria-hidden="true">›</span>
+        </a>
       </header>
 
       <main>
-        <!-- ===== CINEMATIC PRODUCT HERO ===== -->
-        <section class="premium-hero premium-hero-v2">
-          <div class="premium-hero-court-bg" aria-hidden="true"></div>
-          <div class="premium-hero-vignette" aria-hidden="true"></div>
+        <!-- ===== FINAL CINEMATIC HERO ===== -->
+        <section class="home-hero-final">
+          <div class="home-hero-bg" aria-hidden="true"></div>
+          <div class="home-hero-overlay" aria-hidden="true"></div>
 
-          <div class="premium-hero-copy">
-            <div class="hero-kicker">
-              <span class="dot"></span>
-              Smart scoring • Live streaming • LED integration
+          <div class="home-hero-content">
+            <div class="home-hero-copy">
+              <div class="hero-kicker">
+                <span class="dot"></span>
+                Smart scoring • Live streaming • LED integration
+              </div>
+
+              <h1 class="home-hero-title">
+                The connected
+                <span>scoring system</span>
+                for modern
+                racquet courts.
+              </h1>
+
+              <p class="home-hero-description">
+                Control the score from a tablet or by voice, synchronize a
+                professional LED scoreboard and share every match live online.
+              </p>
+
+              <div class="home-hero-actions">
+                <a class="btn primary" href="/live" data-nav>
+                  <span aria-hidden="true">●</span>
+                  Find a court
+                </a>
+
+                <a
+                  class="btn hero-secondary"
+                  href="/?p=/gr/attica/kavouri-tennis-club/court-1"
+                  data-nav
+                >
+                  <span aria-hidden="true">▷</span>
+                  Watch live demo
+                </a>
+              </div>
+
+              <div class="home-feature-row">
+                <div class="home-feature">
+                  <span class="home-feature-icon">≋</span>
+                  <span>Real-time scoring</span>
+                </div>
+
+                <div class="home-feature">
+                  <span class="home-feature-icon">◉</span>
+                  <span>Live court video</span>
+                </div>
+
+                <div class="home-feature">
+                  <span class="home-feature-icon">↻</span>
+                  <span>LED synchronization</span>
+                </div>
+
+                <div class="home-feature">
+                  <span class="home-feature-icon">♧</span>
+                  <span>Multi-court ready</span>
+                </div>
+              </div>
+
+              <div class="home-trust">
+                <span class="home-trust-label">
+                  Built for clubs. Powered by innovation.
+                </span>
+
+                <div class="home-trust-tags">
+                  <span>Tennis</span>
+                  <span>Padel</span>
+                  <span>Pickleball</span>
+                  <span>Tournaments</span>
+                </div>
+              </div>
             </div>
 
-            <h1 class="premium-hero-title">
-              The connected scoring system for modern racquet courts.
-            </h1>
+            <div class="home-product-stage">
+              <div class="home-product-glow" aria-hidden="true"></div>
 
-            <p class="premium-hero-text">
-              Control the score from a tablet or by voice, synchronize a
-              professional LED scoreboard and share every match live online.
-              Built for tennis, padel and pickleball clubs.
-            </p>
-
-            <div class="hero-actions">
-              <a class="btn primary" href="/live" data-nav>
-                Find a court
-              </a>
-
-              <a
-                class="btn"
-                href="/?p=/gr/attica/kavouri-tennis-club/court-1"
-                data-nav
-              >
-                Watch live demo
-              </a>
-            </div>
-
-            <div class="hero-trust-row">
-              <span>✓ Real-time scoring</span>
-              <span>✓ Live court video</span>
-              <span>✓ LED synchronization</span>
-              <span>✓ Multi-court ready</span>
+              <img
+                src="${base}product.png"
+                alt="VoxCourt connected scoring system"
+                class="home-product-image"
+              />
             </div>
           </div>
 
-          <div class="premium-hero-media premium-hero-media-v2">
-            <div class="hero-product-glow" aria-hidden="true"></div>
-
-            <img
-              src="${base}product.png"
-              alt="VoxCourt smart scoring system installed on a tennis court"
-              class="product-hero-image product-hero-image-v2"
-            />
-
-            <div class="hero-product-label">
-              <span class="product-status-dot"></span>
-              Complete court system
+          <div class="home-stats-bar">
+            <div class="home-stat">
+              <span class="home-stat-icon">▦</span>
+              <div>
+                <strong>Multi-court</strong>
+                <span>Scalable architecture</span>
+              </div>
             </div>
 
-            <div class="hero-product-specs">
-              Tablet&nbsp;&nbsp;•&nbsp;&nbsp;LED&nbsp;&nbsp;•&nbsp;&nbsp;Cloud&nbsp;&nbsp;•&nbsp;&nbsp;Live stream
+            <div class="home-stat">
+              <span class="home-stat-icon">◎</span>
+              <div>
+                <strong>Cloud connected</strong>
+                <span>Live data everywhere</span>
+              </div>
+            </div>
+
+            <div class="home-stat">
+              <span class="home-stat-icon">◉</span>
+              <div>
+                <strong>Live streaming</strong>
+                <span>Score and video together</span>
+              </div>
+            </div>
+
+            <div class="home-stat">
+              <span class="home-stat-icon">♧</span>
+              <div>
+                <strong>Club ready</strong>
+                <span>Players and spectators</span>
+              </div>
             </div>
           </div>
         </section>
@@ -118,7 +185,7 @@ export function renderHome() {
           </article>
         </section>
 
-        <!-- ===== SYSTEM SECTION ===== -->
+        <!-- ===== SYSTEM ===== -->
         <section id="system" class="brand-section system-section">
           <div class="section-heading">
             <div class="eyebrow">One connected platform</div>
@@ -168,19 +235,16 @@ export function renderHome() {
           </div>
         </section>
 
-        <!-- ===== SPONSOR OPPORTUNITY ===== -->
+        <!-- ===== SPONSORS ===== -->
         <section id="sponsors" class="brand-section promo-section">
           <div class="promo-copy">
             <div class="eyebrow">Commercial opportunity</div>
 
-            <h2>
-              Turn every scoreboard into premium sponsor visibility.
-            </h2>
+            <h2>Turn every scoreboard into premium sponsor visibility.</h2>
 
             <p>
               The dedicated panel beneath the LED display creates a highly
-              visible advertising position seen by players, spectators and
-              club visitors throughout every match.
+              visible advertising position seen throughout every match.
             </p>
 
             <div class="promo-points">
@@ -208,18 +272,18 @@ export function renderHome() {
           <div class="promo-media">
             <img
               src="${base}logoHere.png"
-              alt="VoxCourt scoreboard with dedicated sponsor advertising panel"
+              alt="VoxCourt sponsor panel"
               class="promo-image"
             />
           </div>
         </section>
 
-        <!-- ===== AI VOICE CONTROL ===== -->
+        <!-- ===== AI VOICE ===== -->
         <section id="voice-control" class="brand-section voice-section">
           <div class="voice-media">
             <img
               src="${base}sponsor.png"
-              alt="VoxCourt AI voice-controlled scoreboard system"
+              alt="VoxCourt AI voice control"
               class="voice-promo-image"
             />
           </div>
@@ -230,26 +294,23 @@ export function renderHome() {
             <h2>Control the scoreboard with your voice.</h2>
 
             <p>
-              VoxCourt is being designed around fast, natural match control.
-              The operator can remain focused on the court while the system
-              handles score commands and updates the connected displays.
+              VoxCourt is designed around fast, natural match control while
+              the system updates every connected display automatically.
             </p>
 
             <ul class="voice-feature-list">
               <li>Hands-free score commands</li>
               <li>Real-time LED and online updates</li>
-              <li>Designed for remote and courtside control</li>
+              <li>Designed for courtside control</li>
               <li>Scalable across clubs and tournaments</li>
             </ul>
 
-            <a class="btn" href="/live" data-nav>
-              Explore live courts
-            </a>
+            <a class="btn" href="/live" data-nav>Explore live courts</a>
           </div>
         </section>
 
-        <!-- ===== HOW IT WORKS ===== -->
-        <section id="how" class="brand-section how-section">
+        <!-- ===== HOW ===== -->
+        <section class="brand-section how-section">
           <div class="section-heading centered">
             <div class="eyebrow">How it works</div>
             <h2>From the court to every screen.</h2>
@@ -259,31 +320,24 @@ export function renderHome() {
             <article class="step-card">
               <span class="step-number">01</span>
               <h3>Control the match</h3>
-              <p>
-                Use touch or voice to enter names, points, games and sets.
-              </p>
+              <p>Use touch or voice to enter names, points, games and sets.</p>
             </article>
 
             <article class="step-card">
               <span class="step-number">02</span>
               <h3>Synchronize the court</h3>
-              <p>
-                The LED scoreboard and connected devices receive every update.
-              </p>
+              <p>The LED scoreboard receives every match update.</p>
             </article>
 
             <article class="step-card">
               <span class="step-number">03</span>
               <h3>Publish live</h3>
-              <p>
-                Score, player information and live video appear online for
-                spectators.
-              </p>
+              <p>Score, player information and live video appear online.</p>
             </article>
           </div>
         </section>
 
-        <!-- ===== FINAL CTA ===== -->
+        <!-- ===== CTA ===== -->
         <section class="final-cta-section">
           <div>
             <div class="eyebrow">Built for the future of racquet sports</div>
@@ -291,12 +345,8 @@ export function renderHome() {
           </div>
 
           <div class="final-cta-actions">
-            <a class="btn primary" href="/live" data-nav>
-              View live courts
-            </a>
-            <a class="btn" href="#contact">
-              Contact VoxCourt
-            </a>
+            <a class="btn primary" href="/live" data-nav>View live courts</a>
+            <a class="btn" href="#contact">Contact VoxCourt</a>
           </div>
         </section>
 
@@ -323,6 +373,8 @@ export function renderHome() {
     </div>
   `;
 
-  const y = app.querySelector("#y");
-  if (y) y.textContent = String(new Date().getFullYear());
+  const year = app.querySelector("#y");
+  if (year) {
+    year.textContent = String(new Date().getFullYear());
+  }
 }
