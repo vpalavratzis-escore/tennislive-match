@@ -54,8 +54,30 @@ function destroyVideoHls(video) {
   } catch (_) {}
 }
 
+function destroyVideoWebRtc(video) {
+  if (!video) return;
+
+  try {
+    if (video._webrtcReader) {
+      video._webrtcReader.close();
+      video._webrtcReader = null;
+    }
+  } catch (_) {}
+
+  try {
+    const stream = video.srcObject;
+    if (stream && typeof stream.getTracks === "function") {
+      for (const track of stream.getTracks()) {
+        track.stop();
+      }
+    }
+    video.srcObject = null;
+  } catch (_) {}
+}
+
 function resetVideoElement(video) {
   if (!video) return;
+  destroyVideoWebRtc(video);
   destroyVideoHls(video);
   try {
     video.pause();
@@ -71,6 +93,29 @@ function buildMobileHlsUrl(apiBase, streamKey) {
   const key = String(streamKey || "").trim();
   if (!base || !key) return "";
   return `${base}/hls/${key}.m3u8`;
+}
+
+function buildWebRtcUrl(apiBase, streamKey) {
+  const base = String(apiBase || "").replace(/\/+$/, "");
+  const key = String(streamKey || "").trim();
+  if (!base || !key) return "";
+  return `${base}/webrtc/${encodeURIComponent(key)}/whep`;
+}
+
+function buildWebRtcUrlFromHlsUrl(hlsUrl) {
+  const raw = String(hlsUrl || "").trim();
+  if (!raw) return "";
+
+  try {
+    const u = new URL(raw, window.location.origin);
+    const match = u.pathname.match(/^\/hls\/(.+)\.m3u8$/i);
+    if (!match) return "";
+
+    const streamKey = decodeURIComponent(match[1]);
+    return `${u.origin}/webrtc/${encodeURIComponent(streamKey)}/whep`;
+  } catch (_) {
+    return "";
+  }
 }
 
 async function probeStreamUrl(url, timeoutMs = 4500) {
@@ -113,6 +158,8 @@ async function pickBestStreamSource({ apiBase, courtObj, courtId }) {
 
   const result = {
     selectedUrl: "",
+    webrtcUrl: "",
+    hlsUrl: "",
     sourceLabel: "No stream available",
     sourcesPayloadLabel: "",
     fallbackUrl,
@@ -134,27 +181,35 @@ async function pickBestStreamSource({ apiBase, courtObj, courtId }) {
     );
 
     if (activeCam1) {
-      result.selectedUrl = buildMobileHlsUrl(apiBase, activeCam1.streamKey);
+      result.hlsUrl = buildMobileHlsUrl(apiBase, activeCam1.streamKey);
+      result.webrtcUrl = buildWebRtcUrl(apiBase, activeCam1.streamKey);
+      result.selectedUrl = result.hlsUrl;
       result.sourceLabel = `Mobile cam1 • ${activeCam1.deviceName || "Unknown device"}`;
       result.sourcesPayloadLabel = result.sourceLabel;
       return result;
     }
 
     if (activeCam2) {
-      result.selectedUrl = buildMobileHlsUrl(apiBase, activeCam2.streamKey);
+      result.hlsUrl = buildMobileHlsUrl(apiBase, activeCam2.streamKey);
+      result.webrtcUrl = buildWebRtcUrl(apiBase, activeCam2.streamKey);
+      result.selectedUrl = result.hlsUrl;
       result.sourceLabel = `Mobile cam2 • ${activeCam2.deviceName || "Unknown device"}`;
       result.sourcesPayloadLabel = result.sourceLabel;
       return result;
     }
 
     if (legacyPiFallbackUrl) {
-      result.selectedUrl = legacyPiFallbackUrl;
+      result.hlsUrl = legacyPiFallbackUrl;
+      result.webrtcUrl = buildWebRtcUrlFromHlsUrl(legacyPiFallbackUrl);
+      result.selectedUrl = result.hlsUrl;
       result.sourceLabel = "Pi fallback stream";
       return result;
     }
 
     if (fallbackUrl) {
-      result.selectedUrl = fallbackUrl;
+      result.hlsUrl = fallbackUrl;
+      result.webrtcUrl = buildWebRtcUrlFromHlsUrl(fallbackUrl);
+      result.selectedUrl = result.hlsUrl;
       result.sourceLabel = "Default / Config stream";
       return result;
     }
@@ -164,13 +219,17 @@ async function pickBestStreamSource({ apiBase, courtObj, courtId }) {
     return result;
   } catch (_) {
     if (legacyPiFallbackUrl) {
-      result.selectedUrl = legacyPiFallbackUrl;
+      result.hlsUrl = legacyPiFallbackUrl;
+      result.webrtcUrl = buildWebRtcUrlFromHlsUrl(legacyPiFallbackUrl);
+      result.selectedUrl = result.hlsUrl;
       result.sourceLabel = "Pi fallback stream";
       return result;
     }
 
     if (fallbackUrl) {
-      result.selectedUrl = fallbackUrl;
+      result.hlsUrl = fallbackUrl;
+      result.webrtcUrl = buildWebRtcUrlFromHlsUrl(fallbackUrl);
+      result.selectedUrl = result.hlsUrl;
       result.sourceLabel = "Default / Config stream";
       return result;
     }
@@ -226,6 +285,96 @@ function showVideoReady(videoEl, overlayEl) {
     videoEl.setAttribute("controls", "controls");
   }
   hideOverlay(overlayEl);
+}
+
+function attachWebRtcToVideo(video, url, onReady, onFatal) {
+  if (!video) return false;
+
+  const u = String(url || "").trim();
+  if (!u) return false;
+
+  const Reader = window.MediaMTXWebRTCReader;
+  if (typeof Reader !== "function") {
+    console.warn("MediaMTXWebRTCReader is not loaded.");
+    return false;
+  }
+
+  resetVideoElement(video);
+
+  video.muted = true;
+  video.playsInline = true;
+  video.autoplay = true;
+  video.preload = "auto";
+
+  const mediaStream = new MediaStream();
+  video.srcObject = mediaStream;
+
+  let readyCalled = false;
+  let fatalCalled = false;
+
+  const safeReady = () => {
+    if (readyCalled || fatalCalled) return;
+    readyCalled = true;
+
+    video.play?.().catch(() => {});
+
+    if (typeof onReady === "function") {
+      onReady();
+    }
+  };
+
+  const safeFatal = (reason) => {
+    if (fatalCalled || readyCalled) return;
+    fatalCalled = true;
+
+    console.warn("WebRTC stream error:", reason);
+
+    if (typeof onFatal === "function") {
+      onFatal(reason);
+    }
+  };
+
+  try {
+    const reader = new Reader({
+      url: u,
+      user: "",
+      pass: "",
+      token: "",
+
+      onTrack: (evt) => {
+        if (!evt?.track) return;
+
+        const alreadyAdded = mediaStream
+          .getTracks()
+          .some((track) => track.id === evt.track.id);
+
+        if (!alreadyAdded) {
+          mediaStream.addTrack(evt.track);
+        }
+
+        evt.track.onunmute = safeReady;
+        safeReady();
+      },
+
+      onError: (error) => {
+        console.warn("MediaMTX WebRTC reader:", error);
+      },
+
+      onDataChannel: () => {}
+    });
+
+    video._webrtcReader = reader;
+
+    video.onloadeddata = safeReady;
+    video.oncanplay = safeReady;
+    video.onplaying = safeReady;
+    video.onerror = () => safeFatal("video element error");
+
+    return true;
+  } catch (error) {
+    safeFatal(error?.message || String(error));
+    return false;
+  }
 }
 
 function attachHlsToVideo(video, url, onReady, onFatal) {
@@ -717,12 +866,15 @@ export async function renderViewer(path) {
 
         if (myToken !== streamCheckToken) return;
 
-        const selectedUrl = String(picked.selectedUrl || "").trim();
+        const webrtcUrl = String(picked.webrtcUrl || "").trim();
+        const hlsUrl = String(picked.hlsUrl || picked.selectedUrl || "").trim();
+        const sourceIdentity = webrtcUrl || hlsUrl;
 
-        if (!selectedUrl) {
+        if (!sourceIdentity) {
           status.textContent = "No stream source available.";
           streamSourceLabel.textContent = "Source: No live source";
           currentSelectedStreamUrl = "";
+
           showVideoUnavailable(
             videoEl,
             videoOverlay,
@@ -733,13 +885,18 @@ export async function renderViewer(path) {
         }
 
         const now = Date.now();
-        if (selectedUrl === lastFailedStreamUrl && now - lastFailedAt < 15000) {
+
+        if (
+          sourceIdentity === lastFailedStreamUrl &&
+          now - lastFailedAt < 15000
+        ) {
           const cachedLabel = picked.sourcesPayloadLabel
             ? `${picked.sourcesPayloadLabel} (offline)`
             : `${picked.sourceLabel} (offline)`;
 
           streamSourceLabel.textContent = `Source: ${cachedLabel}`;
           currentSelectedStreamUrl = "";
+
           showVideoUnavailable(
             videoEl,
             videoOverlay,
@@ -749,80 +906,144 @@ export async function renderViewer(path) {
           return;
         }
 
-        if (selectedUrl === currentSelectedStreamUrl && videoEl.currentSrc) {
+        const alreadyPlaying =
+          sourceIdentity === currentSelectedStreamUrl &&
+          (
+            videoEl._webrtcReader ||
+            videoEl._hls ||
+            videoEl.currentSrc ||
+            videoEl.srcObject
+          );
+
+        if (alreadyPlaying) {
           return;
         }
+
+        clearOpenAttemptTimer();
 
         showVideoLoading(
           videoEl,
           videoOverlay,
           "Checking video…",
-          "Trying to open live stream."
+          "Opening low-latency live stream."
         );
 
-        const isReachable = await probeStreamUrl(selectedUrl, 4500);
+        let playbackStarted = false;
+        let fallbackStarted = false;
 
-        if (myToken !== streamCheckToken) return;
+        const markReady = (mode) => {
+          if (myToken !== streamCheckToken) return;
 
-        if (!isReachable) {
-          lastFailedStreamUrl = selectedUrl;
+          playbackStarted = true;
+          clearOpenAttemptTimer();
+
+          currentSelectedStreamUrl = sourceIdentity;
+          lastFailedStreamUrl = "";
+          lastFailedAt = 0;
+
+          streamSourceLabel.textContent =
+            `Source: ${picked.sourceLabel} • ${mode}`;
+
+          showVideoReady(videoEl, videoOverlay);
+        };
+
+        const markFailed = (message) => {
+          if (myToken !== streamCheckToken) return;
+
+          clearOpenAttemptTimer();
+
+          lastFailedStreamUrl = sourceIdentity;
           lastFailedAt = Date.now();
           currentSelectedStreamUrl = "";
 
-          const badLabel = picked.sourcesPayloadLabel
-            ? `${picked.sourcesPayloadLabel} (offline)`
-            : `${picked.sourceLabel} (offline)`;
+          markCurrentVideoAsUnavailable(
+            message,
+            picked.sourcesPayloadLabel
+              ? `${picked.sourcesPayloadLabel} (offline)`
+              : `${picked.sourceLabel} (offline)`
+          );
+        };
 
-          streamSourceLabel.textContent = `Source: ${badLabel}`;
+        const startHlsFallback = async () => {
+          if (fallbackStarted || playbackStarted) return;
+          if (myToken !== streamCheckToken) return;
 
-          showVideoUnavailable(
+          fallbackStarted = true;
+          clearOpenAttemptTimer();
+
+          if (!hlsUrl) {
+            markFailed("WebRTC failed and no HLS fallback is configured.");
+            return;
+          }
+
+          streamSourceLabel.textContent =
+            `Source: ${picked.sourceLabel} • switching to HLS fallback`;
+
+          showVideoLoading(
             videoEl,
             videoOverlay,
-            "Video not available",
-            "The selected source exists in API but no live stream is responding."
+            "Switching stream…",
+            "WebRTC is unavailable. Trying HLS fallback."
           );
-          return;
-        }
 
-        currentSelectedStreamUrl = selectedUrl;
-        streamSourceLabel.textContent = `Source: ${picked.sourceLabel}`;
+          const hlsReachable = await probeStreamUrl(hlsUrl, 4500);
 
-        const ok = attachHlsToVideo(
-          videoEl,
-          selectedUrl,
-          () => {
-            clearOpenAttemptTimer();
-            showVideoReady(videoEl, videoOverlay);
-          },
-          () => {
-            markCurrentVideoAsUnavailable(
-              "The live stream could not be opened.",
-              picked.sourcesPayloadLabel
-                ? `${picked.sourcesPayloadLabel} (offline)`
-                : `${picked.sourceLabel} (offline)`
+          if (myToken !== streamCheckToken || playbackStarted) return;
+
+          if (!hlsReachable) {
+            markFailed(
+              "Neither WebRTC nor the HLS fallback stream is responding."
             );
+            return;
           }
-        );
 
-        if (!ok) {
-          markCurrentVideoAsUnavailable(
-            "No valid video URL.",
-            picked.sourcesPayloadLabel
-              ? `${picked.sourcesPayloadLabel} (offline)`
-              : `${picked.sourceLabel} (offline)`
+          const hlsOk = attachHlsToVideo(
+            videoEl,
+            hlsUrl,
+            () => markReady("HLS fallback"),
+            () => markFailed("The HLS fallback stream could not be opened.")
           );
+
+          if (!hlsOk) {
+            markFailed("No valid HLS fallback URL.");
+            return;
+          }
+
+          openAttemptTimer = setTimeout(() => {
+            if (!playbackStarted) {
+              markFailed("The HLS fallback stream did not start in time.");
+            }
+          }, 9000);
+        };
+
+        currentSelectedStreamUrl = sourceIdentity;
+
+        if (webrtcUrl) {
+          streamSourceLabel.textContent =
+            `Source: ${picked.sourceLabel} • WebRTC`;
+
+          const webrtcOk = attachWebRtcToVideo(
+            videoEl,
+            webrtcUrl,
+            () => markReady("WebRTC"),
+            () => startHlsFallback()
+          );
+
+          if (!webrtcOk) {
+            await startHlsFallback();
+            return;
+          }
+
+          openAttemptTimer = setTimeout(() => {
+            if (!playbackStarted) {
+              startHlsFallback();
+            }
+          }, 5000);
+
           return;
         }
 
-        clearOpenAttemptTimer();
-        openAttemptTimer = setTimeout(() => {
-          markCurrentVideoAsUnavailable(
-            "The live stream did not start in time.",
-            picked.sourcesPayloadLabel
-              ? `${picked.sourcesPayloadLabel} (offline)`
-              : `${picked.sourceLabel} (offline)`
-          );
-        }, 9000);
+        await startHlsFallback();
       } catch (e) {
         if (myToken !== streamCheckToken) return;
         streamSourceLabel.textContent = "Source: unavailable";
