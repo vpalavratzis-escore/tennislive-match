@@ -774,6 +774,18 @@ export async function renderViewer(path) {
             <span id="videoModeBadgeText">LIVE</span>
           </div>
 
+          <div
+            id="replayLoadingOverlay"
+            class="replay-loading-overlay"
+            style="display:none;"
+          >
+            <div class="replay-loading-box">
+              <div class="replay-loading-spinner"></div>
+              <div class="replay-loading-title">Preparing replay…</div>
+              <div class="replay-loading-text">Please wait a moment.</div>
+            </div>
+          </div>
+
           <div id="videoOverlay" class="videoOverlay videoOverlay--show">
             <div class="videoOverlay__box">
               <div class="videoOverlay__title">Checking video…</div>
@@ -864,6 +876,7 @@ export async function renderViewer(path) {
   const videoOverlay = app.querySelector("#videoOverlay");
   const videoModeBadge = app.querySelector("#videoModeBadge");
   const videoModeBadgeText = app.querySelector("#videoModeBadgeText");
+  const replayLoadingOverlay = app.querySelector("#replayLoadingOverlay");
   const timelineStatus = app.querySelector("#timelineStatus");
   const timelineList = app.querySelector("#timelineList");
 
@@ -1003,6 +1016,20 @@ export async function renderViewer(path) {
       }
     }
 
+    function setReplayLoading(loading, message = "Preparing replay…") {
+      if (!replayLoadingOverlay) return;
+
+      replayLoadingOverlay.style.display = loading ? "grid" : "none";
+
+      const title = replayLoadingOverlay.querySelector(
+        ".replay-loading-title"
+      );
+
+      if (title) {
+        title.textContent = message;
+      }
+    }
+
     function setVideoMode(mode) {
       const replayMode = mode === "replay";
 
@@ -1034,6 +1061,7 @@ export async function renderViewer(path) {
       replayVideoEl.load();
       replayVideoEl.style.display = "none";
       replayVideoEl.classList.remove("replay-video--active");
+      setReplayLoading(false);
 
       btnBackLive.style.display = "none";
       btnReplay30.disabled = false;
@@ -1379,7 +1407,17 @@ export async function renderViewer(path) {
           if (!eventId) return;
 
           replayButton.disabled = true;
-          replayStatus.textContent = `Preparing ${display.title || "event"} replay…`;
+
+          const originalButtonText = replayButton.textContent;
+          replayButton.textContent = "Preparing…";
+
+          setReplayLoading(
+            true,
+            `Preparing ${display.title || "event"} replay…`
+          );
+
+          replayStatus.textContent =
+            `Preparing ${display.title || "event"} replay…`;
 
           const replayUrl =
             `${apiBase}/api/events/${encodeURIComponent(eventId)}/replay` +
@@ -1419,6 +1457,7 @@ export async function renderViewer(path) {
             replayVideoEl.currentTime = 0;
             replayVideoEl.style.display = "block";
             replayVideoEl.classList.add("replay-video--active");
+            setReplayLoading(false);
             setVideoMode("replay");
 
             videoEl.style.display = "none";
@@ -1429,9 +1468,11 @@ export async function renderViewer(path) {
 
             await replayVideoEl.play();
           } catch (error) {
+            setReplayLoading(false);
             replayStatus.textContent = `Replay error: ${error.message}`;
           } finally {
             replayButton.disabled = false;
+            replayButton.textContent = originalButtonText;
           }
         });
 
