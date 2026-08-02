@@ -1260,8 +1260,14 @@ export async function renderViewer(path) {
         const replayButton = document.createElement("button");
         replayButton.type = "button";
         replayButton.className = "btn small";
-        replayButton.textContent = "Replay";
-        replayButton.disabled = !eventId;
+
+        const replayAvailable = display.replayAvailable === true;
+
+        replayButton.textContent = replayAvailable
+          ? "Replay"
+          : "Replay expired";
+
+        replayButton.disabled = !eventId || !replayAvailable;
 
         replayButton.addEventListener("click", async () => {
           if (!eventId) return;
