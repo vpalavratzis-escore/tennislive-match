@@ -2143,3 +2143,65 @@ textarea {
     padding-right: 4px;
   }
 }
+
+/* Timeline polish */
+.timeline-event {
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+.timeline-event:hover {
+  border-color: rgba(0, 210, 210, 0.24) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+
+.timeline-event--enter {
+  animation: timelineEventEnter 320ms ease both;
+}
+
+@keyframes timelineEventEnter {
+  from {
+    opacity: 0;
+    transform: translateY(-7px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.timeline-replay-expired {
+  min-width: 92px;
+  opacity: 0.52;
+  cursor: not-allowed;
+  background: rgba(255, 255, 255, 0.025) !important;
+  border-color: rgba(255, 255, 255, 0.07) !important;
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.replay-video--active {
+  animation: replayVideoEnter 220ms ease both;
+}
+
+@keyframes replayVideoEnter {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+#btnBackLive {
+  font-weight: 800;
+}
+
+@media (max-width: 560px) {
+  .timeline-replay-expired {
+    min-width: 0;
+  }
+}

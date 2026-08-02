@@ -1003,6 +1003,7 @@ export async function renderViewer(path) {
       replayVideoEl.removeAttribute("src");
       replayVideoEl.load();
       replayVideoEl.style.display = "none";
+      replayVideoEl.classList.remove("replay-video--active");
 
       btnBackLive.style.display = "none";
       btnReplay30.disabled = false;
@@ -1138,20 +1139,33 @@ export async function renderViewer(path) {
 
         if (eventType === "POINT") {
           icon = "🎾";
-          titleText = winnerName ? `POINT ${winnerName}` : "POINT";
+          titleText = winnerName
+            ? `${winnerName} won the point`
+            : "Point completed";
         } else if (eventType === "GAME") {
           icon = "🏆";
-          titleText = winnerName ? `GAME ${winnerName}` : "GAME";
+          titleText = winnerName
+            ? `${winnerName} won the game`
+            : "Game completed";
         } else if (eventType === "SET") {
-          icon = "🏆";
-          titleText = winnerName ? `SET ${winnerName}` : "SET";
+          icon = "👑";
+          titleText = winnerName
+            ? `${winnerName} won the set`
+            : "Set completed";
+        } else if (eventType === "MATCH") {
+          icon = "🥇";
+          titleText = winnerName
+            ? `${winnerName} won the match`
+            : "Match completed";
         } else if (eventType === "SERVER_CHANGE") {
-          icon = "🔁";
-          titleText = serverName ? `SERVER ${serverName}` : "SERVER CHANGE";
+          icon = "🎯";
+          titleText = serverName
+            ? `${serverName} to serve`
+            : "Server changed";
         }
 
         const card = document.createElement("div");
-        card.className = "timeline-event";
+        card.className = "timeline-event timeline-event--enter";
         card.style.cssText = `
           display:grid;
           grid-template-columns:auto minmax(0,1fr) auto auto;
@@ -1264,10 +1278,15 @@ export async function renderViewer(path) {
         const replayAvailable = display.replayAvailable === true;
 
         replayButton.textContent = replayAvailable
-          ? "Replay"
-          : "Replay expired";
+          ? "▶ Replay"
+          : "Expired";
 
         replayButton.disabled = !eventId || !replayAvailable;
+
+        if (!replayAvailable) {
+          replayButton.classList.add("timeline-replay-expired");
+          replayButton.title = "This replay is no longer available.";
+        }
 
         replayButton.addEventListener("click", async () => {
           if (!eventId) return;
@@ -1312,9 +1331,11 @@ export async function renderViewer(path) {
             replayVideoEl.src = replayObjectUrl;
             replayVideoEl.currentTime = 0;
             replayVideoEl.style.display = "block";
+            replayVideoEl.classList.add("replay-video--active");
 
             videoEl.style.display = "none";
             btnBackLive.style.display = "";
+            btnBackLive.textContent = "← Back to Live";
             replayStatus.textContent =
               `${display.title || "Replay"} • ${(blob.size / 1024 / 1024).toFixed(1)} MB`;
 
