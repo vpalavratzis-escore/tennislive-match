@@ -1109,57 +1109,150 @@ export async function renderViewer(path) {
 
       for (const event of [...list].reverse()) {
         const display = event?.display || {};
+        const metadata = event?.metadata || {};
         const eventId = String(event?.eventId || "");
+        const eventType = String(display.type || event?.type || "EVENT").toUpperCase();
+        const winnerSide = String(display.winner || metadata.winner || "").toUpperCase();
+
+        const winnerName =
+          winnerSide === "A"
+            ? String(metadata.nameA || nameAEl?.textContent || "Player A")
+            : winnerSide === "B"
+              ? String(metadata.nameB || nameBEl?.textContent || "Player B")
+              : "";
+
+        const serverSide = String(display.server || "").toUpperCase();
+        const serverName =
+          serverSide === "A"
+            ? String(metadata.nameA || nameAEl?.textContent || "Player A")
+            : serverSide === "B"
+              ? String(metadata.nameB || nameBEl?.textContent || "Player B")
+              : "";
+
         const eventTime = formatTimelineTime(
           display.timestamp || event?.timestamp
         );
+
+        let icon = "•";
+        let titleText = eventType;
+
+        if (eventType === "POINT") {
+          icon = "🎾";
+          titleText = winnerName ? `POINT ${winnerName}` : "POINT";
+        } else if (eventType === "GAME") {
+          icon = "🏆";
+          titleText = winnerName ? `GAME ${winnerName}` : "GAME";
+        } else if (eventType === "SET") {
+          icon = "🏆";
+          titleText = winnerName ? `SET ${winnerName}` : "SET";
+        } else if (eventType === "SERVER_CHANGE") {
+          icon = "🔁";
+          titleText = serverName ? `SERVER ${serverName}` : "SERVER CHANGE";
+        }
 
         const card = document.createElement("div");
         card.className = "timeline-event";
         card.style.cssText = `
           display:grid;
-          grid-template-columns:minmax(0,1fr) auto;
+          grid-template-columns:auto minmax(0,1fr) auto auto;
           gap:14px;
           align-items:center;
-          padding:14px 16px;
+          padding:10px 12px;
           border:1px solid rgba(255,255,255,.08);
           border-radius:16px;
           background:rgba(255,255,255,.025);
         `;
 
+        const iconBox = document.createElement("div");
+        iconBox.className = "timeline-event-icon";
+        iconBox.textContent = icon;
+        iconBox.style.cssText = `
+          width:48px;
+          height:48px;
+          display:grid;
+          place-items:center;
+          flex:0 0 auto;
+          border-radius:14px;
+          font-size:24px;
+          background:rgba(255,255,255,.055);
+          border:1px solid rgba(255,255,255,.06);
+        `;
+
         const info = document.createElement("div");
         info.style.minWidth = "0";
 
-        const titleRow = document.createElement("div");
-        titleRow.style.cssText = `
-          display:flex;
-          align-items:center;
-          justify-content:space-between;
-          gap:12px;
+        const title = document.createElement("strong");
+        title.textContent = titleText;
+        title.style.cssText = `
+          display:block;
+          font-size:15px;
+          line-height:1.35;
+          overflow:hidden;
+          text-overflow:ellipsis;
+          white-space:nowrap;
         `;
 
-        const title = document.createElement("strong");
-        title.textContent = display.title || event?.type || "EVENT";
-        title.style.fontSize = "15px";
+        const summary = document.createElement("div");
+        summary.className = "hint";
+        summary.style.marginTop = "4px";
+
+        if (eventType === "SERVER_CHANGE") {
+          summary.textContent = serverName
+            ? `Server: ${serverName}`
+            : "Server changed";
+        } else {
+          summary.textContent =
+            `Score ${display.score || "—"}  •  ` +
+            `Games ${display.games || "—"}  •  ` +
+            `Sets ${display.sets || "—"}`;
+        }
+
+        info.appendChild(title);
+        info.appendChild(summary);
+
+        const chips = document.createElement("div");
+        chips.className = "timeline-event-chips";
+        chips.style.cssText = `
+          display:flex;
+          gap:8px;
+          align-items:center;
+          flex-wrap:wrap;
+          justify-content:flex-end;
+        `;
+
+        const makeChip = (value, active = false) => {
+          const chip = document.createElement("span");
+          chip.textContent = value || "—";
+          chip.style.cssText = `
+            min-width:58px;
+            padding:7px 12px;
+            text-align:center;
+            border-radius:999px;
+            font-weight:800;
+            font-size:13px;
+            color:#fff;
+            background:${active ? "rgba(0,190,190,.28)" : "rgba(255,255,255,.06)"};
+            border:1px solid ${active ? "rgba(0,220,220,.32)" : "rgba(255,255,255,.06)"};
+          `;
+          return chip;
+        };
+
+        chips.appendChild(makeChip(display.score || "—", true));
+        chips.appendChild(makeChip(display.games || "—"));
+        chips.appendChild(makeChip(display.sets || "—"));
+
+        const rightSide = document.createElement("div");
+        rightSide.className = "timeline-event-right";
+        rightSide.style.cssText = `
+          display:flex;
+          align-items:center;
+          gap:14px;
+        `;
 
         const time = document.createElement("span");
         time.textContent = eventTime;
         time.className = "hint";
         time.style.whiteSpace = "nowrap";
-
-        titleRow.appendChild(title);
-        titleRow.appendChild(time);
-
-        const score = document.createElement("div");
-        score.className = "hint";
-        score.style.marginTop = "6px";
-        score.textContent =
-          `Score ${display.score || "—"}  •  ` +
-          `Games ${display.games || "—"}  •  ` +
-          `Sets ${display.sets || "—"}`;
-
-        info.appendChild(titleRow);
-        info.appendChild(score);
 
         const actions = document.createElement("div");
         actions.className = "timeline-event-actions";
@@ -1228,8 +1321,13 @@ export async function renderViewer(path) {
         });
 
         actions.appendChild(replayButton);
+        rightSide.appendChild(time);
+        rightSide.appendChild(actions);
+
+        card.appendChild(iconBox);
         card.appendChild(info);
-        card.appendChild(actions);
+        card.appendChild(chips);
+        card.appendChild(rightSide);
         timelineList.appendChild(card);
       }
     }
