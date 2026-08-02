@@ -882,6 +882,34 @@ export async function renderViewer(path) {
         </button>
       </div>
 
+      <div class="timeline-toolbar">
+        <div class="timeline-toolbar__group">
+          <button
+            id="timelineExpandAll"
+            class="timeline-toolbar-button"
+            type="button"
+          >
+            Expand all
+          </button>
+
+          <button
+            id="timelineCollapseAll"
+            class="timeline-toolbar-button"
+            type="button"
+          >
+            Collapse all
+          </button>
+        </div>
+
+        <button
+          id="timelineJumpLatest"
+          class="timeline-toolbar-button timeline-toolbar-button--accent"
+          type="button"
+        >
+          ↑ Latest event
+        </button>
+      </div>
+
       <div
         id="timelineStatus"
         class="hint"
@@ -932,6 +960,9 @@ export async function renderViewer(path) {
   const timelineNewEventButton = app.querySelector(
     "#timelineNewEventButton"
   );
+  const timelineExpandAll = app.querySelector("#timelineExpandAll");
+  const timelineCollapseAll = app.querySelector("#timelineCollapseAll");
+  const timelineJumpLatest = app.querySelector("#timelineJumpLatest");
 
   const replayVideoEl = app.querySelector("#replayVideo");
   const cameraButtons = app.querySelector("#cameraButtons");
@@ -1226,6 +1257,66 @@ export async function renderViewer(path) {
     let latestTimelineEvents = [];
     const collapsedTimelineGames = new Set();
 
+    function getTimelineEventType(event) {
+      const display = event?.display || {};
+
+      return String(
+        display.type || event?.type || ""
+      ).toUpperCase();
+    }
+
+    function updateTimelineFilterCounts(events) {
+      if (!timelineFilters) return;
+
+      const list = Array.isArray(events) ? events : [];
+
+      const counts = {
+        all: list.length,
+        points: 0,
+        games: 0,
+        replays: 0
+      };
+
+      for (const event of list) {
+        const eventType = getTimelineEventType(event);
+        const display = event?.display || {};
+
+        if (eventType === "POINT") {
+          counts.points += 1;
+        }
+
+        if (
+          eventType === "GAME" ||
+          eventType === "SET" ||
+          eventType === "MATCH"
+        ) {
+          counts.games += 1;
+        }
+
+        if (display.replayAvailable === true) {
+          counts.replays += 1;
+        }
+      }
+
+      const labels = {
+        all: "All",
+        points: "🎾 Points",
+        games: "🏆 Games & Sets",
+        replays: "▶ Replays"
+      };
+
+      timelineFilters
+        .querySelectorAll("[data-timeline-filter]")
+        .forEach((button) => {
+          const filter = String(
+            button.dataset.timelineFilter || "all"
+          );
+
+          button.textContent =
+            `${labels[filter] || filter} ${counts[filter] || 0}`;
+        });
+    }
+
     function eventMatchesTimelineFilter(event) {
       const display = event?.display || {};
       const eventType = String(
@@ -1257,6 +1348,8 @@ export async function renderViewer(path) {
       latestTimelineEvents = Array.isArray(events)
         ? events
         : [];
+
+      updateTimelineFilterCounts(latestTimelineEvents);
 
       const list = latestTimelineEvents.filter(
         eventMatchesTimelineFilter
@@ -1303,8 +1396,13 @@ export async function renderViewer(path) {
         return;
       }
 
+      const availableReplayCount = list.filter(
+        (event) => event?.display?.replayAvailable === true
+      ).length;
+
       timelineStatus.textContent =
-        `${list.length} visible event${list.length === 1 ? "" : "s"}`;
+        `${list.length} visible event${list.length === 1 ? "" : "s"}` +
+        ` • ${availableReplayCount} replay${availableReplayCount === 1 ? "" : "s"} available`;
 
       let activeGameBody = null;
       let activeGameId = "";
@@ -1711,6 +1809,40 @@ export async function renderViewer(path) {
 
       renderTimelineEvents(latestTimelineEvents);
       timelineList.scrollTop = 0;
+    });
+
+    timelineExpandAll?.addEventListener("click", () => {
+      collapsedTimelineGames.clear();
+      lastTimelineSignature = "";
+      renderTimelineEvents(latestTimelineEvents);
+    });
+
+    timelineCollapseAll?.addEventListener("click", () => {
+      collapsedTimelineGames.clear();
+
+      for (const event of latestTimelineEvents) {
+        if (getTimelineEventType(event) !== "GAME") {
+          continue;
+        }
+
+        const eventId = String(event?.eventId || "");
+        const gameId =
+          eventId || `game-${event?.timestamp || "unknown"}`;
+
+        collapsedTimelineGames.add(gameId);
+      }
+
+      lastTimelineSignature = "";
+      renderTimelineEvents(latestTimelineEvents);
+    });
+
+    timelineJumpLatest?.addEventListener("click", () => {
+      timelineList?.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+
+      hideTimelineNewEventButton();
     });
 
     function hideTimelineNewEventButton() {
