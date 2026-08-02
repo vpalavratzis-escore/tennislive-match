@@ -3109,3 +3109,216 @@ div:has(> #photoB) {
     border-radius: 8px;
   }
 }
+
+/* =========================================================
+   FIX LIVE SCORE PLAYER CARDS
+   - full player names
+   - centered A/B placeholders
+   - responsive layout
+   ========================================================= */
+
+div:has(> #serveAIcon),
+div:has(> #serveBIcon) {
+  display: grid !important;
+  grid-template-columns: 88px minmax(0, 1fr) 34px !important;
+  align-items: center !important;
+  column-gap: 18px !important;
+  min-width: 0 !important;
+}
+
+/* Avatar container */
+div:has(> #photoA),
+div:has(> #photoB) {
+  position: relative !important;
+  display: grid !important;
+  place-items: center !important;
+  width: 88px !important;
+  height: 88px !important;
+  min-width: 88px !important;
+  margin: 0 !important;
+}
+
+/* Real photos */
+#photoA,
+#photoB {
+  position: absolute !important;
+  inset: 0 !important;
+  display: block;
+  width: 88px !important;
+  height: 88px !important;
+  min-width: 88px !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  border-radius: 50% !important;
+}
+
+/* A/B placeholders */
+#photoAph,
+#photoBPh,
+#photoBph {
+  position: absolute !important;
+  inset: 0 !important;
+  display: grid !important;
+  place-items: center !important;
+  width: 88px !important;
+  height: 88px !important;
+  min-width: 88px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+  text-align: center !important;
+  border-radius: 50% !important;
+}
+
+/* Middle text area */
+div:has(> #serveAIcon) > div:not(:has(> #photoA)):not(:has(> #photoB)):not(#serveAIcon):not(#serveBIcon),
+div:has(> #serveBIcon) > div:not(:has(> #photoA)):not(:has(> #photoB)):not(#serveAIcon):not(#serveBIcon) {
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+/* Full names, no ellipsis */
+#photoATitle,
+#photoBTitle {
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  margin: 0 !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  word-break: normal !important;
+  hyphens: auto;
+  font-size: clamp(18px, 1.7vw, 26px) !important;
+  line-height: 1.15 !important;
+  font-weight: 900 !important;
+}
+
+/* Remove Photo / No Photo text */
+#photoATitle + .hint,
+#photoBTitle + .hint {
+  display: none !important;
+}
+
+/* Keep service indicator in its own grid column */
+#serveAIcon,
+#serveBIcon {
+  position: static !important;
+  justify-self: center !important;
+  align-self: center !important;
+  transform: none !important;
+  margin: 0 !important;
+}
+
+@keyframes voxcourtServePulseFixed {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.12);
+  }
+}
+
+#serveAIcon,
+#serveBIcon {
+  animation: voxcourtServePulseFixed 1.65s ease-in-out infinite !important;
+}
+
+/* Tablet */
+@media (max-width: 1100px) {
+  div:has(> #serveAIcon),
+  div:has(> #serveBIcon) {
+    grid-template-columns: 78px minmax(0, 1fr) 30px !important;
+    column-gap: 14px !important;
+    padding: 15px 16px !important;
+  }
+
+  div:has(> #photoA),
+  div:has(> #photoB),
+  #photoA,
+  #photoB,
+  #photoAph,
+  #photoBPh,
+  #photoBph {
+    width: 78px !important;
+    height: 78px !important;
+    min-width: 78px !important;
+  }
+
+  #photoATitle,
+  #photoBTitle {
+    font-size: clamp(17px, 2vw, 23px) !important;
+  }
+}
+
+/* Mobile */
+@media (max-width: 700px) {
+  div:has(> #serveAIcon),
+  div:has(> #serveBIcon) {
+    grid-template-columns: 64px minmax(0, 1fr) 26px !important;
+    column-gap: 11px !important;
+    min-height: 94px !important;
+    padding: 12px !important;
+  }
+
+  div:has(> #photoA),
+  div:has(> #photoB),
+  #photoA,
+  #photoB,
+  #photoAph,
+  #photoBPh,
+  #photoBph {
+    width: 64px !important;
+    height: 64px !important;
+    min-width: 64px !important;
+  }
+
+  #photoAph,
+  #photoBPh,
+  #photoBph {
+    font-size: 25px !important;
+  }
+
+  #photoATitle,
+  #photoBTitle {
+    font-size: 16px !important;
+    line-height: 1.2 !important;
+  }
+
+  #serveAIcon,
+  #serveBIcon {
+    width: 14px !important;
+    height: 14px !important;
+  }
+}
+
+/* Very narrow phones */
+@media (max-width: 430px) {
+  div:has(> #serveAIcon),
+  div:has(> #serveBIcon) {
+    grid-template-columns: 54px minmax(0, 1fr) 22px !important;
+    column-gap: 8px !important;
+    padding: 10px !important;
+  }
+
+  div:has(> #photoA),
+  div:has(> #photoB),
+  #photoA,
+  #photoB,
+  #photoAph,
+  #photoBPh,
+  #photoBph {
+    width: 54px !important;
+    height: 54px !important;
+    min-width: 54px !important;
+  }
+
+  #photoATitle,
+  #photoBTitle {
+    font-size: 14px !important;
+  }
+}
