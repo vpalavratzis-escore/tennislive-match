@@ -2989,6 +2989,10 @@ ${safeUrl}`
 
     let currentHighlightFilter = "all";
 
+    let timelineRefreshRunning = false;
+    let timelineRefreshPending = false;
+    let timelineRefreshSequence = 0;
+
     function getHighlightType(event) {
       return String(
         event?.display?.type ||
@@ -4025,13 +4029,27 @@ ${safeUrl}`
     async function refreshTimeline() {
       if (!timelineList || !timelineStatus) return;
 
+      if (timelineRefreshRunning) {
+        timelineRefreshPending = true;
+        return;
+      }
+
+      timelineRefreshRunning = true;
+      timelineRefreshPending = false;
+
+      const requestSequence = ++timelineRefreshSequence;
+
       try {
         const latestMatchUrl =
           `${apiBase}/api/matches/latest/${country}/${city}/${clubId}/${courtId}`;
 
         const latestPayload = await fetchJson(latestMatchUrl);
-        const latestMatch = latestPayload?.match || null;
 
+        if (requestSequence !== timelineRefreshSequence) {
+          return;
+        }
+
+        const latestMatch = latestPayload?.match || null;
         latestMatchLifecycle = latestMatch;
 
         renderMatchEndSummary(
@@ -4039,60 +4057,9 @@ ${safeUrl}`
           latestMatchState
         );
 
-        const activeMatch =
-          String(latestMatch?.status || "").toUpperCase() === "LIVE"
-            ? latestMatch
-            : null;
-
         const matchId = String(
           latestMatch?.matchId || ""
         );
-
-        if (activeMatch) {
-          const activeStatus = String(
-            activeMatch.status || "LIVE"
-          ).toUpperCase();
-
-          setMatchStatus(
-            activeStatus === "ENDED"
-              ? "ENDED"
-              : "LIVE"
-          );
-
-          if (matchStartedAt) {
-            matchStartedAt.textContent = formatMatchStart(
-              activeMatch.startedAt
-            );
-          }
-
-          if (activeMatch.nameA && heroNameA) {
-            heroNameA.textContent = String(activeMatch.nameA);
-          }
-
-          if (activeMatch.nameB && heroNameB) {
-            heroNameB.textContent = String(activeMatch.nameB);
-          }
-        } else {
-          /*
-           * Δεν αλλάζουμε εδώ το LIVE σε READY.
-           * Το tickState() είναι αυτό που γνωρίζει αν υπάρχει
-           * πραγματικό ενεργό score στο court.
-           */
-          const currentStatus = String(
-            matchStatusText?.textContent || ""
-          ).toUpperCase();
-
-          if (
-            currentStatus !== "LIVE" &&
-            currentStatus !== "ENDED"
-          ) {
-            setMatchStatus("READY");
-          }
-
-          if (matchStartedAt) {
-            matchStartedAt.textContent = "—";
-          }
-        }
 
         const eventsUrl =
           `${apiBase}/api/events/${country}/${city}/${clubId}/${courtId}` +
@@ -4100,12 +4067,32 @@ ${safeUrl}`
           (matchId ? `&matchId=${encodeURIComponent(matchId)}` : "");
 
         const payload = await fetchJson(eventsUrl);
-        renderTimelineEvents(payload?.events);
-        renderHighlights(payload?.events);
+
+        if (requestSequence !== timelineRefreshSequence) {
+          return;
+        }
+
+        const events = Array.isArray(payload?.events)
+          ? payload.events
+          : [];
+
+        renderTimelineEvents(events);
+        renderHighlights(events);
       } catch (error) {
-        timelineStatus.textContent = `Timeline unavailable: ${error.message}`;
+        if (requestSequence === timelineRefreshSequence) {
+          timelineStatus.textContent =
+            `Timeline unavailable: ${error.message}`;
+        }
+      } finally {
+        timelineRefreshRunning = false;
+
+        if (timelineRefreshPending) {
+          timelineRefreshPending = false;
+          queueMicrotask(refreshTimeline);
+        }
       }
     }
+
 
     async function refreshStreamSource() {
       const myToken = ++streamCheckToken;
