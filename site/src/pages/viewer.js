@@ -766,6 +766,14 @@ export async function renderViewer(path) {
             "
           ></video>
 
+          <div
+            id="videoModeBadge"
+            class="video-mode-badge video-mode-badge--live"
+          >
+            <span class="video-mode-badge__dot"></span>
+            <span id="videoModeBadgeText">LIVE</span>
+          </div>
+
           <div id="videoOverlay" class="videoOverlay videoOverlay--show">
             <div class="videoOverlay__box">
               <div class="videoOverlay__title">Checking video…</div>
@@ -854,6 +862,8 @@ export async function renderViewer(path) {
   const streamSourceLabel = app.querySelector("#streamSourceLabel");
   const videoEl = app.querySelector("#camVideo");
   const videoOverlay = app.querySelector("#videoOverlay");
+  const videoModeBadge = app.querySelector("#videoModeBadge");
+  const videoModeBadgeText = app.querySelector("#videoModeBadgeText");
   const timelineStatus = app.querySelector("#timelineStatus");
   const timelineList = app.querySelector("#timelineList");
 
@@ -993,6 +1003,26 @@ export async function renderViewer(path) {
       }
     }
 
+    function setVideoMode(mode) {
+      const replayMode = mode === "replay";
+
+      videoModeBadge?.classList.toggle(
+        "video-mode-badge--replay",
+        replayMode
+      );
+
+      videoModeBadge?.classList.toggle(
+        "video-mode-badge--live",
+        !replayMode
+      );
+
+      if (videoModeBadgeText) {
+        videoModeBadgeText.textContent = replayMode
+          ? "REPLAY"
+          : "LIVE";
+      }
+    }
+
     function backToLive() {
       cleanupReplayObjectUrl();
 
@@ -1011,6 +1041,7 @@ export async function renderViewer(path) {
 
       videoEl.style.display = "block";
       videoEl.play?.().catch(() => {});
+      setVideoMode("live");
     }
 
     async function openReplay(seconds = 30, cam = "cam1") {
@@ -1056,6 +1087,7 @@ export async function renderViewer(path) {
         replayVideoEl.src = replayObjectUrl;
         replayVideoEl.currentTime = 0;
         replayVideoEl.style.display = "block";
+        setVideoMode("replay");
 
         videoEl.style.display = "none";
         btnBackLive.style.display = "";
@@ -1387,6 +1419,7 @@ export async function renderViewer(path) {
             replayVideoEl.currentTime = 0;
             replayVideoEl.style.display = "block";
             replayVideoEl.classList.add("replay-video--active");
+            setVideoMode("replay");
 
             videoEl.style.display = "none";
             btnBackLive.style.display = "";

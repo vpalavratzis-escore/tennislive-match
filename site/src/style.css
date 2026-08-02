@@ -2205,3 +2205,72 @@ textarea {
     min-width: 0;
   }
 }
+
+.video-mode-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 9;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 11px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease;
+}
+
+.video-mode-badge__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.video-mode-badge--live {
+  color: #ff6868;
+  background: rgba(75, 10, 16, 0.74);
+  border-color: rgba(255, 104, 104, 0.28);
+}
+
+.video-mode-badge--live .video-mode-badge__dot {
+  animation: liveBadgePulse 1.4s ease-in-out infinite;
+}
+
+.video-mode-badge--replay {
+  color: #55e2df;
+  background: rgba(0, 45, 48, 0.82);
+  border-color: rgba(85, 226, 223, 0.3);
+}
+
+.video-mode-badge--replay .video-mode-badge__dot {
+  border-radius: 2px;
+  transform: rotate(45deg);
+}
+
+@keyframes liveBadgePulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@media (max-width: 560px) {
+  .video-mode-badge {
+    top: 9px;
+    left: 9px;
+    padding: 6px 9px;
+    font-size: 11px;
+  }
+}
