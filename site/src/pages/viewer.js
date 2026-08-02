@@ -1144,7 +1144,7 @@ export async function renderViewer(path) {
           margin-top:12px;
         ">
           <button id="btnReplay30" class="btn small" type="button">
-            Replay 30s
+            Replay
           </button>
 
           <button
@@ -4831,3 +4831,51 @@ ${safeUrl}`
     );
   }
 }
+
+/* VOXCOURT FORCE TWO CAMERAS START */
+
+const voxcourtCleanCameraButtons = () => {
+  document.querySelectorAll("button").forEach((button) => {
+    const label = String(button.textContent || "")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    if (/^Camera\s*3$/i.test(label) || /^Camera\s*4$/i.test(label)) {
+      button.remove();
+      return;
+    }
+
+    if (/^Replay\s*30s$/i.test(label)) {
+      button.textContent = "Replay";
+    }
+  });
+};
+
+if (document.readyState === "loading") {
+  document.addEventListener(
+    "DOMContentLoaded",
+    voxcourtCleanCameraButtons,
+    { once: true }
+  );
+} else {
+  voxcourtCleanCameraButtons();
+}
+
+if (window.__voxcourtCameraButtonObserver) {
+  window.__voxcourtCameraButtonObserver.disconnect();
+}
+
+window.__voxcourtCameraButtonObserver = new MutationObserver(() => {
+  voxcourtCleanCameraButtons();
+});
+
+window.__voxcourtCameraButtonObserver.observe(
+  document.documentElement,
+  {
+    childList: true,
+    subtree: true
+  }
+);
+
+/* VOXCOURT FORCE TWO CAMERAS END */
+
