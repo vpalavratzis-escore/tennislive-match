@@ -507,17 +507,144 @@ export async function renderViewer(path) {
       <a class="cta" href="/live" data-nav>Change court</a>
     </header>
 
-    <div class="panel section" style="min-height:120px;">
-      <div class="badge" style="margin-bottom:18px;">
-        <i></i> Match info
-      </div>
-      <div style="display:flex; flex-direction:column; gap:18px;">
-        <div id="miTitle" style="font-weight:900; font-size:18px; letter-spacing:.2px;">
-          Loading…
+    <section
+      id="matchHero"
+      class="panel section match-hero"
+      aria-label="Match information"
+    >
+      <div class="match-hero__top">
+        <div class="match-hero__identity">
+          <div class="badge match-hero__badge">
+            <i></i> Live match
+          </div>
+
+          <div class="match-hero__title-row">
+            <div>
+              <h1 id="miTitle" class="match-hero__title">
+                Loading…
+              </h1>
+
+              <div id="miLine2" class="hint match-hero__location">
+                —
+              </div>
+            </div>
+
+            <div
+              id="matchStatusBadge"
+              class="match-status match-status--waiting"
+            >
+              <span class="match-status__dot"></span>
+              <span id="matchStatusText">WAITING</span>
+            </div>
+          </div>
         </div>
-        <div class="hint" id="miLine2">—</div>
+
+        <div class="match-hero__actions">
+          <button
+            id="btnShareMatch"
+            class="match-action-button"
+            type="button"
+          >
+            <span aria-hidden="true">↗</span>
+            <span id="shareMatchText">Share match</span>
+          </button>
+
+          <button
+            id="btnMatchFullscreen"
+            class="match-action-button match-action-button--accent"
+            type="button"
+          >
+            <span aria-hidden="true">⛶</span>
+            <span id="fullscreenMatchText">Fullscreen</span>
+          </button>
+        </div>
       </div>
-    </div>
+
+      <div class="match-hero__score">
+        <div class="match-hero-player match-hero-player--a">
+          <div class="match-hero-player__side">A</div>
+
+          <div class="match-hero-player__name" id="heroNameA">
+            Player A
+          </div>
+
+          <div
+            class="match-hero-player__serve"
+            id="heroServeA"
+            style="display:none;"
+            title="Serving"
+          ></div>
+
+          <div class="match-hero-player__numbers">
+            <span id="heroPointA">0</span>
+            <span id="heroGamesA">0</span>
+            <span id="heroSetsA">0</span>
+          </div>
+        </div>
+
+        <div class="match-hero__column-labels" aria-hidden="true">
+          <span>Point</span>
+          <span>Games</span>
+          <span>Sets</span>
+        </div>
+
+        <div class="match-hero-player match-hero-player--b">
+          <div class="match-hero-player__side">B</div>
+
+          <div class="match-hero-player__name" id="heroNameB">
+            Player B
+          </div>
+
+          <div
+            class="match-hero-player__serve"
+            id="heroServeB"
+            style="display:none;"
+            title="Serving"
+          ></div>
+
+          <div class="match-hero-player__numbers">
+            <span id="heroPointB">0</span>
+            <span id="heroGamesB">0</span>
+            <span id="heroSetsB">0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="match-hero__meta">
+        <div class="match-meta-item">
+          <span class="match-meta-item__icon" aria-hidden="true">◷</span>
+
+          <div>
+            <span class="match-meta-item__label">Started</span>
+            <strong id="matchStartedAt">Not started</strong>
+          </div>
+        </div>
+
+        <div class="match-meta-item">
+          <span class="match-meta-item__icon" aria-hidden="true">🎾</span>
+
+          <div>
+            <span class="match-meta-item__label">Format</span>
+            <strong id="matchFormat">Best of 3 sets</strong>
+          </div>
+        </div>
+
+        <div class="match-meta-item">
+          <span class="match-meta-item__icon" aria-hidden="true">●</span>
+
+          <div>
+            <span class="match-meta-item__label">Updates</span>
+            <strong>Live scoring</strong>
+          </div>
+        </div>
+      </div>
+
+      <div
+        id="matchActionFeedback"
+        class="match-action-feedback"
+        aria-live="polite"
+      ></div>
+    </section>
 
     <div style="height:16px;"></div>
 
@@ -946,6 +1073,29 @@ export async function renderViewer(path) {
   const miTitle = app.querySelector("#miTitle");
   const miLine2 = app.querySelector("#miLine2");
 
+  const matchHero = app.querySelector("#matchHero");
+  const matchStatusBadge = app.querySelector("#matchStatusBadge");
+  const matchStatusText = app.querySelector("#matchStatusText");
+  const matchStartedAt = app.querySelector("#matchStartedAt");
+  const matchFormat = app.querySelector("#matchFormat");
+  const matchActionFeedback = app.querySelector("#matchActionFeedback");
+
+  const btnShareMatch = app.querySelector("#btnShareMatch");
+  const shareMatchText = app.querySelector("#shareMatchText");
+  const btnMatchFullscreen = app.querySelector("#btnMatchFullscreen");
+  const fullscreenMatchText = app.querySelector("#fullscreenMatchText");
+
+  const heroNameA = app.querySelector("#heroNameA");
+  const heroNameB = app.querySelector("#heroNameB");
+  const heroPointA = app.querySelector("#heroPointA");
+  const heroPointB = app.querySelector("#heroPointB");
+  const heroGamesA = app.querySelector("#heroGamesA");
+  const heroGamesB = app.querySelector("#heroGamesB");
+  const heroSetsA = app.querySelector("#heroSetsA");
+  const heroSetsB = app.querySelector("#heroSetsB");
+  const heroServeA = app.querySelector("#heroServeA");
+  const heroServeB = app.querySelector("#heroServeB");
+
   const status = app.querySelector("#status");
   const photoStatus = app.querySelector("#photostatus");
   const streamSourceLabel = app.querySelector("#streamSourceLabel");
@@ -1042,6 +1192,164 @@ export async function renderViewer(path) {
     const stateUrl = resolveUrl(courtObj.state || "");
     const photosCourt = String(courtObj.photosCourt || courtId || "court-1").trim() || "court-1";
     const apiBase = isAbsUrl(stateUrl) ? new URL(stateUrl).origin : window.location.origin;
+
+    function formatMatchStart(value) {
+      const timestamp = Number(value || 0);
+
+      if (!Number.isFinite(timestamp) || timestamp <= 0) {
+        return "Not started";
+      }
+
+      return new Date(timestamp).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+
+    function setMatchStatus(status) {
+      const normalized = String(status || "WAITING").toUpperCase();
+
+      if (matchStatusText) {
+        matchStatusText.textContent = normalized;
+      }
+
+      if (!matchStatusBadge) return;
+
+      matchStatusBadge.classList.remove(
+        "match-status--live",
+        "match-status--ended",
+        "match-status--waiting"
+      );
+
+      if (normalized === "LIVE") {
+        matchStatusBadge.classList.add("match-status--live");
+      } else if (normalized === "ENDED") {
+        matchStatusBadge.classList.add("match-status--ended");
+      } else {
+        matchStatusBadge.classList.add("match-status--waiting");
+      }
+    }
+
+    function updateHeroScore({
+      nameA,
+      nameB,
+      pointA,
+      pointB,
+      gamesA,
+      gamesB,
+      setsA,
+      setsB,
+      server
+    }) {
+      if (heroNameA) heroNameA.textContent = String(nameA || "Player A");
+      if (heroNameB) heroNameB.textContent = String(nameB || "Player B");
+
+      if (heroPointA) heroPointA.textContent = String(pointA ?? "—");
+      if (heroPointB) heroPointB.textContent = String(pointB ?? "—");
+      if (heroGamesA) heroGamesA.textContent = String(gamesA ?? "—");
+      if (heroGamesB) heroGamesB.textContent = String(gamesB ?? "—");
+      if (heroSetsA) heroSetsA.textContent = String(setsA ?? "—");
+      if (heroSetsB) heroSetsB.textContent = String(setsB ?? "—");
+
+      const serverSide = String(server || "").toUpperCase();
+
+      if (heroServeA) {
+        heroServeA.style.display = serverSide === "A" ? "" : "none";
+      }
+
+      if (heroServeB) {
+        heroServeB.style.display = serverSide === "B" ? "" : "none";
+      }
+    }
+
+    function showMatchActionFeedback(message) {
+      if (!matchActionFeedback) return;
+
+      matchActionFeedback.textContent = message;
+      matchActionFeedback.classList.add(
+        "match-action-feedback--visible"
+      );
+
+      window.clearTimeout(showMatchActionFeedback.timer);
+
+      showMatchActionFeedback.timer = window.setTimeout(() => {
+        matchActionFeedback.classList.remove(
+          "match-action-feedback--visible"
+        );
+      }, 2200);
+    }
+
+    btnShareMatch?.addEventListener("click", async () => {
+      const shareData = {
+        title: miTitle?.textContent || "VoxCourt live match",
+        text: "Watch this match live on VoxCourt.",
+        url: window.location.href
+      };
+
+      try {
+        if (navigator.share) {
+          await navigator.share(shareData);
+          showMatchActionFeedback("Match shared.");
+          return;
+        }
+
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(window.location.href);
+
+          if (shareMatchText) {
+            shareMatchText.textContent = "Link copied";
+          }
+
+          showMatchActionFeedback("Match link copied.");
+
+          window.setTimeout(() => {
+            if (shareMatchText) {
+              shareMatchText.textContent = "Share match";
+            }
+          }, 1800);
+
+          return;
+        }
+
+        window.prompt(
+          "Copy this match link:",
+          window.location.href
+        );
+      } catch (error) {
+        if (error?.name !== "AbortError") {
+          showMatchActionFeedback("Unable to share this match.");
+        }
+      }
+    });
+
+    btnMatchFullscreen?.addEventListener("click", async () => {
+      try {
+        if (!document.fullscreenElement) {
+          await matchHero?.closest(".wrap")?.requestFullscreen?.();
+        } else {
+          await document.exitFullscreen?.();
+        }
+      } catch (_) {
+        showMatchActionFeedback(
+          "Fullscreen is not available in this browser."
+        );
+      }
+    });
+
+    document.addEventListener("fullscreenchange", () => {
+      const fullscreenActive = Boolean(document.fullscreenElement);
+
+      document.body.classList.toggle(
+        "voxcourt-viewer-fullscreen",
+        fullscreenActive
+      );
+
+      if (fullscreenMatchText) {
+        fullscreenMatchText.textContent = fullscreenActive
+          ? "Exit fullscreen"
+          : "Fullscreen";
+      }
+    });
 
     miTitle.textContent = `🎾 ${clubObj.name} – ${courtObj.name}`;
     miLine2.textContent = `📍 ${cityObj.name}, ${countryObj.name}  •  🔴 LIVE`;
@@ -1884,7 +2192,34 @@ export async function renderViewer(path) {
           `${apiBase}/api/matches/active/${country}/${city}/${clubId}/${courtId}`;
 
         const activePayload = await fetchJson(activeMatchUrl);
-        const matchId = String(activePayload?.match?.matchId || "");
+        const activeMatch = activePayload?.match || null;
+        const matchId = String(activeMatch?.matchId || "");
+
+        if (activeMatch) {
+          setMatchStatus(
+            String(activeMatch.status || "LIVE").toUpperCase()
+          );
+
+          if (matchStartedAt) {
+            matchStartedAt.textContent = formatMatchStart(
+              activeMatch.startedAt
+            );
+          }
+
+          if (activeMatch.nameA && heroNameA) {
+            heroNameA.textContent = String(activeMatch.nameA);
+          }
+
+          if (activeMatch.nameB && heroNameB) {
+            heroNameB.textContent = String(activeMatch.nameB);
+          }
+        } else {
+          setMatchStatus("WAITING");
+
+          if (matchStartedAt) {
+            matchStartedAt.textContent = "Not started";
+          }
+        }
 
         const eventsUrl =
           `${apiBase}/api/events/${country}/${city}/${clubId}/${courtId}` +
@@ -2138,6 +2473,18 @@ export async function renderViewer(path) {
         const server = String(s.server || "").toUpperCase();
         serveAIcon.style.display = server === "A" ? "" : "none";
         serveBIcon.style.display = server === "B" ? "" : "none";
+
+        updateHeroScore({
+          nameA,
+          nameB,
+          pointA,
+          pointB,
+          gamesA,
+          gamesB,
+          setsA,
+          setsB,
+          server
+        });
 
         nameAEl.textContent = clampText(nameA, 34);
         nameBEl.textContent = clampText(nameB, 34);
