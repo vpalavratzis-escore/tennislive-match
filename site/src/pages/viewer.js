@@ -3474,6 +3474,13 @@ ${safeUrl}`
         eventMatchesHighlightFilter
       );
 
+      const showAll =
+        highlightsGrid.dataset.showAll === "true";
+
+      const displayEvents = showAll
+        ? visible
+        : visible.slice(-6);
+
       highlightsGrid.innerHTML = "";
 
       if (visible.length === 0) {
@@ -3505,7 +3512,7 @@ ${safeUrl}`
         `${visible.length} highlight` +
         `${visible.length === 1 ? "" : "s"} available`;
 
-      visible.forEach((event) => {
+      displayEvents.forEach((event) => {
         const display = event?.display || {};
         const metadata = event?.metadata || {};
         const eventType = getHighlightType(event);
@@ -3640,6 +3647,27 @@ ${safeUrl}`
         card.appendChild(button);
         highlightsGrid.appendChild(card);
       });
+
+      if (visible.length > 6) {
+        const viewAll = document.createElement("button");
+
+        viewAll.type = "button";
+        viewAll.className = "highlights-view-all";
+
+        viewAll.textContent =
+          showAll
+            ? "Show less"
+            : `View all (${visible.length})`;
+
+        viewAll.addEventListener("click", () => {
+          highlightsGrid.dataset.showAll =
+            showAll ? "false" : "true";
+
+          renderHighlights(events);
+        });
+
+        highlightsGrid.appendChild(viewAll);
+      }
     }
 
     function getTimelineEventType(event) {
