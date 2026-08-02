@@ -1257,85 +1257,146 @@ export async function renderViewer(path) {
     function renderMatchEndSummary(match, state) {
       if (!matchEndSummary || !matchEndSummarySpacer) return;
 
-      if (!match || String(match.status || "").toUpperCase() !== "ENDED") {
+      const matchStatus = String(
+        match?.status ||
+        state?.matchStatus ||
+        ""
+      ).toUpperCase();
+
+      if (matchStatus !== "ENDED") {
         matchEndSummary.style.display = "none";
         matchEndSummarySpacer.style.display = "none";
         return;
       }
 
       const source = state || {};
+      const metadata = match?.metadata || {};
 
       const nameA = String(
-        match.nameA ||
+        match?.nameA ||
         source.nameA ||
         source.playerA?.name ||
         "Player A"
       );
 
       const nameB = String(
-        match.nameB ||
+        match?.nameB ||
         source.nameB ||
         source.playerB?.name ||
         "Player B"
       );
 
-      const setsA = Number(
-        source.setsA ??
-        source.playerA?.sets ??
-        0
-      );
+      const winnerSide = String(
+        match?.winner ||
+        source.winner ||
+        ""
+      ).toUpperCase();
 
-      const setsB = Number(
-        source.setsB ??
-        source.playerB?.sets ??
-        0
-      );
-
-      const gamesA = Number(
-        source.gamesA ??
-        source.playerA?.games ??
-        0
-      );
-
-      const gamesB = Number(
-        source.gamesB ??
-        source.playerB?.games ??
-        0
-      );
+      const winnerNameFromTablet = String(
+        match?.winnerName ||
+        source.winnerName ||
+        ""
+      ).trim();
 
       const winnerName =
-        setsA > setsB
-          ? nameA
-          : setsB > setsA
-            ? nameB
-            : gamesA > gamesB
-              ? nameA
-              : gamesB > gamesA
-                ? nameB
-                : "Match completed";
+        winnerNameFromTablet ||
+        (
+          winnerSide === "A"
+            ? nameA
+            : winnerSide === "B"
+              ? nameB
+              : "Match completed"
+        );
+
+      const finalScore = String(
+        match?.finalScore ||
+        source.finalScore ||
+        ""
+      ).trim();
+
+      const durationSeconds = Number(
+        match?.durationSeconds ??
+        source.durationSeconds ??
+        0
+      );
+
+      const formatLabel = String(
+        match?.formatLabel ||
+        metadata.formatLabel ||
+        source.formatLabel ||
+        ""
+      ).trim();
+
+      const rules =
+        match?.rules ||
+        metadata.rules ||
+        source.rules ||
+        {};
 
       if (matchWinnerName) {
         matchWinnerName.textContent = winnerName;
       }
 
-      if (matchEndNameA) matchEndNameA.textContent = nameA;
-      if (matchEndNameB) matchEndNameB.textContent = nameB;
+      if (matchEndNameA) {
+        matchEndNameA.textContent = nameA;
+      }
 
-      if (matchEndSetsA) matchEndSetsA.textContent = String(setsA);
-      if (matchEndSetsB) matchEndSetsB.textContent = String(setsB);
-      if (matchEndGamesA) matchEndGamesA.textContent = String(gamesA);
-      if (matchEndGamesB) matchEndGamesB.textContent = String(gamesB);
+      if (matchEndNameB) {
+        matchEndNameB.textContent = nameB;
+      }
+
+      /*
+       * Δεν υπολογίζουμε νικητή ή τελικό σκορ.
+       * Εμφανίζουμε αποκλειστικά όσα έστειλε το tablet.
+       */
+      if (matchEndSetsA) {
+        matchEndSetsA.textContent =
+          finalScore || "—";
+      }
+
+      if (matchEndSetsB) {
+        matchEndSetsB.textContent =
+          formatLabel || "—";
+      }
+
+      if (matchEndGamesA) {
+        matchEndGamesA.textContent =
+          winnerSide || "—";
+      }
+
+      if (matchEndGamesB) {
+        matchEndGamesB.textContent =
+          Object.keys(rules).length > 0
+            ? "Rules"
+            : "—";
+      }
 
       if (matchEndDuration) {
-        matchEndDuration.textContent = formatDuration(
-          match.startedAt,
-          match.endedAt
-        );
+        if (durationSeconds > 0) {
+          const totalMinutes = Math.floor(
+            durationSeconds / 60
+          );
+
+          const hours = Math.floor(
+            totalMinutes / 60
+          );
+
+          const minutes = totalMinutes % 60;
+
+          matchEndDuration.textContent =
+            hours > 0
+              ? `${hours}h ${minutes}m`
+              : `${minutes} min`;
+        } else {
+          matchEndDuration.textContent = "—";
+        }
       }
 
       if (matchEndTime) {
-        matchEndTime.textContent = match.endedAt
-          ? new Date(Number(match.endedAt)).toLocaleTimeString([], {
+        matchEndTime.textContent = match?.endedAt
+          ? new Date(
+              Number(match.endedAt)
+            ).toLocaleTimeString([], {
               hour: "2-digit",
               minute: "2-digit"
             })
@@ -1347,18 +1408,34 @@ export async function renderViewer(path) {
       );
 
       rows.forEach((row) => {
-        row.classList.remove("match-end-result-row--winner");
+        row.classList.remove(
+          "match-end-result-row--winner"
+        );
       });
 
-      if (setsA > setsB || (setsA === setsB && gamesA > gamesB)) {
-        rows[0]?.classList.add("match-end-result-row--winner");
-      } else if (setsB > setsA || (setsA === setsB && gamesB > gamesA)) {
-        rows[1]?.classList.add("match-end-result-row--winner");
+      if (winnerSide === "A") {
+        rows[0]?.classList.add(
+          "match-end-result-row--winner"
+        );
+      } else if (winnerSide === "B") {
+        rows[1]?.classList.add(
+          "match-end-result-row--winner"
+        );
       }
+
+      matchEndSummary.dataset.finalScore =
+        finalScore;
+
+      matchEndSummary.dataset.formatLabel =
+        formatLabel;
+
+      matchEndSummary.dataset.rules =
+        JSON.stringify(rules);
 
       matchEndSummary.style.display = "grid";
       matchEndSummarySpacer.style.display = "block";
     }
+
 
     function setMatchStatus(status) {
       const normalized = String(status || "READY").toUpperCase();
@@ -2403,13 +2480,27 @@ ${window.location.href}`
       if (!timelineList || !timelineStatus) return;
 
       try {
-        const activeMatchUrl =
-          `${apiBase}/api/matches/active/${country}/${city}/${clubId}/${courtId}`;
+        const latestMatchUrl =
+          `${apiBase}/api/matches/latest/${country}/${city}/${clubId}/${courtId}`;
 
-        const activePayload = await fetchJson(activeMatchUrl);
-        const activeMatch = activePayload?.match || null;
-        latestMatchLifecycle = activeMatch;
-        const matchId = String(activeMatch?.matchId || "");
+        const latestPayload = await fetchJson(latestMatchUrl);
+        const latestMatch = latestPayload?.match || null;
+
+        latestMatchLifecycle = latestMatch;
+
+        renderMatchEndSummary(
+          latestMatchLifecycle,
+          latestMatchState
+        );
+
+        const activeMatch =
+          String(latestMatch?.status || "").toUpperCase() === "LIVE"
+            ? latestMatch
+            : null;
+
+        const matchId = String(
+          latestMatch?.matchId || ""
+        );
 
         if (activeMatch) {
           const activeStatus = String(
