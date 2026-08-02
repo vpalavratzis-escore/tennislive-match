@@ -2675,6 +2675,7 @@ ${safeUrl}`
       } catch (error) {
         try {
           await copyTextSafely(replayUrl);
+
           replayStatus.textContent =
             "Replay link copied.";
         } catch (_) {
