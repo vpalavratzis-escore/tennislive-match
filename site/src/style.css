@@ -4616,3 +4616,302 @@ div:has(> #serveBIcon):hover {
   }
 }
 
+
+/* =========================================================
+   SAFE VOXCOURT HIGHLIGHTS PANEL
+   ========================================================= */
+
+.highlights-panel {
+  display: grid;
+  gap: 17px;
+  margin-top: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(85, 226, 223, 0.15) !important;
+  border-radius: 23px !important;
+  background:
+    radial-gradient(
+      circle at 4% 0%,
+      rgba(0, 205, 210, 0.08),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 96% 100%,
+      rgba(169, 76, 225, 0.07),
+      transparent 32%
+    ),
+    rgba(4, 14, 20, 0.96) !important;
+}
+
+.highlights-panel__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.highlights-panel__title {
+  margin: 11px 0 0;
+  color: #fff;
+  font-size: clamp(20px, 2.4vw, 29px);
+  line-height: 1.12;
+  font-weight: 900;
+  letter-spacing: -0.025em;
+}
+
+.highlights-panel__status {
+  margin-top: 7px;
+}
+
+.highlights-filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 3px;
+  scrollbar-width: thin;
+}
+
+.highlights-filter {
+  flex: 0 0 auto;
+  min-height: 38px;
+  padding: 8px 13px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.028);
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 11px;
+  font-weight: 900;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.highlights-filter:hover {
+  color: #fff;
+  border-color: rgba(85, 226, 223, 0.2);
+}
+
+.highlights-filter--active {
+  color: #fff;
+  border-color: rgba(85, 226, 223, 0.32);
+  background: rgba(0, 176, 182, 0.17);
+}
+
+.highlights-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+  gap: 11px;
+}
+
+.highlight-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.022);
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease;
+}
+
+.highlight-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(85, 226, 223, 0.24);
+  background: rgba(85, 226, 223, 0.04);
+}
+
+.highlight-card--game {
+  border-color: rgba(183, 91, 235, 0.16);
+}
+
+.highlight-card--set {
+  border-color: rgba(255, 208, 84, 0.18);
+}
+
+.highlight-card__play {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 12px;
+  position: relative;
+  width: 100%;
+  min-height: 114px;
+  padding: 12px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.highlight-card__visual {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  align-self: center;
+  border-radius: 15px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(0, 178, 183, 0.18),
+      rgba(90, 45, 153, 0.16)
+    );
+}
+
+.highlight-card--set .highlight-card__visual {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 204, 72, 0.17),
+      rgba(122, 77, 21, 0.12)
+    );
+}
+
+.highlight-card__icon {
+  font-size: 27px;
+  opacity: 0.55;
+}
+
+.highlight-card__play-icon {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 33px;
+  height: 33px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 50%;
+  background: rgba(2, 11, 15, 0.84);
+  color: #fff;
+  font-size: 12px;
+  box-shadow: 0 7px 18px rgba(0, 0, 0, 0.25);
+}
+
+.highlight-card__body {
+  display: grid;
+  align-content: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.highlight-card__type {
+  color: #55e2df;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+}
+
+.highlight-card--game .highlight-card__type {
+  color: #c06ee9;
+}
+
+.highlight-card--set .highlight-card__type {
+  color: #ffd05b;
+}
+
+.highlight-card__title {
+  padding-right: 44px;
+  overflow: hidden;
+  color: #fff;
+  font-size: 14px;
+  line-height: 1.2;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.highlight-card__player {
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.highlight-card__scores {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.highlight-card__scores span {
+  padding: 4px 6px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.67);
+  font-size: 9px;
+  font-weight: 850;
+}
+
+.highlight-card__time {
+  position: absolute;
+  top: 10px;
+  right: 11px;
+  color: rgba(255, 255, 255, 0.38);
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+}
+
+.highlights-empty {
+  grid-column: 1 / -1;
+  display: grid;
+  place-items: center;
+  gap: 7px;
+  min-height: 170px;
+  padding: 24px;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  color: rgba(255, 255, 255, 0.52);
+  text-align: center;
+}
+
+.highlights-empty__icon {
+  font-size: 32px;
+  opacity: 0.65;
+}
+
+.highlights-empty strong {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Tablet */
+@media (max-width: 1050px) {
+  .highlights-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Mobile */
+@media (max-width: 650px) {
+  .highlights-panel {
+    padding: 16px !important;
+    border-radius: 18px !important;
+  }
+
+  .highlights-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .highlight-card__play {
+    grid-template-columns: 64px minmax(0, 1fr);
+    min-height: 102px;
+    padding: 10px;
+  }
+
+  .highlight-card__visual {
+    width: 64px;
+    height: 64px;
+    border-radius: 13px;
+  }
+
+  .highlight-card__title {
+    padding-right: 45px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}

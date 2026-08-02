@@ -1270,6 +1270,76 @@ export async function renderViewer(path) {
       </div>
     </div>
 
+    <section
+      id="highlightsPanel"
+      class="panel section highlights-panel"
+      aria-label="Match highlights"
+    >
+      <div class="highlights-panel__header">
+        <div>
+          <div class="badge">
+            <i></i> Match Highlights
+          </div>
+
+          <h2 class="highlights-panel__title">
+            Replay the key moments
+          </h2>
+
+          <div
+            id="highlightsStatus"
+            class="hint highlights-panel__status"
+          >
+            Waiting for saved replays…
+          </div>
+        </div>
+      </div>
+
+      <div
+        id="highlightsFilters"
+        class="highlights-filters"
+        aria-label="Highlight filters"
+      >
+        <button
+          type="button"
+          class="highlights-filter highlights-filter--active"
+          data-highlight-filter="all"
+        >
+          All
+        </button>
+
+        <button
+          type="button"
+          class="highlights-filter"
+          data-highlight-filter="point"
+        >
+          🎾 Points
+        </button>
+
+        <button
+          type="button"
+          class="highlights-filter"
+          data-highlight-filter="game"
+        >
+          🏆 Games
+        </button>
+
+        <button
+          type="button"
+          class="highlights-filter"
+          data-highlight-filter="set"
+        >
+          👑 Sets
+        </button>
+      </div>
+
+      <div
+        id="highlightsGrid"
+        class="highlights-grid"
+      ></div>
+    </section>
+
+    <div style="height:18px;"></div>
+
     <div class="footer">© <span id="y"></span> VoxCourt.</div>
   </div>
 `;
@@ -1334,6 +1404,11 @@ export async function renderViewer(path) {
   const timelineExpandAll = app.querySelector("#timelineExpandAll");
   const timelineCollapseAll = app.querySelector("#timelineCollapseAll");
   const timelineJumpLatest = app.querySelector("#timelineJumpLatest");
+
+  const highlightsPanel = app.querySelector("#highlightsPanel");
+  const highlightsStatus = app.querySelector("#highlightsStatus");
+  const highlightsFilters = app.querySelector("#highlightsFilters");
+  const highlightsGrid = app.querySelector("#highlightsGrid");
 
   const replayVideoEl = app.querySelector("#replayVideo");
   const cameraButtons = app.querySelector("#cameraButtons");
@@ -2912,6 +2987,350 @@ ${safeUrl}`
     let latestTimelineEvents = [];
     const collapsedTimelineGames = new Set();
 
+    let currentHighlightFilter = "all";
+
+    function getHighlightType(event) {
+      return String(
+        event?.display?.type ||
+        event?.type ||
+        "EVENT"
+      ).toUpperCase();
+    }
+
+    function getAvailableHighlightEvents(events) {
+      return (Array.isArray(events) ? events : [])
+        .filter((event) => (
+          Boolean(event?.eventId) &&
+          event?.display?.replayAvailable === true
+        ))
+        .sort((a, b) => (
+          Number(b?.timestamp || 0) -
+          Number(a?.timestamp || 0)
+        ));
+    }
+
+    function eventMatchesHighlightFilter(event) {
+      if (currentHighlightFilter === "all") {
+        return true;
+      }
+
+      return (
+        getHighlightType(event).toLowerCase() ===
+        currentHighlightFilter
+      );
+    }
+
+    function updateHighlightFilterCounts(events) {
+      if (!highlightsFilters) return;
+
+      const available = getAvailableHighlightEvents(events);
+
+      const counts = {
+        all: available.length,
+        point: 0,
+        game: 0,
+        set: 0
+      };
+
+      available.forEach((event) => {
+        const type = getHighlightType(event).toLowerCase();
+
+        if (Object.prototype.hasOwnProperty.call(counts, type)) {
+          counts[type] += 1;
+        }
+      });
+
+      const labels = {
+        all: "All",
+        point: "🎾 Points",
+        game: "🏆 Games",
+        set: "👑 Sets"
+      };
+
+      highlightsFilters
+        .querySelectorAll("[data-highlight-filter]")
+        .forEach((button) => {
+          const filter = String(
+            button.dataset.highlightFilter || "all"
+          );
+
+          button.textContent =
+            `${labels[filter] || filter} ${counts[filter] || 0}`;
+        });
+    }
+
+    async function openHighlightReplay(event) {
+      const eventId = String(event?.eventId || "");
+      const display = event?.display || {};
+      const metadata = event?.metadata || {};
+
+      if (!eventId) return;
+
+      const replayUrl =
+        `${apiBase}/api/events/${encodeURIComponent(eventId)}/replay` +
+        `?t=${Date.now()}`;
+
+      setReplayLoading(
+        true,
+        `Preparing ${display.title || "highlight"}…`
+      );
+
+      replayStatus.textContent =
+        `Preparing ${display.title || "highlight"}…`;
+
+      try {
+        const response = await fetch(replayUrl, {
+          method: "GET",
+          cache: "no-store"
+        });
+
+        if (!response.ok) {
+          let detail = `HTTP ${response.status}`;
+
+          try {
+            const body = await response.text();
+
+            if (body) {
+              detail = body.slice(0, 220);
+            }
+          } catch (_) {}
+
+          throw new Error(detail);
+        }
+
+        const blob = await response.blob();
+
+        if (!blob || blob.size < 50000) {
+          throw new Error(
+            "Replay file is empty or unavailable."
+          );
+        }
+
+        cleanupReplayObjectUrl();
+        replayObjectUrl = URL.createObjectURL(blob);
+
+        try {
+          replayVideoEl.pause();
+        } catch (_) {}
+
+        replayVideoEl.src = replayObjectUrl;
+        replayVideoEl.currentTime = 0;
+        replayVideoEl.style.display = "block";
+        replayVideoEl.classList.add(
+          "replay-video--active"
+        );
+
+        const scoringSide = String(
+          display.scoringSide ||
+          display.winner ||
+          metadata.scoringSide ||
+          metadata.winner ||
+          ""
+        ).toUpperCase();
+
+        const scoringName =
+          scoringSide === "A"
+            ? String(
+                metadata.nameA ||
+                nameAEl?.textContent ||
+                "Player A"
+              )
+            : scoringSide === "B"
+              ? String(
+                  metadata.nameB ||
+                  nameBEl?.textContent ||
+                  "Player B"
+                )
+              : "Match event";
+
+        activateReplayStudio({
+          blob,
+          title: display.title || "Match Highlight",
+          subtitle:
+            `${scoringName} • ` +
+            `${formatTimelineTime(event?.timestamp)}`,
+          filename: `voxcourt-${eventId}.mp4`,
+          sourceUrl: replayUrl
+        });
+
+        setReplayLoading(false);
+        setVideoMode("replay");
+
+        videoEl.style.display = "none";
+        btnBackLive.style.display = "";
+        btnBackLive.textContent = "← Back to Live";
+
+        replayStatus.textContent =
+          `${display.title || "Highlight"} • ` +
+          `${(blob.size / 1024 / 1024).toFixed(1)} MB`;
+
+        await replayVideoEl.play();
+      } catch (error) {
+        setReplayLoading(false);
+
+        replayStatus.textContent =
+          `Replay error: ${error.message}`;
+      }
+    }
+
+    function renderHighlights(events) {
+      if (!highlightsGrid || !highlightsStatus) {
+        return;
+      }
+
+      updateHighlightFilterCounts(events);
+
+      const available =
+        getAvailableHighlightEvents(events);
+
+      const visible = available.filter(
+        eventMatchesHighlightFilter
+      );
+
+      highlightsGrid.innerHTML = "";
+
+      if (visible.length === 0) {
+        highlightsStatus.textContent =
+          available.length === 0
+            ? "No saved highlights are available yet."
+            : "No highlights match this filter.";
+
+        const empty = document.createElement("div");
+        empty.className = "highlights-empty";
+
+        const icon = document.createElement("span");
+        icon.className = "highlights-empty__icon";
+        icon.textContent = "🎬";
+
+        const title = document.createElement("strong");
+        title.textContent = "No highlights available";
+
+        const description = document.createElement("span");
+        description.textContent =
+          "Saved point, game and set replays will appear here.";
+
+        empty.append(icon, title, description);
+        highlightsGrid.appendChild(empty);
+        return;
+      }
+
+      highlightsStatus.textContent =
+        `${visible.length} highlight` +
+        `${visible.length === 1 ? "" : "s"} available`;
+
+      visible.forEach((event) => {
+        const display = event?.display || {};
+        const metadata = event?.metadata || {};
+        const eventType = getHighlightType(event);
+
+        const scoringSide = String(
+          display.scoringSide ||
+          display.winner ||
+          metadata.scoringSide ||
+          metadata.winner ||
+          ""
+        ).toUpperCase();
+
+        const scoringName =
+          scoringSide === "A"
+            ? String(
+                metadata.nameA ||
+                nameAEl?.textContent ||
+                "Player A"
+              )
+            : scoringSide === "B"
+              ? String(
+                  metadata.nameB ||
+                  nameBEl?.textContent ||
+                  "Player B"
+                )
+              : "Match event";
+
+        const iconText =
+          eventType === "SET"
+            ? "👑"
+            : eventType === "GAME"
+              ? "🏆"
+              : eventType === "POINT"
+                ? "🎾"
+                : "🎬";
+
+        const card = document.createElement("article");
+
+        card.className =
+          `highlight-card ` +
+          `highlight-card--${eventType.toLowerCase()}`;
+
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "highlight-card__play";
+
+        button.setAttribute(
+          "aria-label",
+          `Play ${display.title || "highlight"}`
+        );
+
+        const visual = document.createElement("span");
+        visual.className = "highlight-card__visual";
+
+        const icon = document.createElement("span");
+        icon.className = "highlight-card__icon";
+        icon.textContent = iconText;
+
+        const playIcon = document.createElement("span");
+        playIcon.className = "highlight-card__play-icon";
+        playIcon.textContent = "▶";
+
+        visual.append(icon, playIcon);
+
+        const body = document.createElement("span");
+        body.className = "highlight-card__body";
+
+        const type = document.createElement("span");
+        type.className = "highlight-card__type";
+        type.textContent = eventType;
+
+        const title = document.createElement("strong");
+        title.className = "highlight-card__title";
+        title.textContent =
+          display.title || "Match Highlight";
+
+        const player = document.createElement("span");
+        player.className = "highlight-card__player";
+        player.textContent = scoringName;
+
+        const scores = document.createElement("span");
+        scores.className = "highlight-card__scores";
+
+        [
+          display.score || "—",
+          `Games ${display.games || "—"}`,
+          `Sets ${display.sets || "—"}`
+        ].forEach((value) => {
+          const chip = document.createElement("span");
+          chip.textContent = value;
+          scores.appendChild(chip);
+        });
+
+        body.append(type, title, player, scores);
+
+        const time = document.createElement("span");
+        time.className = "highlight-card__time";
+        time.textContent = formatTimelineTime(
+          event?.timestamp
+        );
+
+        button.append(visual, body, time);
+
+        button.addEventListener("click", () => {
+          openHighlightReplay(event);
+        });
+
+        card.appendChild(button);
+        highlightsGrid.appendChild(card);
+      });
+    }
+
     function getTimelineEventType(event) {
       const display = event?.display || {};
 
@@ -3453,6 +3872,38 @@ ${safeUrl}`
       });
     }
 
+    highlightsFilters?.addEventListener(
+      "click",
+      (event) => {
+        const button = event.target.closest(
+          "[data-highlight-filter]"
+        );
+
+        if (!button) return;
+
+        const nextFilter = String(
+          button.dataset.highlightFilter || "all"
+        );
+
+        if (nextFilter === currentHighlightFilter) {
+          return;
+        }
+
+        currentHighlightFilter = nextFilter;
+
+        highlightsFilters
+          .querySelectorAll("[data-highlight-filter]")
+          .forEach((item) => {
+            item.classList.toggle(
+              "highlights-filter--active",
+              item === button
+            );
+          });
+
+        renderHighlights(latestTimelineEvents);
+      }
+    );
+
     timelineFilters?.addEventListener("click", (event) => {
       const button = event.target.closest(
         "[data-timeline-filter]"
@@ -3626,6 +4077,7 @@ ${safeUrl}`
 
         const payload = await fetchJson(eventsUrl);
         renderTimelineEvents(payload?.events);
+        renderHighlights(payload?.events);
       } catch (error) {
         timelineStatus.textContent = `Timeline unavailable: ${error.message}`;
       }
