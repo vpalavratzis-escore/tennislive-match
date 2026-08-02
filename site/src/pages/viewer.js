@@ -572,6 +572,93 @@ export async function renderViewer(path) {
 
     <div style="height:16px;"></div>
 
+    <section
+      id="matchEndSummary"
+      class="panel section match-end-summary"
+      style="display:none;"
+      aria-label="Match result"
+    >
+      <div class="match-end-summary__top">
+        <div>
+          <div class="match-end-summary__eyebrow">
+            🏆 MATCH FINISHED
+          </div>
+
+          <h2 class="match-end-summary__title">
+            <span id="matchWinnerName">Winner</span>
+          </h2>
+
+          <div class="match-end-summary__subtitle">
+            Final result
+          </div>
+        </div>
+
+        <div class="match-end-summary__trophy" aria-hidden="true">
+          🏆
+        </div>
+      </div>
+
+      <div class="match-end-summary__score">
+        <div class="match-end-result-row match-end-result-row--winner">
+          <span id="matchEndNameA">Player A</span>
+
+          <div class="match-end-result-values">
+            <strong id="matchEndSetsA">0</strong>
+            <span id="matchEndGamesA">0</span>
+          </div>
+        </div>
+
+        <div class="match-end-result-row">
+          <span id="matchEndNameB">Player B</span>
+
+          <div class="match-end-result-values">
+            <strong id="matchEndSetsB">0</strong>
+            <span id="matchEndGamesB">0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="match-end-summary__meta">
+        <div>
+          <span>Duration</span>
+          <strong id="matchEndDuration">—</strong>
+        </div>
+
+        <div>
+          <span>Completed</span>
+          <strong id="matchEndTime">—</strong>
+        </div>
+      </div>
+
+      <div class="match-end-summary__actions">
+        <button
+          id="btnShareResult"
+          class="match-action-button"
+          type="button"
+        >
+          ↗ Share result
+        </button>
+
+        <button
+          id="btnWatchHighlights"
+          class="match-action-button match-action-button--accent"
+          type="button"
+        >
+          ▶ Watch highlights
+        </button>
+
+        <button
+          id="btnFullMatchReplay"
+          class="match-action-button"
+          type="button"
+        >
+          ⏯ Full match replay
+        </button>
+      </div>
+    </section>
+
+    <div id="matchEndSummarySpacer" style="height:16px; display:none;"></div>
+
     <style>
       @media (max-width: 900px){
         .viewerWrap { grid-template-columns: 1fr !important; }
@@ -1009,6 +1096,21 @@ export async function renderViewer(path) {
   const btnMatchFullscreen = app.querySelector("#btnMatchFullscreen");
   const fullscreenMatchText = app.querySelector("#fullscreenMatchText");
 
+  const matchEndSummary = app.querySelector("#matchEndSummary");
+  const matchEndSummarySpacer = app.querySelector("#matchEndSummarySpacer");
+  const matchWinnerName = app.querySelector("#matchWinnerName");
+  const matchEndNameA = app.querySelector("#matchEndNameA");
+  const matchEndNameB = app.querySelector("#matchEndNameB");
+  const matchEndSetsA = app.querySelector("#matchEndSetsA");
+  const matchEndSetsB = app.querySelector("#matchEndSetsB");
+  const matchEndGamesA = app.querySelector("#matchEndGamesA");
+  const matchEndGamesB = app.querySelector("#matchEndGamesB");
+  const matchEndDuration = app.querySelector("#matchEndDuration");
+  const matchEndTime = app.querySelector("#matchEndTime");
+  const btnShareResult = app.querySelector("#btnShareResult");
+  const btnWatchHighlights = app.querySelector("#btnWatchHighlights");
+  const btnFullMatchReplay = app.querySelector("#btnFullMatchReplay");
+
   const heroNameA = app.querySelector("#heroNameA");
   const heroNameB = app.querySelector("#heroNameB");
   const heroPointA = app.querySelector("#heroPointA");
@@ -1130,6 +1232,134 @@ export async function renderViewer(path) {
       });
     }
 
+    let latestMatchState = null;
+    let latestMatchLifecycle = null;
+
+    function formatDuration(startedAt, endedAt) {
+      const start = Number(startedAt || 0);
+      const end = Number(endedAt || 0);
+
+      if (!start || !end || end <= start) {
+        return "—";
+      }
+
+      const totalSeconds = Math.floor((end - start) / 1000);
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+
+      if (hours > 0) {
+        return `${hours}h ${minutes}m`;
+      }
+
+      return `${minutes} min`;
+    }
+
+    function renderMatchEndSummary(match, state) {
+      if (!matchEndSummary || !matchEndSummarySpacer) return;
+
+      if (!match || String(match.status || "").toUpperCase() !== "ENDED") {
+        matchEndSummary.style.display = "none";
+        matchEndSummarySpacer.style.display = "none";
+        return;
+      }
+
+      const source = state || {};
+
+      const nameA = String(
+        match.nameA ||
+        source.nameA ||
+        source.playerA?.name ||
+        "Player A"
+      );
+
+      const nameB = String(
+        match.nameB ||
+        source.nameB ||
+        source.playerB?.name ||
+        "Player B"
+      );
+
+      const setsA = Number(
+        source.setsA ??
+        source.playerA?.sets ??
+        0
+      );
+
+      const setsB = Number(
+        source.setsB ??
+        source.playerB?.sets ??
+        0
+      );
+
+      const gamesA = Number(
+        source.gamesA ??
+        source.playerA?.games ??
+        0
+      );
+
+      const gamesB = Number(
+        source.gamesB ??
+        source.playerB?.games ??
+        0
+      );
+
+      const winnerName =
+        setsA > setsB
+          ? nameA
+          : setsB > setsA
+            ? nameB
+            : gamesA > gamesB
+              ? nameA
+              : gamesB > gamesA
+                ? nameB
+                : "Match completed";
+
+      if (matchWinnerName) {
+        matchWinnerName.textContent = winnerName;
+      }
+
+      if (matchEndNameA) matchEndNameA.textContent = nameA;
+      if (matchEndNameB) matchEndNameB.textContent = nameB;
+
+      if (matchEndSetsA) matchEndSetsA.textContent = String(setsA);
+      if (matchEndSetsB) matchEndSetsB.textContent = String(setsB);
+      if (matchEndGamesA) matchEndGamesA.textContent = String(gamesA);
+      if (matchEndGamesB) matchEndGamesB.textContent = String(gamesB);
+
+      if (matchEndDuration) {
+        matchEndDuration.textContent = formatDuration(
+          match.startedAt,
+          match.endedAt
+        );
+      }
+
+      if (matchEndTime) {
+        matchEndTime.textContent = match.endedAt
+          ? new Date(Number(match.endedAt)).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit"
+            })
+          : "—";
+      }
+
+      const rows = matchEndSummary.querySelectorAll(
+        ".match-end-result-row"
+      );
+
+      rows.forEach((row) => {
+        row.classList.remove("match-end-result-row--winner");
+      });
+
+      if (setsA > setsB || (setsA === setsB && gamesA > gamesB)) {
+        rows[0]?.classList.add("match-end-result-row--winner");
+      } else if (setsB > setsA || (setsA === setsB && gamesB > gamesA)) {
+        rows[1]?.classList.add("match-end-result-row--winner");
+      }
+
+      matchEndSummary.style.display = "grid";
+      matchEndSummarySpacer.style.display = "block";
+    }
+
     function setMatchStatus(status) {
       const normalized = String(status || "READY").toUpperCase();
 
@@ -1214,6 +1444,49 @@ export async function renderViewer(path) {
         );
       }, 2200);
     }
+
+    btnShareResult?.addEventListener("click", async () => {
+      const winner = matchWinnerName?.textContent || "Match result";
+
+      const resultText =
+        `${winner} • ` +
+        `${matchEndSetsA?.textContent || "0"}-${matchEndSetsB?.textContent || "0"} sets`;
+
+      const shareData = {
+        title: "VoxCourt match result",
+        text: resultText,
+        url: window.location.href
+      };
+
+      try {
+        if (navigator.share) {
+          await navigator.share(shareData);
+        } else if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(
+            `${resultText}
+${window.location.href}`
+          );
+
+          showMatchActionFeedback("Result copied.");
+        }
+      } catch (error) {
+        if (error?.name !== "AbortError") {
+          showMatchActionFeedback("Unable to share result.");
+        }
+      }
+    });
+
+    btnWatchHighlights?.addEventListener("click", () => {
+      showMatchActionFeedback(
+        "Highlights will be available in the next update."
+      );
+    });
+
+    btnFullMatchReplay?.addEventListener("click", () => {
+      showMatchActionFeedback(
+        "Full match replay will be available in the next update."
+      );
+    });
 
     btnShareMatch?.addEventListener("click", async () => {
       const shareData = {
@@ -2129,6 +2402,7 @@ export async function renderViewer(path) {
 
         const activePayload = await fetchJson(activeMatchUrl);
         const activeMatch = activePayload?.match || null;
+        latestMatchLifecycle = activeMatch;
         const matchId = String(activeMatch?.matchId || "");
 
         if (activeMatch) {
@@ -2413,6 +2687,12 @@ export async function renderViewer(path) {
     async function tickState() {
       try {
         const s = await fetchJson(stateUrl);
+        latestMatchState = s;
+
+        renderMatchEndSummary(
+          latestMatchLifecycle,
+          latestMatchState
+        );
 
         const stateUpdatedAt = Number(s.updatedAt || 0);
 

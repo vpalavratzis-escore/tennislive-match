@@ -3885,3 +3885,201 @@ div:has(> #serveBIcon):hover {
   opacity: 0.72;
   box-shadow: 0 0 10px rgba(85, 226, 223, 0.32);
 }
+
+/* =========================================================
+   MATCH END SUMMARY
+   ========================================================= */
+
+.match-end-summary {
+  display: grid;
+  gap: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 205, 90, 0.22) !important;
+  border-radius: 23px !important;
+  background:
+    radial-gradient(
+      circle at 90% 0%,
+      rgba(255, 205, 90, 0.13),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 5% 100%,
+      rgba(0, 210, 210, 0.08),
+      transparent 35%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(19, 18, 12, 0.97),
+      rgba(5, 15, 20, 0.97)
+    ) !important;
+}
+
+.match-end-summary__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.match-end-summary__eyebrow {
+  color: #ffd55f;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.match-end-summary__title {
+  margin: 8px 0 0;
+  color: #fff;
+  font-size: clamp(24px, 3vw, 38px);
+  line-height: 1.1;
+  font-weight: 900;
+}
+
+.match-end-summary__subtitle {
+  margin-top: 7px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 13px;
+}
+
+.match-end-summary__trophy {
+  display: grid;
+  place-items: center;
+  flex: 0 0 74px;
+  width: 74px;
+  height: 74px;
+  border-radius: 22px;
+  font-size: 34px;
+  border: 1px solid rgba(255, 211, 95, 0.24);
+  background: rgba(255, 211, 95, 0.08);
+  box-shadow: 0 0 28px rgba(255, 211, 95, 0.08);
+}
+
+.match-end-summary__score {
+  display: grid;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  border-radius: 17px;
+  background: rgba(0, 0, 0, 0.16);
+}
+
+.match-end-result-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  min-height: 56px;
+  padding: 10px 13px;
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.match-end-result-row--winner {
+  color: #fff;
+  border: 1px solid rgba(255, 211, 95, 0.2);
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255, 211, 95, 0.12),
+      rgba(255, 255, 255, 0.02)
+    );
+}
+
+.match-end-result-row > span {
+  min-width: 0;
+  font-weight: 900;
+  overflow-wrap: anywhere;
+}
+
+.match-end-result-values {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.match-end-result-values strong,
+.match-end-result-values span {
+  display: grid;
+  place-items: center;
+  min-width: 48px;
+  min-height: 38px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-weight: 900;
+}
+
+.match-end-result-values strong {
+  color: #fff;
+  border: 1px solid rgba(255, 211, 95, 0.22);
+  background: rgba(255, 211, 95, 0.11);
+}
+
+.match-end-result-values span {
+  color: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(0, 215, 215, 0.14);
+  background: rgba(0, 160, 165, 0.09);
+}
+
+.match-end-summary__meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.match-end-summary__meta > div {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.065);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.022);
+}
+
+.match-end-summary__meta span {
+  color: rgba(255, 255, 255, 0.44);
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.match-end-summary__meta strong {
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 13px;
+}
+
+.match-end-summary__actions {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 600px) {
+  .match-end-summary__top {
+    align-items: flex-start;
+  }
+
+  .match-end-summary__trophy {
+    flex-basis: 58px;
+    width: 58px;
+    height: 58px;
+    border-radius: 17px;
+    font-size: 27px;
+  }
+
+  .match-end-summary__meta {
+    grid-template-columns: 1fr;
+  }
+
+  .match-end-summary__actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .match-end-summary__actions .match-action-button {
+    width: 100%;
+  }
+}
