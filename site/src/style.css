@@ -2841,3 +2841,364 @@ div:has(> #serveBIcon) {
     min-height: 88px !important;
   }
 }
+
+/* =========================================================
+   FINAL LIVE SCORE COLORS
+   Κρατάει το υπάρχον σωστό layout.
+   Αλλάζει μόνο χρώματα, borders, score cells και status rows.
+   ========================================================= */
+
+/* Ολόκληρο Live Score panel */
+.panel.section:has(#nameA) {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(0, 205, 210, 0.18) !important;
+  border-radius: 24px !important;
+  background:
+    radial-gradient(
+      circle at 5% 0%,
+      rgba(0, 205, 210, 0.075),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 98% 0%,
+      rgba(177, 75, 230, 0.06),
+      transparent 30%
+    ),
+    rgba(3, 13, 18, 0.96) !important;
+}
+
+/* =========================================================
+   PLAYER CARDS
+   ========================================================= */
+
+div:has(> #serveAIcon),
+div:has(> #serveBIcon) {
+  position: relative !important;
+  overflow: hidden !important;
+  border-radius: 18px !important;
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+/* Player A */
+div:has(> #serveAIcon) {
+  border: 1px solid rgba(0, 225, 225, 0.48) !important;
+  background:
+    radial-gradient(
+      circle at 12% 40%,
+      rgba(0, 225, 225, 0.12),
+      transparent 36%
+    ),
+    linear-gradient(
+      110deg,
+      rgba(0, 130, 135, 0.17),
+      rgba(7, 19, 25, 0.78) 65%
+    ) !important;
+  box-shadow:
+    inset 3px 0 0 rgba(0, 230, 230, 0.85),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035),
+    0 0 24px rgba(0, 210, 215, 0.035);
+}
+
+/* Player B */
+div:has(> #serveBIcon) {
+  border: 1px solid rgba(186, 85, 235, 0.4) !important;
+  background:
+    radial-gradient(
+      circle at 12% 40%,
+      rgba(175, 75, 230, 0.12),
+      transparent 36%
+    ),
+    linear-gradient(
+      110deg,
+      rgba(83, 38, 116, 0.2),
+      rgba(15, 15, 30, 0.82) 65%
+    ) !important;
+  box-shadow:
+    inset 3px 0 0 rgba(184, 82, 234, 0.82),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035),
+    0 0 24px rgba(175, 75, 230, 0.03);
+}
+
+div:has(> #serveAIcon):hover,
+div:has(> #serveBIcon):hover {
+  transform: translateY(-1px);
+}
+
+/* Avatar A */
+#photoA,
+#photoAph {
+  border: 2px solid rgba(0, 225, 225, 0.75) !important;
+  box-shadow:
+    0 0 0 4px rgba(0, 220, 220, 0.055),
+    0 0 19px rgba(0, 225, 225, 0.18) !important;
+}
+
+/* Avatar B */
+#photoB,
+#photoBPh,
+#photoBph {
+  border: 2px solid rgba(188, 91, 238, 0.65) !important;
+  box-shadow:
+    0 0 0 4px rgba(180, 80, 230, 0.05),
+    0 0 19px rgba(184, 80, 235, 0.16) !important;
+}
+
+/* Placeholder A */
+#photoAph {
+  color: #fff !important;
+  background:
+    radial-gradient(
+      circle at 35% 25%,
+      rgba(0, 225, 225, 0.3),
+      rgba(0, 73, 78, 0.72) 60%,
+      rgba(5, 20, 26, 0.96)
+    ) !important;
+}
+
+/* Placeholder B */
+#photoBPh,
+#photoBph {
+  color: #fff !important;
+  background:
+    radial-gradient(
+      circle at 35% 25%,
+      rgba(184, 88, 235, 0.34),
+      rgba(76, 34, 104, 0.72) 60%,
+      rgba(22, 13, 32, 0.97)
+    ) !important;
+}
+
+/* Ονόματα επάνω */
+#photoATitle,
+#photoBTitle {
+  color: #fff !important;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+}
+
+/* Service indicator */
+#serveAIcon,
+#serveBIcon {
+  background: #ffd84f !important;
+  border: 2px solid rgba(255, 245, 180, 0.78) !important;
+  box-shadow:
+    0 0 0 6px rgba(255, 216, 79, 0.12),
+    0 0 20px rgba(255, 216, 79, 0.68) !important;
+}
+
+/* =========================================================
+   SCORE TABLE
+   ========================================================= */
+
+.panel.section:has(#nameA) .table {
+  border: 1px solid rgba(255, 255, 255, 0.085) !important;
+  border-radius: 18px !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  overflow: hidden !important;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(10, 26, 33, 0.55),
+      rgba(4, 15, 20, 0.7)
+    ) !important;
+}
+
+/* Header */
+.panel.section:has(#nameA) .table thead {
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.panel.section:has(#nameA) .table thead th {
+  padding-top: 14px !important;
+  padding-bottom: 14px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.085) !important;
+  color: rgba(255, 255, 255, 0.62) !important;
+  font-weight: 900 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.055em;
+}
+
+/* POINT και GAMES teal */
+.panel.section:has(#nameA) .table thead th:nth-child(2),
+.panel.section:has(#nameA) .table thead th:nth-child(3) {
+  color: #25d9d8 !important;
+}
+
+/* SETS purple */
+.panel.section:has(#nameA) .table thead th:nth-child(4) {
+  color: #bd63e8 !important;
+}
+
+/* Καθαρά οριζόντια διαχωριστικά */
+.panel.section:has(#nameA) .table tbody tr + tr td {
+  border-top: 1px solid rgba(255, 255, 255, 0.075) !important;
+}
+
+/* Ίσα κενά */
+.panel.section:has(#nameA) .table tbody td {
+  padding-top: 11px !important;
+  padding-bottom: 11px !important;
+  vertical-align: middle !important;
+}
+
+/* Player name column */
+#nameA,
+#nameB {
+  position: relative;
+  padding-left: 23px !important;
+  color: #fff !important;
+  font-weight: 900 !important;
+}
+
+/* Χρωματιστή κάθετη γραμμή */
+#nameA::before,
+#nameB::before {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 20%;
+  width: 4px;
+  height: 60%;
+  border-radius: 999px;
+}
+
+#nameA::before {
+  background: #16dcdd;
+  box-shadow: 0 0 11px rgba(22, 220, 221, 0.45);
+}
+
+#nameB::before {
+  background: #b052df;
+  box-shadow: 0 0 11px rgba(176, 82, 223, 0.42);
+}
+
+/* Score boxes */
+#pointA,
+#pointB,
+#gamesA,
+#gamesB,
+#setsA,
+#setsB {
+  text-align: center !important;
+  font-weight: 900 !important;
+  color: #fff !important;
+  border-radius: 11px !important;
+  background-clip: padding-box !important;
+}
+
+/* Point boxes */
+#pointA,
+#pointB {
+  border: 1px solid rgba(0, 220, 220, 0.24) !important;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(0, 148, 154, 0.22),
+      rgba(0, 65, 72, 0.2)
+    ) !important;
+}
+
+/* Game boxes */
+#gamesA,
+#gamesB {
+  border: 1px solid rgba(0, 220, 220, 0.2) !important;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(0, 135, 142, 0.18),
+      rgba(0, 58, 64, 0.18)
+    ) !important;
+}
+
+/* Sets boxes */
+#setsA,
+#setsB {
+  border: 1px solid rgba(184, 88, 235, 0.22) !important;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(135, 57, 190, 0.23),
+      rgba(55, 26, 81, 0.25)
+    ) !important;
+}
+
+/* Αποφυγή κολλημένων score boxes */
+.panel.section:has(#nameA) .table tbody td:nth-child(n + 2) {
+  border-left: 5px solid transparent !important;
+}
+
+/* =========================================================
+   STATUS ROWS
+   ========================================================= */
+
+.panel.section:has(#nameA) #status,
+.panel.section:has(#nameA) #photostatus {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 10px 14px !important;
+  margin-top: 10px !important;
+  border-radius: 13px !important;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(8, 28, 35, 0.72),
+      rgba(5, 17, 23, 0.72)
+    ) !important;
+}
+
+/* Live status */
+.panel.section:has(#nameA) #status {
+  border: 1px solid rgba(0, 215, 215, 0.11) !important;
+  border-left: 3px solid #19dada !important;
+}
+
+/* Photos status */
+.panel.section:has(#nameA) #photostatus {
+  border: 1px solid rgba(180, 82, 232, 0.11) !important;
+  border-left: 3px solid #b153df !important;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 700px) {
+  .panel.section:has(#nameA) {
+    border-radius: 19px !important;
+  }
+
+  div:has(> #serveAIcon),
+  div:has(> #serveBIcon) {
+    border-radius: 15px !important;
+  }
+
+  .panel.section:has(#nameA) .table {
+    border-radius: 15px !important;
+  }
+
+  .panel.section:has(#nameA) .table thead th {
+    letter-spacing: 0.025em;
+  }
+
+  #nameA,
+  #nameB {
+    padding-left: 18px !important;
+  }
+
+  #nameA::before,
+  #nameB::before {
+    left: 5px;
+    width: 3px;
+  }
+
+  .panel.section:has(#nameA) .table tbody td:nth-child(n + 2) {
+    border-left-width: 3px !important;
+  }
+}
+
