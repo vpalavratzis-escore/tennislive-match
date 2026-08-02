@@ -1078,7 +1078,19 @@ export async function renderViewer(path) {
     });
 
     replayVideoEl?.addEventListener("ended", () => {
-      backToLive();
+      replayStatus.textContent = "Replay finished • Returning to live…";
+
+      window.setTimeout(() => {
+        backToLive();
+      }, 350);
+    });
+
+    replayVideoEl?.addEventListener("error", () => {
+      replayStatus.textContent = "Replay playback failed • Returning to live…";
+
+      window.setTimeout(() => {
+        backToLive();
+      }, 500);
     });
 
     function formatTimelineTime(timestamp) {
