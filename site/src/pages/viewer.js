@@ -2647,47 +2647,40 @@ ${safeUrl}`
     });
 
     replayShare?.addEventListener("click", async () => {
-      if (!currentReplayBlob) {
-        replayStatus.textContent =
-          "Replay file is not ready yet.";
-        return;
-      }
-
       const replayUrl = getReplayShareUrl();
 
-      let replayFile = null;
-
-      try {
-        replayFile = new File(
-          [currentReplayBlob],
-          currentReplayFilename,
-          { type: "video/mp4" }
-        );
-      } catch (_) {
-        replayFile = null;
+      if (!replayUrl) {
+        replayStatus.textContent =
+          "Replay link is not available.";
+        return;
       }
 
       try {
         const result = await shareOrCopy({
-          title: currentReplayTitle,
-          text: "VoxCourt instant replay",
-          url: replayUrl,
-          file: replayFile
+          title: currentReplayTitle || "VoxCourt Replay",
+          text: "Watch this VoxCourt instant replay.",
+          url: replayUrl
         });
 
         if (result === "copied") {
           replayStatus.textContent =
             "Replay link copied.";
-        } else if (
-          result === "shared-file" ||
-          result === "shared-url"
-        ) {
+        } else if (result === "shared-url") {
           replayStatus.textContent =
             "Replay shared successfully.";
+        } else if (result === "cancelled") {
+          replayStatus.textContent =
+            "Replay sharing cancelled.";
         }
       } catch (error) {
-        replayStatus.textContent =
-          "Unable to share. Use Download to save the replay.";
+        try {
+          await copyTextSafely(replayUrl);
+          replayStatus.textContent =
+            "Replay link copied.";
+        } catch (_) {
+          replayStatus.textContent =
+            "Unable to share or copy the replay link.";
+        }
       }
     });
 
