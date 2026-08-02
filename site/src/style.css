@@ -5839,3 +5839,11 @@ div:has(> #serveBIcon):hover {
 }
 
 /* === VOXCOURT PREMIUM HIGHLIGHTS V2 END === */
+
+/* Hide small player names next to photos on mobile only */
+@media (max-width: 650px) {
+  #photoATitle,
+  #photoBTitle {
+    display: none !important;
+  }
+}
