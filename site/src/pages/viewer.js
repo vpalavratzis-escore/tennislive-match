@@ -750,12 +750,52 @@ export async function renderViewer(path) {
             "
           ></video>
 
+          <video
+            id="replayVideo"
+            playsinline
+            controls
+            style="
+              position:absolute;
+              inset:0;
+              width:100%;
+              height:100%;
+              object-fit:contain;
+              display:none;
+              background:black;
+              z-index:6;
+            "
+          ></video>
+
           <div id="videoOverlay" class="videoOverlay videoOverlay--show">
             <div class="videoOverlay__box">
               <div class="videoOverlay__title">Checking video…</div>
               <div class="videoOverlay__text">Please wait.</div>
             </div>
           </div>
+        </div>
+
+        <div style="
+          display:flex;
+          gap:10px;
+          flex-wrap:wrap;
+          margin-top:12px;
+        ">
+          <button id="btnReplay30" class="btn small" type="button">
+            Replay 30s
+          </button>
+
+          <button
+            id="btnBackLive"
+            class="btn small"
+            type="button"
+            style="display:none;"
+          >
+            Back to Live
+          </button>
+        </div>
+
+        <div class="hint" id="replayStatus" style="margin-top:8px;">
+          Replay ready
         </div>
 
         <div style="flex:1 1 auto;"></div>
@@ -777,6 +817,11 @@ export async function renderViewer(path) {
   const streamSourceLabel = app.querySelector("#streamSourceLabel");
   const videoEl = app.querySelector("#camVideo");
   const videoOverlay = app.querySelector("#videoOverlay");
+
+  const replayVideoEl = app.querySelector("#replayVideo");
+  const btnReplay30 = app.querySelector("#btnReplay30");
+  const btnBackLive = app.querySelector("#btnBackLive");
+  const replayStatus = app.querySelector("#replayStatus");
 
   const nameAEl = app.querySelector("#nameA");
   const nameBEl = app.querySelector("#nameB");
@@ -853,6 +898,104 @@ export async function renderViewer(path) {
 
     miTitle.textContent = `🎾 ${clubObj.name} – ${courtObj.name}`;
     miLine2.textContent = `📍 ${cityObj.name}, ${countryObj.name}  •  🔴 LIVE`;
+
+    let replayObjectUrl = "";
+
+    function cleanupReplayObjectUrl() {
+      if (replayObjectUrl) {
+        try {
+          URL.revokeObjectURL(replayObjectUrl);
+        } catch (_) {}
+        replayObjectUrl = "";
+      }
+    }
+
+    function backToLive() {
+      cleanupReplayObjectUrl();
+
+      try {
+        replayVideoEl.pause();
+      } catch (_) {}
+
+      replayVideoEl.removeAttribute("src");
+      replayVideoEl.load();
+      replayVideoEl.style.display = "none";
+
+      btnBackLive.style.display = "none";
+      btnReplay30.disabled = false;
+      replayStatus.textContent = "Replay ready";
+
+      videoEl.style.display = "block";
+      videoEl.play?.().catch(() => {});
+    }
+
+    async function openReplay(seconds = 30, cam = "cam1") {
+      btnReplay30.disabled = true;
+      replayStatus.textContent = `Preparing replay -${seconds}s…`;
+
+      const replayUrl =
+        `${apiBase}/api/replay` +
+        `?courtId=${encodeURIComponent(`${country}/${city}/${clubId}/${courtId}`)}` +
+        `&seconds=${encodeURIComponent(seconds)}` +
+        `&cam=${encodeURIComponent(cam)}` +
+        `&t=${Date.now()}`;
+
+      try {
+        const response = await fetch(replayUrl, {
+          method: "GET",
+          cache: "no-store"
+        });
+
+        if (!response.ok) {
+          let detail = `HTTP ${response.status}`;
+          try {
+            const body = await response.text();
+            if (body) detail = body.slice(0, 220);
+          } catch (_) {}
+
+          throw new Error(detail);
+        }
+
+        const blob = await response.blob();
+
+        if (!blob || blob.size < 100000) {
+          throw new Error("Replay file is empty or too small.");
+        }
+
+        cleanupReplayObjectUrl();
+        replayObjectUrl = URL.createObjectURL(blob);
+
+        try {
+          replayVideoEl.pause();
+        } catch (_) {}
+
+        replayVideoEl.src = replayObjectUrl;
+        replayVideoEl.currentTime = 0;
+        replayVideoEl.style.display = "block";
+
+        videoEl.style.display = "none";
+        btnBackLive.style.display = "";
+        replayStatus.textContent = `Replay ready • ${(blob.size / 1024 / 1024).toFixed(1)} MB`;
+
+        await replayVideoEl.play();
+      } catch (error) {
+        replayStatus.textContent = `Replay error: ${error.message}`;
+        btnReplay30.disabled = false;
+        backToLive();
+      }
+    }
+
+    btnReplay30?.addEventListener("click", () => {
+      openReplay(30, "cam1");
+    });
+
+    btnBackLive?.addEventListener("click", () => {
+      backToLive();
+    });
+
+    replayVideoEl?.addEventListener("ended", () => {
+      backToLive();
+    });
 
     async function refreshStreamSource() {
       const myToken = ++streamCheckToken;
