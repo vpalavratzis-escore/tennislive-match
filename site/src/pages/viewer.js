@@ -1095,10 +1095,44 @@ export async function renderViewer(path) {
       });
     }
 
+    let lastTimelineSignature = "";
+    let knownTimelineEventIds = new Set();
+
     function renderTimelineEvents(events) {
       if (!timelineList || !timelineStatus) return;
 
       const list = Array.isArray(events) ? events : [];
+
+      const signature = list
+        .map((event) => {
+          const display = event?.display || {};
+
+          return [
+            event?.eventId || "",
+            event?.timestamp || "",
+            display?.replayAvailable === true ? "1" : "0",
+            display?.title || "",
+            display?.score || "",
+            display?.games || "",
+            display?.sets || ""
+          ].join(":");
+        })
+        .join("|");
+
+      if (signature === lastTimelineSignature) {
+        return;
+      }
+
+      const previousScrollTop = timelineList.scrollTop;
+      const previousIds = knownTimelineEventIds;
+
+      lastTimelineSignature = signature;
+      knownTimelineEventIds = new Set(
+        list
+          .map((event) => String(event?.eventId || ""))
+          .filter(Boolean)
+      );
+
       timelineList.innerHTML = "";
 
       if (list.length === 0) {
@@ -1165,7 +1199,16 @@ export async function renderViewer(path) {
         }
 
         const card = document.createElement("div");
-        card.className = "timeline-event timeline-event--enter";
+
+        const isNewEvent =
+          Boolean(eventId) &&
+          previousIds.size > 0 &&
+          !previousIds.has(eventId);
+
+        card.className = isNewEvent
+          ? "timeline-event timeline-event--enter"
+          : "timeline-event";
+
         card.style.cssText = `
           display:grid;
           grid-template-columns:auto minmax(0,1fr) auto auto;
@@ -1357,6 +1400,24 @@ export async function renderViewer(path) {
         card.appendChild(rightSide);
         timelineList.appendChild(card);
       }
+
+      requestAnimationFrame(() => {
+        const hasNewEvent = list.some((event) => {
+          const eventId = String(event?.eventId || "");
+
+          return (
+            eventId &&
+            previousIds.size > 0 &&
+            !previousIds.has(eventId)
+          );
+        });
+
+        if (hasNewEvent && previousScrollTop < 40) {
+          timelineList.scrollTop = 0;
+        } else {
+          timelineList.scrollTop = previousScrollTop;
+        }
+      });
     }
 
     async function refreshTimeline() {
