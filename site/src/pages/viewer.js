@@ -534,10 +534,10 @@ export async function renderViewer(path) {
 
             <div
               id="matchStatusBadge"
-              class="match-status match-status--waiting"
+              class="match-status match-status--ready"
             >
               <span class="match-status__dot"></span>
-              <span id="matchStatusText">WAITING</span>
+              <span id="matchStatusText">READY</span>
             </div>
           </div>
         </div>
@@ -1131,10 +1131,20 @@ export async function renderViewer(path) {
     }
 
     function setMatchStatus(status) {
-      const normalized = String(status || "WAITING").toUpperCase();
+      const normalized = String(status || "READY").toUpperCase();
+
+      let visibleStatus = normalized;
+
+      if (
+        visibleStatus !== "LIVE" &&
+        visibleStatus !== "ENDED" &&
+        visibleStatus !== "READY"
+      ) {
+        visibleStatus = "READY";
+      }
 
       if (matchStatusText) {
-        matchStatusText.textContent = normalized;
+        matchStatusText.textContent = visibleStatus;
       }
 
       if (!matchStatusBadge) return;
@@ -1142,17 +1152,19 @@ export async function renderViewer(path) {
       matchStatusBadge.classList.remove(
         "match-status--live",
         "match-status--ended",
+        "match-status--ready",
         "match-status--waiting"
       );
 
-      if (normalized === "LIVE") {
+      if (visibleStatus === "LIVE") {
         matchStatusBadge.classList.add("match-status--live");
-      } else if (normalized === "ENDED") {
+      } else if (visibleStatus === "ENDED") {
         matchStatusBadge.classList.add("match-status--ended");
       } else {
-        matchStatusBadge.classList.add("match-status--waiting");
+        matchStatusBadge.classList.add("match-status--ready");
       }
     }
+
 
     function updateHeroScore({
       nameA,
@@ -2120,8 +2132,14 @@ export async function renderViewer(path) {
         const matchId = String(activeMatch?.matchId || "");
 
         if (activeMatch) {
+          const activeStatus = String(
+            activeMatch.status || "LIVE"
+          ).toUpperCase();
+
           setMatchStatus(
-            String(activeMatch.status || "LIVE").toUpperCase()
+            activeStatus === "ENDED"
+              ? "ENDED"
+              : "LIVE"
           );
 
           if (matchStartedAt) {
@@ -2138,10 +2156,24 @@ export async function renderViewer(path) {
             heroNameB.textContent = String(activeMatch.nameB);
           }
         } else {
-          setMatchStatus("WAITING");
+          /*
+           * Δεν αλλάζουμε εδώ το LIVE σε READY.
+           * Το tickState() είναι αυτό που γνωρίζει αν υπάρχει
+           * πραγματικό ενεργό score στο court.
+           */
+          const currentStatus = String(
+            matchStatusText?.textContent || ""
+          ).toUpperCase();
+
+          if (
+            currentStatus !== "LIVE" &&
+            currentStatus !== "ENDED"
+          ) {
+            setMatchStatus("READY");
+          }
 
           if (matchStartedAt) {
-            matchStartedAt.textContent = "Not started";
+            matchStartedAt.textContent = "—";
           }
         }
 
@@ -2381,6 +2413,65 @@ export async function renderViewer(path) {
     async function tickState() {
       try {
         const s = await fetchJson(stateUrl);
+
+        const stateUpdatedAt = Number(s.updatedAt || 0);
+
+        const statePointA = String(
+          s.pointA ??
+          s.playerA?.points ??
+          s.playerA?.point ??
+          s.playerA?.score ??
+          "0"
+        ).toUpperCase();
+
+        const statePointB = String(
+          s.pointB ??
+          s.playerB?.points ??
+          s.playerB?.point ??
+          s.playerB?.score ??
+          "0"
+        ).toUpperCase();
+
+        const stateGamesA = Number(
+          s.gamesA ?? s.playerA?.games ?? 0
+        );
+
+        const stateGamesB = Number(
+          s.gamesB ?? s.playerB?.games ?? 0
+        );
+
+        const stateSetsA = Number(
+          s.setsA ?? s.playerA?.sets ?? 0
+        );
+
+        const stateSetsB = Number(
+          s.setsB ?? s.playerB?.sets ?? 0
+        );
+
+        const hasMeaningfulCourtState =
+          stateUpdatedAt > 0 ||
+          statePointA !== "0" ||
+          statePointB !== "0" ||
+          stateGamesA > 0 ||
+          stateGamesB > 0 ||
+          stateSetsA > 0 ||
+          stateSetsB > 0;
+
+        const currentStatus = String(
+          matchStatusText?.textContent || ""
+        ).toUpperCase();
+
+        if (
+          hasMeaningfulCourtState &&
+          currentStatus !== "ENDED"
+        ) {
+          setMatchStatus("LIVE");
+        } else if (
+          !hasMeaningfulCourtState &&
+          currentStatus !== "ENDED"
+        ) {
+          setMatchStatus("READY");
+        }
 
         const nameA = s.nameA ?? s.playerA?.name ?? "Player A";
         const nameB = s.nameB ?? s.playerB?.name ?? "Player B";

@@ -3873,3 +3873,15 @@ div:has(> #serveBIcon):hover {
     grid-template-columns: 1fr;
   }
 }
+
+/* Match status: READY */
+.match-status--ready {
+  color: #55e2df;
+  border-color: rgba(85, 226, 223, 0.25);
+  background: rgba(0, 76, 80, 0.32);
+}
+
+.match-status--ready .match-status__dot {
+  opacity: 0.72;
+  box-shadow: 0 0 10px rgba(85, 226, 223, 0.32);
+}
