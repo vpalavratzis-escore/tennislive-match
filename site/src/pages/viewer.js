@@ -1169,6 +1169,7 @@ export async function renderViewer(path) {
 
     let lastTimelineSignature = "";
     let knownTimelineEventIds = new Set();
+    const collapsedTimelineGames = new Set();
 
     function renderTimelineEvents(events) {
       if (!timelineList || !timelineStatus) return;
@@ -1213,6 +1214,9 @@ export async function renderViewer(path) {
       }
 
       timelineStatus.textContent = `${list.length} match event${list.length === 1 ? "" : "s"}`;
+
+      let activeGameBody = null;
+      let activeGameId = "";
 
       for (const event of [...list].reverse()) {
         const display = event?.display || {};
@@ -1484,7 +1488,84 @@ export async function renderViewer(path) {
         card.appendChild(info);
         card.appendChild(chips);
         card.appendChild(rightSide);
-        timelineList.appendChild(card);
+
+        if (eventType === "GAME") {
+          const gameId = eventId || `game-${event?.timestamp || Date.now()}`;
+          const group = document.createElement("section");
+          group.className = "timeline-game-group";
+          group.dataset.gameId = gameId;
+
+          const gameHeader = document.createElement("div");
+          gameHeader.className = "timeline-game-header";
+
+          const toggleButton = document.createElement("button");
+          toggleButton.type = "button";
+          toggleButton.className = "timeline-game-toggle";
+          toggleButton.setAttribute(
+            "aria-label",
+            "Show or hide the points of this game"
+          );
+
+          const gameBody = document.createElement("div");
+          gameBody.className = "timeline-game-body";
+
+          const collapsed = collapsedTimelineGames.has(gameId);
+
+          group.classList.toggle(
+            "timeline-game-group--collapsed",
+            collapsed
+          );
+
+          toggleButton.textContent = collapsed ? "＋" : "−";
+          toggleButton.setAttribute(
+            "aria-expanded",
+            collapsed ? "false" : "true"
+          );
+
+          toggleButton.addEventListener("click", () => {
+            const willCollapse = !group.classList.contains(
+              "timeline-game-group--collapsed"
+            );
+
+            group.classList.toggle(
+              "timeline-game-group--collapsed",
+              willCollapse
+            );
+
+            toggleButton.textContent = willCollapse ? "＋" : "−";
+            toggleButton.setAttribute(
+              "aria-expanded",
+              willCollapse ? "false" : "true"
+            );
+
+            if (willCollapse) {
+              collapsedTimelineGames.add(gameId);
+            } else {
+              collapsedTimelineGames.delete(gameId);
+            }
+          });
+
+          gameHeader.appendChild(card);
+          gameHeader.appendChild(toggleButton);
+
+          group.appendChild(gameHeader);
+          group.appendChild(gameBody);
+          timelineList.appendChild(group);
+
+          activeGameBody = gameBody;
+          activeGameId = gameId;
+        } else if (
+          eventType === "POINT" &&
+          activeGameBody &&
+          activeGameId
+        ) {
+          card.classList.add("timeline-event--grouped-point");
+          activeGameBody.appendChild(card);
+        } else {
+          activeGameBody = null;
+          activeGameId = "";
+          timelineList.appendChild(card);
+        }
       }
 
       requestAnimationFrame(() => {
