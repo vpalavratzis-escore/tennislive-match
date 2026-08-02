@@ -891,7 +891,6 @@ export async function renderViewer(path) {
           <video
             id="replayVideo"
             playsinline
-            controls
             style="
               position:absolute;
               inset:0;
@@ -1056,6 +1055,45 @@ export async function renderViewer(path) {
                   1.5×
                 </button>
               </div>
+            </div>
+
+            <div class="replay-studio__zoom-group">
+              <span class="replay-studio__tool-label">
+                Zoom & inspection
+              </span>
+
+              <div class="replay-zoom-controls">
+                <button
+                  id="replayZoomOut"
+                  class="replay-tool-button replay-zoom-button"
+                  type="button"
+                  aria-label="Zoom out"
+                >
+                  −
+                </button>
+
+                <button
+                  id="replayZoomReset"
+                  class="replay-tool-button replay-zoom-reset"
+                  type="button"
+                  aria-label="Reset zoom"
+                >
+                  <span id="replayZoomValue">100%</span>
+                </button>
+
+                <button
+                  id="replayZoomIn"
+                  class="replay-tool-button replay-zoom-button"
+                  type="button"
+                  aria-label="Zoom in"
+                >
+                  +
+                </button>
+              </div>
+
+              <span class="replay-zoom-hint">
+                Drag to move • Pinch or wheel to zoom
+              </span>
             </div>
 
             <div class="replay-studio__action-group">
@@ -1332,6 +1370,11 @@ export async function renderViewer(path) {
   const replayDownload = app.querySelector("#replayDownload");
   const replayShare = app.querySelector("#replayShare");
 
+  const replayZoomIn = app.querySelector("#replayZoomIn");
+  const replayZoomOut = app.querySelector("#replayZoomOut");
+  const replayZoomReset = app.querySelector("#replayZoomReset");
+  const replayZoomValue = app.querySelector("#replayZoomValue");
+
   const nameAEl = app.querySelector("#nameA");
   const nameBEl = app.querySelector("#nameB");
   const pointAEl = app.querySelector("#pointA");
@@ -1361,6 +1404,20 @@ export async function renderViewer(path) {
   let currentReplayFilename = "voxcourt-replay.mp4";
   let currentReplaySourceUrl = "";
   let currentReplayTitle = "Event Replay";
+
+  let replayZoomScale = 1;
+  let replayPanX = 0;
+  let replayPanY = 0;
+
+  let replayDragging = false;
+  let replayDragStartX = 0;
+  let replayDragStartY = 0;
+  let replayDragOriginX = 0;
+  let replayDragOriginY = 0;
+
+  const replayPointers = new Map();
+  let replayPinchStartDistance = 0;
+  let replayPinchStartScale = 1;
 
   function clearOpenAttemptTimer() {
     if (openAttemptTimer) {
@@ -1757,45 +1814,46 @@ ${window.location.href}`
     });
 
     btnShareMatch?.addEventListener("click", async () => {
-      const shareData = {
-        title: miTitle?.textContent || "VoxCourt live match",
-        text: "Watch this match live on VoxCourt.",
-        url: window.location.href
-      };
+      const shareTitle =
+        miTitle?.textContent ||
+        "VoxCourt live match";
+
+      const shareText =
+        "Watch this match live on VoxCourt.";
 
       try {
-        if (navigator.share) {
-          await navigator.share(shareData);
-          showMatchActionFeedback("Match shared.");
-          return;
-        }
+        const result = await shareOrCopy({
+          title: shareTitle,
+          text: shareText,
+          url: window.location.href
+        });
 
-        if (navigator.clipboard?.writeText) {
-          await navigator.clipboard.writeText(window.location.href);
-
+        if (result === "copied") {
           if (shareMatchText) {
             shareMatchText.textContent = "Link copied";
           }
 
-          showMatchActionFeedback("Match link copied.");
+          showMatchActionFeedback(
+            "Match link copied."
+          );
 
           window.setTimeout(() => {
             if (shareMatchText) {
               shareMatchText.textContent = "Share match";
             }
           }, 1800);
-
-          return;
+        } else if (
+          result === "shared-url" ||
+          result === "shared-file"
+        ) {
+          showMatchActionFeedback(
+            "Match shared."
+          );
         }
-
-        window.prompt(
-          "Copy this match link:",
-          window.location.href
-        );
       } catch (error) {
-        if (error?.name !== "AbortError") {
-          showMatchActionFeedback("Unable to share this match.");
-        }
+        showMatchActionFeedback(
+          "Unable to share or copy the match link."
+        );
       }
     });
 
@@ -1874,6 +1932,298 @@ ${window.location.href}`
 
         cameraButtons.appendChild(button);
       }
+    }
+
+    function isLikelyMobileDevice() {
+      return (
+        window.matchMedia?.("(pointer: coarse)")?.matches ||
+        /Android|iPhone|iPad|iPod|Mobile/i.test(
+          navigator.userAgent || ""
+        )
+      );
+    }
+
+    async function copyTextSafely(value) {
+      const textValue = String(value || "").trim();
+
+      if (!textValue) {
+        throw new Error("Nothing to copy.");
+      }
+
+      if (
+        window.isSecureContext &&
+        navigator.clipboard?.writeText
+      ) {
+        await navigator.clipboard.writeText(textValue);
+        return;
+      }
+
+      const textarea = document.createElement("textarea");
+      textarea.value = textValue;
+      textarea.setAttribute("readonly", "");
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      textarea.style.pointerEvents = "none";
+
+      document.body.appendChild(textarea);
+      textarea.select();
+
+      const copied = document.execCommand("copy");
+      textarea.remove();
+
+      if (!copied) {
+        throw new Error("Clipboard copy failed.");
+      }
+    }
+
+    function getReplayShareUrl() {
+      try {
+        if (currentReplaySourceUrl) {
+          const url = new URL(
+            currentReplaySourceUrl,
+            window.location.href
+          );
+
+          /*
+           * Αφαιρούμε το προσωρινό cache-buster.
+           * Το event endpoint παραμένει κανονικό shareable URL.
+           */
+          url.searchParams.delete("t");
+
+          if (
+            url.protocol === "http:" ||
+            url.protocol === "https:"
+          ) {
+            return url.href;
+          }
+        }
+      } catch (_) {}
+
+      return window.location.href;
+    }
+
+    async function shareOrCopy({
+      title,
+      text,
+      url,
+      file = null
+    }) {
+      const safeTitle = String(title || "VoxCourt");
+      const safeText = String(text || "");
+      const safeUrl = String(url || window.location.href);
+
+      /*
+       * File sharing μόνο σε κινητά και μόνο αν δηλώνεται
+       * ξεκάθαρα ότι υποστηρίζεται.
+       */
+      if (
+        file &&
+        isLikelyMobileDevice() &&
+        navigator.share &&
+        navigator.canShare?.({ files: [file] })
+      ) {
+        try {
+          await navigator.share({
+            title: safeTitle,
+            text: safeText,
+            files: [file]
+          });
+
+          return "shared-file";
+        } catch (error) {
+          if (error?.name === "AbortError") {
+            return "cancelled";
+          }
+
+          /*
+           * Συνεχίζουμε σε URL share / clipboard fallback.
+           */
+        }
+      }
+
+      /*
+       * URL sharing μόνο κυρίως σε κινητό.
+       * Στο desktop αποφεύγουμε το προβληματικό Windows share dialog.
+       */
+      if (
+        isLikelyMobileDevice() &&
+        navigator.share
+      ) {
+        try {
+          await navigator.share({
+            title: safeTitle,
+            text: safeText,
+            url: safeUrl
+          });
+
+          return "shared-url";
+        } catch (error) {
+          if (error?.name === "AbortError") {
+            return "cancelled";
+          }
+        }
+      }
+
+      await copyTextSafely(
+        safeText
+          ? `${safeText}
+${safeUrl}`
+          : safeUrl
+      );
+
+      return "copied";
+    }
+
+    function clampReplayPan() {
+      if (!replayVideoEl) return;
+
+      if (replayZoomScale <= 1) {
+        replayPanX = 0;
+        replayPanY = 0;
+        return;
+      }
+
+      const stage = replayVideoEl.closest(".cam--viewer");
+      const rect = stage?.getBoundingClientRect();
+
+      if (!rect) return;
+
+      const maxX = Math.max(
+        0,
+        (rect.width * (replayZoomScale - 1)) / 2
+      );
+
+      const maxY = Math.max(
+        0,
+        (rect.height * (replayZoomScale - 1)) / 2
+      );
+
+      replayPanX = Math.max(
+        -maxX,
+        Math.min(maxX, replayPanX)
+      );
+
+      replayPanY = Math.max(
+        -maxY,
+        Math.min(maxY, replayPanY)
+      );
+    }
+
+    function applyReplayTransform() {
+      if (!replayVideoEl) return;
+
+      clampReplayPan();
+
+      replayVideoEl.style.transform =
+        `translate3d(${replayPanX}px, ${replayPanY}px, 0) ` +
+        `scale(${replayZoomScale})`;
+
+      replayVideoEl.style.cursor =
+        replayZoomScale > 1
+          ? replayDragging
+            ? "grabbing"
+            : "grab"
+          : "zoom-in";
+
+      replayVideoEl.classList.toggle(
+        "replay-video--zoomed",
+        replayZoomScale > 1
+      );
+
+      if (replayZoomValue) {
+        replayZoomValue.textContent =
+          `${Math.round(replayZoomScale * 100)}%`;
+      }
+
+      if (replayZoomOut) {
+        replayZoomOut.disabled = replayZoomScale <= 1;
+      }
+
+      if (replayZoomIn) {
+        replayZoomIn.disabled = replayZoomScale >= 5;
+      }
+    }
+
+    function setReplayZoom(nextScale, focusX = null, focusY = null) {
+      const oldScale = replayZoomScale;
+
+      const newScale = Math.max(
+        1,
+        Math.min(5, Number(nextScale || 1))
+      );
+
+      if (
+        focusX !== null &&
+        focusY !== null &&
+        oldScale > 0 &&
+        newScale !== oldScale
+      ) {
+        const stage = replayVideoEl?.closest(".cam--viewer");
+        const rect = stage?.getBoundingClientRect();
+
+        if (rect) {
+          const localX =
+            Number(focusX) - rect.left - rect.width / 2;
+
+          const localY =
+            Number(focusY) - rect.top - rect.height / 2;
+
+          const ratio = newScale / oldScale;
+
+          replayPanX =
+            localX - (localX - replayPanX) * ratio;
+
+          replayPanY =
+            localY - (localY - replayPanY) * ratio;
+        }
+      }
+
+      replayZoomScale = newScale;
+
+      if (replayZoomScale <= 1) {
+        replayPanX = 0;
+        replayPanY = 0;
+      }
+
+      applyReplayTransform();
+    }
+
+    function resetReplayZoom() {
+      replayZoomScale = 1;
+      replayPanX = 0;
+      replayPanY = 0;
+
+      replayDragging = false;
+      replayPointers.clear();
+      replayPinchStartDistance = 0;
+
+      applyReplayTransform();
+    }
+
+    function getPointerDistance() {
+      const values = [...replayPointers.values()];
+
+      if (values.length < 2) {
+        return 0;
+      }
+
+      return Math.hypot(
+        values[0].x - values[1].x,
+        values[0].y - values[1].y
+      );
+    }
+
+    function getPointerMidpoint() {
+      const values = [...replayPointers.values()];
+
+      if (values.length < 2) {
+        return null;
+      }
+
+      return {
+        x: (values[0].x + values[1].x) / 2,
+        y: (values[0].y + values[1].y) / 2
+      };
     }
 
     function formatReplayClock(value) {
@@ -2024,6 +2374,7 @@ ${window.location.href}`
 
       setReplayStudioVisible(true);
       resetReplayStudioControls();
+      resetReplayZoom();
     }
 
     function cleanupReplayObjectUrl() {
@@ -2089,6 +2440,7 @@ ${window.location.href}`
       currentReplayTitle = "Event Replay";
 
       resetReplayStudioControls();
+      resetReplayZoom();
 
       btnBackLive.style.display = "none";
       btnReplay30.disabled = false;
@@ -2301,48 +2653,207 @@ ${window.location.href}`
         return;
       }
 
+      const replayUrl = getReplayShareUrl();
+
+      let replayFile = null;
+
       try {
-        const file = new File(
+        replayFile = new File(
           [currentReplayBlob],
           currentReplayFilename,
           { type: "video/mp4" }
         );
+      } catch (_) {
+        replayFile = null;
+      }
 
-        if (
-          navigator.share &&
-          navigator.canShare?.({ files: [file] })
-        ) {
-          await navigator.share({
-            title: currentReplayTitle,
-            text: "VoxCourt instant replay",
-            files: [file]
-          });
+      try {
+        const result = await shareOrCopy({
+          title: currentReplayTitle,
+          text: "VoxCourt instant replay",
+          url: replayUrl,
+          file: replayFile
+        });
 
-          replayStatus.textContent =
-            "Replay shared successfully.";
-          return;
-        }
-
-        if (
-          currentReplaySourceUrl &&
-          navigator.clipboard?.writeText
-        ) {
-          await navigator.clipboard.writeText(
-            currentReplaySourceUrl
-          );
-
+        if (result === "copied") {
           replayStatus.textContent =
             "Replay link copied.";
+        } else if (
+          result === "shared-file" ||
+          result === "shared-url"
+        ) {
+          replayStatus.textContent =
+            "Replay shared successfully.";
+        }
+      } catch (error) {
+        replayStatus.textContent =
+          "Unable to share. Use Download to save the replay.";
+      }
+    });
+
+    replayZoomIn?.addEventListener("click", () => {
+      setReplayZoom(replayZoomScale + 0.5);
+    });
+
+    replayZoomOut?.addEventListener("click", () => {
+      setReplayZoom(replayZoomScale - 0.5);
+    });
+
+    replayZoomReset?.addEventListener("click", () => {
+      resetReplayZoom();
+    });
+
+    replayVideoEl?.addEventListener(
+      "wheel",
+      (event) => {
+        if (replayVideoEl.style.display === "none") {
           return;
         }
 
-        replayStatus.textContent =
-          "Use Download to save and share this replay.";
-      } catch (error) {
-        if (error?.name !== "AbortError") {
-          replayStatus.textContent =
-            `Share failed: ${error.message}`;
+        event.preventDefault();
+
+        const step = event.deltaY < 0 ? 0.25 : -0.25;
+
+        setReplayZoom(
+          replayZoomScale + step,
+          event.clientX,
+          event.clientY
+        );
+      },
+      { passive: false }
+    );
+
+    replayVideoEl?.addEventListener("dblclick", (event) => {
+      event.preventDefault();
+
+      if (replayZoomScale > 1) {
+        resetReplayZoom();
+      } else {
+        setReplayZoom(
+          2,
+          event.clientX,
+          event.clientY
+        );
+      }
+    });
+
+    replayVideoEl?.addEventListener("pointerdown", (event) => {
+      if (replayVideoEl.style.display === "none") {
+        return;
+      }
+
+      replayPointers.set(event.pointerId, {
+        x: event.clientX,
+        y: event.clientY
+      });
+
+      try {
+        replayVideoEl.setPointerCapture(event.pointerId);
+      } catch (_) {}
+
+      if (replayPointers.size === 2) {
+        replayPinchStartDistance = getPointerDistance();
+        replayPinchStartScale = replayZoomScale;
+        replayDragging = false;
+        return;
+      }
+
+      if (replayZoomScale > 1) {
+        replayDragging = true;
+        replayDragStartX = event.clientX;
+        replayDragStartY = event.clientY;
+        replayDragOriginX = replayPanX;
+        replayDragOriginY = replayPanY;
+
+        applyReplayTransform();
+      }
+    });
+
+    replayVideoEl?.addEventListener("pointermove", (event) => {
+      if (!replayPointers.has(event.pointerId)) {
+        return;
+      }
+
+      replayPointers.set(event.pointerId, {
+        x: event.clientX,
+        y: event.clientY
+      });
+
+      if (
+        replayPointers.size >= 2 &&
+        replayPinchStartDistance > 0
+      ) {
+        event.preventDefault();
+
+        const currentDistance = getPointerDistance();
+        const midpoint = getPointerMidpoint();
+
+        if (currentDistance > 0 && midpoint) {
+          const ratio =
+            currentDistance / replayPinchStartDistance;
+
+          setReplayZoom(
+            replayPinchStartScale * ratio,
+            midpoint.x,
+            midpoint.y
+          );
         }
+
+        return;
+      }
+
+      if (replayDragging && replayZoomScale > 1) {
+        event.preventDefault();
+
+        replayPanX =
+          replayDragOriginX +
+          event.clientX -
+          replayDragStartX;
+
+        replayPanY =
+          replayDragOriginY +
+          event.clientY -
+          replayDragStartY;
+
+        applyReplayTransform();
+      }
+    });
+
+    const finishReplayPointer = (event) => {
+      replayPointers.delete(event.pointerId);
+
+      try {
+        replayVideoEl.releasePointerCapture(event.pointerId);
+      } catch (_) {}
+
+      if (replayPointers.size < 2) {
+        replayPinchStartDistance = 0;
+      }
+
+      if (replayPointers.size === 0) {
+        replayDragging = false;
+        applyReplayTransform();
+      }
+    };
+
+    replayVideoEl?.addEventListener(
+      "pointerup",
+      finishReplayPointer
+    );
+
+    replayVideoEl?.addEventListener(
+      "pointercancel",
+      finishReplayPointer
+    );
+
+    replayVideoEl?.addEventListener(
+      "lostpointercapture",
+      finishReplayPointer
+    );
+
+    window.addEventListener("resize", () => {
+      if (replayZoomScale > 1) {
+        applyReplayTransform();
       }
     });
 

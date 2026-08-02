@@ -4480,3 +4480,138 @@ div:has(> #serveBIcon):hover {
     }
   }
 }
+
+/* =========================================================
+   REPLAY ZOOM / PAN / INSPECTION MODE
+   ========================================================= */
+
+.cam--viewer {
+  overflow: hidden !important;
+}
+
+#replayVideo {
+  transform-origin: center center;
+  will-change: transform;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+  touch-action: none;
+  transition: transform 120ms ease-out;
+}
+
+#replayVideo.replay-video--zoomed {
+  object-fit: contain !important;
+  transition: none;
+}
+
+#replayVideo:not(.replay-video--zoomed) {
+  cursor: zoom-in;
+}
+
+.replay-studio__zoom-group {
+  display: grid;
+  gap: 7px;
+  min-width: 205px;
+}
+
+.replay-zoom-controls {
+  display: grid;
+  grid-template-columns: 46px minmax(82px, 1fr) 46px;
+  gap: 6px;
+}
+
+.replay-zoom-button {
+  min-width: 0 !important;
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+  font-size: 20px !important;
+  line-height: 1;
+}
+
+.replay-zoom-reset {
+  min-width: 0 !important;
+}
+
+#replayZoomValue {
+  font-variant-numeric: tabular-nums;
+}
+
+.replay-zoom-hint {
+  color: rgba(255, 255, 255, 0.42);
+  font-size: 9px;
+  line-height: 1.35;
+}
+
+.replay-tool-button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Tablet */
+@media (max-width: 900px) {
+  .replay-studio__zoom-group {
+    width: 100%;
+  }
+
+  .replay-zoom-controls {
+    grid-template-columns: 52px minmax(100px, 1fr) 52px;
+  }
+
+  .replay-zoom-button,
+  .replay-zoom-reset {
+    min-height: 46px !important;
+  }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .replay-studio__zoom-group {
+    order: 1;
+  }
+
+  .replay-studio__action-group {
+    order: 2;
+  }
+
+  .replay-zoom-controls {
+    grid-template-columns: 56px minmax(100px, 1fr) 56px;
+  }
+
+  .replay-zoom-button,
+  .replay-zoom-reset {
+    min-height: 50px !important;
+    font-size: 15px;
+  }
+
+  .replay-zoom-button {
+    font-size: 23px !important;
+  }
+
+  .replay-zoom-hint {
+    text-align: center;
+    font-size: 10px;
+  }
+
+  /*
+   * Περισσότερο ύψος στο video στο κινητό ώστε το zoom/pan
+   * να είναι πραγματικά χρήσιμο.
+   */
+  .cam--viewer:has(#replayVideo.replay-video--active) {
+    min-height: min(62vw, 390px);
+  }
+}
+
+/* Landscape mobile inspection */
+@media (max-height: 520px) and (orientation: landscape) {
+  .cam--viewer:has(#replayVideo.replay-video--active) {
+    min-height: calc(100vh - 180px);
+  }
+
+  .replay-studio__zoom-group {
+    min-width: 180px;
+  }
+
+  .replay-zoom-hint {
+    display: none;
+  }
+}
