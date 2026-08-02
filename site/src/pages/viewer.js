@@ -932,12 +932,11 @@ export async function renderViewer(path) {
         button.dataset.camRole = camRole;
 
         const camNumber = camRole.replace("cam", "");
-        const deviceLabel = source?.deviceName
-          ? ` • ${source.deviceName}`
-          : "";
 
-        button.textContent =
-          `Camera ${camNumber}${online ? " • LIVE" : available ? " • OFFLINE" : ""}${deviceLabel}`;
+        button.textContent = `Camera ${camNumber}`;
+        button.title = source?.deviceName
+          ? `${source.deviceName} • ${online ? "LIVE" : "OFFLINE"}`
+          : `${online ? "LIVE" : available ? "OFFLINE" : "Not configured"}`;
 
         button.disabled = !available;
 
