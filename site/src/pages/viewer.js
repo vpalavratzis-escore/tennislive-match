@@ -509,22 +509,25 @@ export async function renderViewer(path) {
 
     <section
       id="matchHero"
-      class="panel section match-hero"
+      class="panel section match-hero match-hero--compact"
       aria-label="Match information"
     >
-      <div class="match-hero__top">
-        <div class="match-hero__identity">
-          <div class="badge match-hero__badge">
-            <i></i> Live match
+      <div class="compact-match-header">
+        <div class="compact-match-header__content">
+          <div class="badge compact-match-header__badge">
+            <i></i> Match info
           </div>
 
-          <div class="match-hero__title-row">
-            <div>
-              <h1 id="miTitle" class="match-hero__title">
+          <div class="compact-match-header__main">
+            <div class="compact-match-header__text">
+              <h1 id="miTitle" class="compact-match-header__title">
                 Loading…
               </h1>
 
-              <div id="miLine2" class="hint match-hero__location">
+              <div
+                id="miLine2"
+                class="hint compact-match-header__subtitle"
+              >
                 —
               </div>
             </div>
@@ -539,7 +542,7 @@ export async function renderViewer(path) {
           </div>
         </div>
 
-        <div class="match-hero__actions">
+        <div class="compact-match-header__actions">
           <button
             id="btnShareMatch"
             class="match-action-button"
@@ -557,85 +560,6 @@ export async function renderViewer(path) {
             <span aria-hidden="true">⛶</span>
             <span id="fullscreenMatchText">Fullscreen</span>
           </button>
-        </div>
-      </div>
-
-      <div class="match-hero__score">
-        <div class="match-hero-player match-hero-player--a">
-          <div class="match-hero-player__side">A</div>
-
-          <div class="match-hero-player__name" id="heroNameA">
-            Player A
-          </div>
-
-          <div
-            class="match-hero-player__serve"
-            id="heroServeA"
-            style="display:none;"
-            title="Serving"
-          ></div>
-
-          <div class="match-hero-player__numbers">
-            <span id="heroPointA">0</span>
-            <span id="heroGamesA">0</span>
-            <span id="heroSetsA">0</span>
-          </div>
-        </div>
-
-        <div class="match-hero__column-labels" aria-hidden="true">
-          <span>Point</span>
-          <span>Games</span>
-          <span>Sets</span>
-        </div>
-
-        <div class="match-hero-player match-hero-player--b">
-          <div class="match-hero-player__side">B</div>
-
-          <div class="match-hero-player__name" id="heroNameB">
-            Player B
-          </div>
-
-          <div
-            class="match-hero-player__serve"
-            id="heroServeB"
-            style="display:none;"
-            title="Serving"
-          ></div>
-
-          <div class="match-hero-player__numbers">
-            <span id="heroPointB">0</span>
-            <span id="heroGamesB">0</span>
-            <span id="heroSetsB">0</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="match-hero__meta">
-        <div class="match-meta-item">
-          <span class="match-meta-item__icon" aria-hidden="true">◷</span>
-
-          <div>
-            <span class="match-meta-item__label">Started</span>
-            <strong id="matchStartedAt">Not started</strong>
-          </div>
-        </div>
-
-        <div class="match-meta-item">
-          <span class="match-meta-item__icon" aria-hidden="true">🎾</span>
-
-          <div>
-            <span class="match-meta-item__label">Format</span>
-            <strong id="matchFormat">Best of 3 sets</strong>
-          </div>
-        </div>
-
-        <div class="match-meta-item">
-          <span class="match-meta-item__icon" aria-hidden="true">●</span>
-
-          <div>
-            <span class="match-meta-item__label">Updates</span>
-            <strong>Live scoring</strong>
-          </div>
         </div>
       </div>
 

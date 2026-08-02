@@ -3706,3 +3706,170 @@ div:has(> #serveBIcon):hover {
     display: block;
   }
 }
+
+/* =========================================================
+   COMPACT MATCH HEADER
+   Κρατά Share + Fullscreen, χωρίς διπλό score.
+   ========================================================= */
+
+.match-hero--compact {
+  display: block !important;
+  min-height: 0 !important;
+  padding: 20px 22px !important;
+  overflow: hidden;
+  border: 1px solid rgba(40, 219, 218, 0.16) !important;
+  border-radius: 22px !important;
+  background:
+    radial-gradient(
+      circle at 2% 0%,
+      rgba(0, 205, 210, 0.09),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 98% 0%,
+      rgba(170, 76, 226, 0.06),
+      transparent 30%
+    ),
+    linear-gradient(
+      135deg,
+      rgba(4, 19, 25, 0.97),
+      rgba(6, 13, 21, 0.97)
+    ) !important;
+}
+
+.match-hero--compact::after {
+  opacity: 0.13;
+}
+
+.compact-match-header {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.compact-match-header__content {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.compact-match-header__badge {
+  margin-bottom: 12px;
+}
+
+.compact-match-header__main {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  min-width: 0;
+}
+
+.compact-match-header__text {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.compact-match-header__title {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(21px, 2.2vw, 30px);
+  line-height: 1.14;
+  font-weight: 900;
+  letter-spacing: -0.025em;
+  overflow-wrap: anywhere;
+}
+
+.compact-match-header__subtitle {
+  margin-top: 9px;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.compact-match-header__actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* Μικρότερη και καθαρότερη κατάσταση αγώνα */
+.match-hero--compact .match-status {
+  min-height: 31px;
+  padding: 6px 11px;
+  font-size: 10px;
+}
+
+/* Feedback κάτω από τα κουμπιά */
+.match-hero--compact .match-action-feedback {
+  right: 22px;
+  bottom: 7px;
+}
+
+/* Tablet */
+@media (max-width: 900px) {
+  .compact-match-header {
+    align-items: flex-start;
+  }
+
+  .compact-match-header__main {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .compact-match-header__actions {
+    flex-wrap: wrap;
+  }
+}
+
+/* Mobile */
+@media (max-width: 650px) {
+  .match-hero--compact {
+    padding: 17px !important;
+    border-radius: 18px !important;
+  }
+
+  .compact-match-header {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .compact-match-header__main {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 11px;
+  }
+
+  .compact-match-header__title {
+    font-size: 22px;
+  }
+
+  .match-hero--compact .match-status {
+    justify-self: start;
+  }
+
+  .compact-match-header__actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .compact-match-header__actions .match-action-button {
+    width: 100%;
+  }
+
+  .match-hero--compact .match-action-feedback {
+    position: static;
+    margin-top: 10px;
+  }
+}
+
+/* Πολύ στενό κινητό */
+@media (max-width: 420px) {
+  .compact-match-header__actions {
+    grid-template-columns: 1fr;
+  }
+}
