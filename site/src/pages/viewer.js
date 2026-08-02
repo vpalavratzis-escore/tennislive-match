@@ -1930,7 +1930,13 @@ ${window.location.href}`
         const metadata = event?.metadata || {};
         const eventId = String(event?.eventId || "");
         const eventType = String(display.type || event?.type || "EVENT").toUpperCase();
-        const winnerSide = String(display.winner || metadata.winner || "").toUpperCase();
+        const winnerSide = String(
+          display.scoringSide ||
+          display.winner ||
+          metadata.scoringSide ||
+          metadata.winner ||
+          ""
+        ).toUpperCase();
 
         const winnerName =
           winnerSide === "A"
