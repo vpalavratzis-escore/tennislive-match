@@ -3273,6 +3273,16 @@ ${safeUrl}`
         const visual = document.createElement("span");
         visual.className = "highlight-card__visual";
 
+        const thumbnail = document.createElement("img");
+        thumbnail.className = "highlight-card__thumbnail";
+        thumbnail.alt = "";
+        thumbnail.loading = "lazy";
+        thumbnail.decoding = "async";
+        thumbnail.src =
+          `${apiBase}/api/events/` +
+          `${encodeURIComponent(String(event?.eventId || ""))}` +
+          `/thumbnail`;
+
         const icon = document.createElement("span");
         icon.className = "highlight-card__icon";
         icon.textContent = iconText;
@@ -3281,7 +3291,21 @@ ${safeUrl}`
         playIcon.className = "highlight-card__play-icon";
         playIcon.textContent = "▶";
 
-        visual.append(icon, playIcon);
+        thumbnail.addEventListener("load", () => {
+          visual.classList.add(
+            "highlight-card__visual--has-thumbnail"
+          );
+        });
+
+        thumbnail.addEventListener("error", () => {
+          thumbnail.remove();
+
+          visual.classList.remove(
+            "highlight-card__visual--has-thumbnail"
+          );
+        });
+
+        visual.append(thumbnail, icon, playIcon);
 
         const body = document.createElement("span");
         body.className = "highlight-card__body";
