@@ -889,13 +889,24 @@ export async function renderViewer(path) {
         Waiting for match events…
       </div>
 
-      <div
-        id="timelineList"
-        style="
-          display:grid;
-          gap:10px;
-        "
-      ></div>
+      <div class="timeline-scroll-wrapper">
+        <button
+          id="timelineNewEventButton"
+          class="timeline-new-event-button"
+          type="button"
+          style="display:none;"
+        >
+          ↑ New event
+        </button>
+
+        <div
+          id="timelineList"
+          style="
+            display:grid;
+            gap:10px;
+          "
+        ></div>
+      </div>
     </div>
 
     <div class="footer">© <span id="y"></span> VoxCourt.</div>
@@ -918,6 +929,9 @@ export async function renderViewer(path) {
   const timelineStatus = app.querySelector("#timelineStatus");
   const timelineList = app.querySelector("#timelineList");
   const timelineFilters = app.querySelector("#timelineFilters");
+  const timelineNewEventButton = app.querySelector(
+    "#timelineNewEventButton"
+  );
 
   const replayVideoEl = app.querySelector("#replayVideo");
   const cameraButtons = app.querySelector("#cameraButtons");
@@ -1659,8 +1673,13 @@ export async function renderViewer(path) {
 
         if (hasNewEvent && previousScrollTop < 40) {
           timelineList.scrollTop = 0;
+          hideTimelineNewEventButton();
         } else {
           timelineList.scrollTop = previousScrollTop;
+
+          if (hasNewEvent && previousScrollTop >= 40) {
+            showTimelineNewEventButton();
+          }
         }
       });
     }
@@ -1693,6 +1712,37 @@ export async function renderViewer(path) {
       renderTimelineEvents(latestTimelineEvents);
       timelineList.scrollTop = 0;
     });
+
+    function hideTimelineNewEventButton() {
+      if (timelineNewEventButton) {
+        timelineNewEventButton.style.display = "none";
+      }
+    }
+
+    function showTimelineNewEventButton() {
+      if (timelineNewEventButton) {
+        timelineNewEventButton.style.display = "inline-flex";
+      }
+    }
+
+    timelineNewEventButton?.addEventListener("click", () => {
+      timelineList?.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+
+      hideTimelineNewEventButton();
+    });
+
+    timelineList?.addEventListener(
+      "scroll",
+      () => {
+        if (timelineList.scrollTop < 40) {
+          hideTimelineNewEventButton();
+        }
+      },
+      { passive: true }
+    );
 
     async function refreshTimeline() {
       if (!timelineList || !timelineStatus) return;
