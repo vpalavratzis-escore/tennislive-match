@@ -2033,3 +2033,19 @@ textarea {
       ) !important;
   }
 }
+
+@media (max-width: 700px) {
+  .timeline-event {
+    grid-template-columns: 1fr !important;
+    align-items: stretch !important;
+  }
+
+  .timeline-event-actions {
+    width: 100%;
+  }
+
+  .timeline-event-actions .btn {
+    width: 100%;
+    min-height: 46px;
+  }
+}

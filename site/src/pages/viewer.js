@@ -813,6 +813,33 @@ export async function renderViewer(path) {
 
     </div>
 
+    <div
+      class="panel section"
+      style="
+        margin-top:18px;
+        display:flex;
+        flex-direction:column;
+        gap:12px;
+      "
+    >
+      <div class="badge"><i></i> Match Timeline</div>
+
+      <div
+        id="timelineStatus"
+        class="hint"
+      >
+        Waiting for match events…
+      </div>
+
+      <div
+        id="timelineList"
+        style="
+          display:grid;
+          gap:10px;
+        "
+      ></div>
+    </div>
+
     <div class="footer">© <span id="y"></span> VoxCourt.</div>
   </div>
 `;
@@ -827,6 +854,8 @@ export async function renderViewer(path) {
   const streamSourceLabel = app.querySelector("#streamSourceLabel");
   const videoEl = app.querySelector("#camVideo");
   const videoOverlay = app.querySelector("#videoOverlay");
+  const timelineStatus = app.querySelector("#timelineStatus");
+  const timelineList = app.querySelector("#timelineList");
 
   const replayVideoEl = app.querySelector("#replayVideo");
   const cameraButtons = app.querySelector("#cameraButtons");
@@ -1051,6 +1080,182 @@ export async function renderViewer(path) {
       backToLive();
     });
 
+    function formatTimelineTime(timestamp) {
+      const value = Number(timestamp || 0);
+
+      if (!Number.isFinite(value) || value <= 0) {
+        return "--:--";
+      }
+
+      return new Date(value).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit"
+      });
+    }
+
+    function renderTimelineEvents(events) {
+      if (!timelineList || !timelineStatus) return;
+
+      const list = Array.isArray(events) ? events : [];
+      timelineList.innerHTML = "";
+
+      if (list.length === 0) {
+        timelineStatus.textContent = "No match events yet.";
+        return;
+      }
+
+      timelineStatus.textContent = `${list.length} match event${list.length === 1 ? "" : "s"}`;
+
+      for (const event of [...list].reverse()) {
+        const display = event?.display || {};
+        const eventId = String(event?.eventId || "");
+        const eventTime = formatTimelineTime(
+          display.timestamp || event?.timestamp
+        );
+
+        const card = document.createElement("div");
+        card.className = "timeline-event";
+        card.style.cssText = `
+          display:grid;
+          grid-template-columns:minmax(0,1fr) auto;
+          gap:14px;
+          align-items:center;
+          padding:14px 16px;
+          border:1px solid rgba(255,255,255,.08);
+          border-radius:16px;
+          background:rgba(255,255,255,.025);
+        `;
+
+        const info = document.createElement("div");
+        info.style.minWidth = "0";
+
+        const titleRow = document.createElement("div");
+        titleRow.style.cssText = `
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
+          gap:12px;
+        `;
+
+        const title = document.createElement("strong");
+        title.textContent = display.title || event?.type || "EVENT";
+        title.style.fontSize = "15px";
+
+        const time = document.createElement("span");
+        time.textContent = eventTime;
+        time.className = "hint";
+        time.style.whiteSpace = "nowrap";
+
+        titleRow.appendChild(title);
+        titleRow.appendChild(time);
+
+        const score = document.createElement("div");
+        score.className = "hint";
+        score.style.marginTop = "6px";
+        score.textContent =
+          `Score ${display.score || "—"}  •  ` +
+          `Games ${display.games || "—"}  •  ` +
+          `Sets ${display.sets || "—"}`;
+
+        info.appendChild(titleRow);
+        info.appendChild(score);
+
+        const actions = document.createElement("div");
+        actions.className = "timeline-event-actions";
+
+        const replayButton = document.createElement("button");
+        replayButton.type = "button";
+        replayButton.className = "btn small";
+        replayButton.textContent = "Replay";
+        replayButton.disabled = !eventId;
+
+        replayButton.addEventListener("click", async () => {
+          if (!eventId) return;
+
+          replayButton.disabled = true;
+          replayStatus.textContent = `Preparing ${display.title || "event"} replay…`;
+
+          const replayUrl =
+            `${apiBase}/api/events/${encodeURIComponent(eventId)}/replay` +
+            `?t=${Date.now()}`;
+
+          try {
+            const response = await fetch(replayUrl, {
+              method: "GET",
+              cache: "no-store"
+            });
+
+            if (!response.ok) {
+              let detail = `HTTP ${response.status}`;
+
+              try {
+                const body = await response.text();
+                if (body) detail = body.slice(0, 220);
+              } catch (_) {}
+
+              throw new Error(detail);
+            }
+
+            const blob = await response.blob();
+
+            if (!blob || blob.size < 50000) {
+              throw new Error("Replay file is empty or unavailable.");
+            }
+
+            cleanupReplayObjectUrl();
+            replayObjectUrl = URL.createObjectURL(blob);
+
+            try {
+              replayVideoEl.pause();
+            } catch (_) {}
+
+            replayVideoEl.src = replayObjectUrl;
+            replayVideoEl.currentTime = 0;
+            replayVideoEl.style.display = "block";
+
+            videoEl.style.display = "none";
+            btnBackLive.style.display = "";
+            replayStatus.textContent =
+              `${display.title || "Replay"} • ${(blob.size / 1024 / 1024).toFixed(1)} MB`;
+
+            await replayVideoEl.play();
+          } catch (error) {
+            replayStatus.textContent = `Replay error: ${error.message}`;
+          } finally {
+            replayButton.disabled = false;
+          }
+        });
+
+        actions.appendChild(replayButton);
+        card.appendChild(info);
+        card.appendChild(actions);
+        timelineList.appendChild(card);
+      }
+    }
+
+    async function refreshTimeline() {
+      if (!timelineList || !timelineStatus) return;
+
+      try {
+        const activeMatchUrl =
+          `${apiBase}/api/matches/active/${country}/${city}/${clubId}/${courtId}`;
+
+        const activePayload = await fetchJson(activeMatchUrl);
+        const matchId = String(activePayload?.match?.matchId || "");
+
+        const eventsUrl =
+          `${apiBase}/api/events/${country}/${city}/${clubId}/${courtId}` +
+          `?limit=100` +
+          (matchId ? `&matchId=${encodeURIComponent(matchId)}` : "");
+
+        const payload = await fetchJson(eventsUrl);
+        renderTimelineEvents(payload?.events);
+      } catch (error) {
+        timelineStatus.textContent = `Timeline unavailable: ${error.message}`;
+      }
+    }
+
     async function refreshStreamSource() {
       const myToken = ++streamCheckToken;
 
@@ -1257,6 +1462,9 @@ export async function renderViewer(path) {
 
     await refreshStreamSource();
     setInterval(refreshStreamSource, 5000);
+
+    await refreshTimeline();
+    setInterval(refreshTimeline, 3000);
 
     if (!stateUrl) {
       status.textContent = "No state URL configured for this court.";
