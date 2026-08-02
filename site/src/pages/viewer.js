@@ -2513,7 +2513,9 @@ ${safeUrl}`
       currentReplaySourceUrl = "";
       currentReplayFilename = "voxcourt-replay.mp4";
       currentReplayTitle = "Event Replay";
+      currentHighlightEventId = "";
 
+      updateReplayHighlightNavigation();
       resetReplayStudioControls();
       resetReplayZoom();
 
@@ -2927,6 +2929,88 @@ ${safeUrl}`
     });
 
     replayVideoEl?.addEventListener(
+      "ended",
+      (event) => {
+        if (!replayAutoNextEnabled) {
+          return;
+        }
+
+        const events = getVisibleHighlightEvents();
+        const index = getCurrentHighlightIndex();
+
+        if (
+          index < 0 ||
+          index >= events.length - 1
+        ) {
+          return;
+        }
+
+        event.stopImmediatePropagation();
+
+        window.setTimeout(() => {
+          openRelativeHighlight(1);
+        }, 350);
+      },
+      true
+    );
+
+    replayVideoEl?.addEventListener(
+      "pointerdown",
+      (event) => {
+        if (
+          event.pointerType !== "touch" ||
+          replayZoomScale > 1
+        ) {
+          return;
+        }
+
+        replaySwipeStartX = event.clientX;
+        replaySwipeStartY = event.clientY;
+        replaySwipeStartTime = Date.now();
+      }
+    );
+
+    replayVideoEl?.addEventListener(
+      "pointerup",
+      (event) => {
+        if (
+          event.pointerType !== "touch" ||
+          replayZoomScale > 1 ||
+          !replaySwipeStartTime
+        ) {
+          return;
+        }
+
+        const deltaX =
+          event.clientX - replaySwipeStartX;
+
+        const deltaY =
+          event.clientY - replaySwipeStartY;
+
+        const elapsed =
+          Date.now() - replaySwipeStartTime;
+
+        replaySwipeStartTime = 0;
+
+        const horizontalSwipe =
+          Math.abs(deltaX) >= 70 &&
+          Math.abs(deltaX) >
+            Math.abs(deltaY) * 1.35 &&
+          elapsed <= 700;
+
+        if (!horizontalSwipe) {
+          return;
+        }
+
+        if (deltaX < 0) {
+          openRelativeHighlight(1);
+        } else {
+          openRelativeHighlight(-1);
+        }
+      }
+    );
+
+    replayVideoEl?.addEventListener(
       "loadedmetadata",
       updateReplayProgress
     );
@@ -2988,6 +3072,18 @@ ${safeUrl}`
     const collapsedTimelineGames = new Set();
 
     let currentHighlightFilter = "all";
+
+    let currentHighlightEventId = "";
+    let replayAutoNextEnabled = false;
+
+    let replayHighlightPrevButton = null;
+    let replayHighlightNextButton = null;
+    let replayHighlightCounter = null;
+    let replayAutoNextCheckbox = null;
+
+    let replaySwipeStartX = 0;
+    let replaySwipeStartY = 0;
+    let replaySwipeStartTime = 0;
 
     let timelineRefreshRunning = false;
     let timelineRefreshPending = false;
@@ -3063,12 +3159,197 @@ ${safeUrl}`
         });
     }
 
+    function getVisibleHighlightEvents() {
+      return getAvailableHighlightEvents(
+        latestTimelineEvents
+      ).filter(eventMatchesHighlightFilter);
+    }
+
+    function getCurrentHighlightIndex() {
+      const events = getVisibleHighlightEvents();
+
+      return events.findIndex(
+        (event) =>
+          String(event?.eventId || "") ===
+          currentHighlightEventId
+      );
+    }
+
+    function updateReplayHighlightNavigation() {
+      const events = getVisibleHighlightEvents();
+      const index = getCurrentHighlightIndex();
+
+      const hasCurrent =
+        index >= 0 &&
+        index < events.length;
+
+      if (replayHighlightPrevButton) {
+        replayHighlightPrevButton.disabled =
+          !hasCurrent || index <= 0;
+      }
+
+      if (replayHighlightNextButton) {
+        replayHighlightNextButton.disabled =
+          !hasCurrent ||
+          index >= events.length - 1;
+      }
+
+      if (replayHighlightCounter) {
+        replayHighlightCounter.textContent =
+          hasCurrent
+            ? `${index + 1} / ${events.length}`
+            : `— / ${events.length}`;
+      }
+    }
+
+    async function openRelativeHighlight(direction) {
+      const events = getVisibleHighlightEvents();
+
+      if (events.length === 0) {
+        return false;
+      }
+
+      const index = getCurrentHighlightIndex();
+
+      if (index < 0) {
+        return false;
+      }
+
+      const nextIndex = index + direction;
+      const nextEvent = events[nextIndex];
+
+      if (!nextEvent) {
+        return false;
+      }
+
+      await openHighlightReplay(nextEvent);
+      return true;
+    }
+
+    function ensureReplayHighlightNavigation() {
+      if (
+        !replayStudio ||
+        replayHighlightPrevButton ||
+        replayHighlightNextButton
+      ) {
+        return;
+      }
+
+      const navigation =
+        document.createElement("div");
+
+      navigation.className =
+        "replay-highlight-navigation";
+
+      replayHighlightPrevButton =
+        document.createElement("button");
+
+      replayHighlightPrevButton.type = "button";
+      replayHighlightPrevButton.className =
+        "replay-highlight-nav-button";
+
+      replayHighlightPrevButton.innerHTML =
+        '<span aria-hidden="true">‹</span>' +
+        '<span>Previous</span>';
+
+      replayHighlightPrevButton.addEventListener(
+        "click",
+        () => {
+          openRelativeHighlight(-1);
+        }
+      );
+
+      replayHighlightCounter =
+        document.createElement("span");
+
+      replayHighlightCounter.className =
+        "replay-highlight-counter";
+
+      replayHighlightCounter.textContent = "— / 0";
+
+      replayHighlightNextButton =
+        document.createElement("button");
+
+      replayHighlightNextButton.type = "button";
+      replayHighlightNextButton.className =
+        "replay-highlight-nav-button";
+
+      replayHighlightNextButton.innerHTML =
+        '<span>Next</span>' +
+        '<span aria-hidden="true">›</span>';
+
+      replayHighlightNextButton.addEventListener(
+        "click",
+        () => {
+          openRelativeHighlight(1);
+        }
+      );
+
+      const autoNextLabel =
+        document.createElement("label");
+
+      autoNextLabel.className =
+        "replay-auto-next";
+
+      replayAutoNextCheckbox =
+        document.createElement("input");
+
+      replayAutoNextCheckbox.type = "checkbox";
+      replayAutoNextCheckbox.checked =
+        replayAutoNextEnabled;
+
+      replayAutoNextCheckbox.addEventListener(
+        "change",
+        () => {
+          replayAutoNextEnabled =
+            replayAutoNextCheckbox.checked;
+        }
+      );
+
+      const autoNextText =
+        document.createElement("span");
+
+      autoNextText.textContent = "Auto next";
+
+      autoNextLabel.append(
+        replayAutoNextCheckbox,
+        autoNextText
+      );
+
+      navigation.append(
+        replayHighlightPrevButton,
+        replayHighlightCounter,
+        replayHighlightNextButton,
+        autoNextLabel
+      );
+
+      const header = replayStudio.querySelector(
+        ".replay-studio__header"
+      );
+
+      if (header) {
+        header.insertAdjacentElement(
+          "afterend",
+          navigation
+        );
+      } else {
+        replayStudio.prepend(navigation);
+      }
+
+      updateReplayHighlightNavigation();
+    }
+
+    ensureReplayHighlightNavigation();
+
     async function openHighlightReplay(event) {
       const eventId = String(event?.eventId || "");
       const display = event?.display || {};
       const metadata = event?.metadata || {};
 
       if (!eventId) return;
+
+      currentHighlightEventId = eventId;
+      updateReplayHighlightNavigation();
 
       const replayUrl =
         `${apiBase}/api/events/${encodeURIComponent(eventId)}/replay` +
@@ -3167,6 +3448,8 @@ ${safeUrl}`
         replayStatus.textContent =
           `${display.title || "Highlight"} • ` +
           `${(blob.size / 1024 / 1024).toFixed(1)} MB`;
+
+        updateReplayHighlightNavigation();
 
         await replayVideoEl.play();
       } catch (error) {
@@ -4297,6 +4580,65 @@ ${safeUrl}`
         );
       }
     }
+
+    document.addEventListener(
+      "keydown",
+      (event) => {
+        const target = event.target;
+
+        if (
+          target instanceof HTMLInputElement ||
+          target instanceof HTMLTextAreaElement ||
+          target instanceof HTMLSelectElement ||
+          target?.isContentEditable
+        ) {
+          return;
+        }
+
+        const replayIsActive =
+          replayVideoEl &&
+          replayVideoEl.style.display !== "none" &&
+          Boolean(replayVideoEl.src);
+
+        if (!replayIsActive) {
+          return;
+        }
+
+        if (event.key === "ArrowLeft") {
+          event.preventDefault();
+          openRelativeHighlight(-1);
+          return;
+        }
+
+        if (event.key === "ArrowRight") {
+          event.preventDefault();
+          openRelativeHighlight(1);
+          return;
+        }
+
+        if (
+          event.key === " " ||
+          event.code === "Space"
+        ) {
+          event.preventDefault();
+          replayPlayPause?.click();
+          return;
+        }
+
+        if (
+          event.key === "f" ||
+          event.key === "F"
+        ) {
+          event.preventDefault();
+          replayFullscreen?.click();
+          return;
+        }
+
+        if (event.key === "Escape") {
+          backToLive();
+        }
+      }
+    );
 
     await refreshStreamSource();
     setInterval(refreshStreamSource, 5000);
