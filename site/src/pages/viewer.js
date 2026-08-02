@@ -774,6 +774,16 @@ export async function renderViewer(path) {
           </div>
         </div>
 
+        <div
+          id="cameraButtons"
+          style="
+            display:flex;
+            gap:8px;
+            flex-wrap:wrap;
+            margin-top:12px;
+          "
+        ></div>
+
         <div style="
           display:flex;
           gap:10px;
@@ -819,6 +829,7 @@ export async function renderViewer(path) {
   const videoOverlay = app.querySelector("#videoOverlay");
 
   const replayVideoEl = app.querySelector("#replayVideo");
+  const cameraButtons = app.querySelector("#cameraButtons");
   const btnReplay30 = app.querySelector("#btnReplay30");
   const btnBackLive = app.querySelector("#btnBackLive");
   const replayStatus = app.querySelector("#replayStatus");
@@ -900,6 +911,50 @@ export async function renderViewer(path) {
     miLine2.textContent = `📍 ${cityObj.name}, ${countryObj.name}  •  🔴 LIVE`;
 
     let replayObjectUrl = "";
+    let selectedReplayCam = "cam1";
+
+    function renderCameraButtons(sources) {
+      if (!cameraButtons) return;
+
+      const list = Array.isArray(sources) ? sources : [];
+      cameraButtons.innerHTML = "";
+
+      const knownCams = ["cam1", "cam2", "cam3", "cam4"];
+
+      for (const camRole of knownCams) {
+        const source = list.find((s) => s?.camRole === camRole);
+        const available = Boolean(source?.streamKey);
+        const online = Boolean(source?.liveActive);
+
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "btn small";
+        button.dataset.camRole = camRole;
+
+        const camNumber = camRole.replace("cam", "");
+        const deviceLabel = source?.deviceName
+          ? ` • ${source.deviceName}`
+          : "";
+
+        button.textContent =
+          `Camera ${camNumber}${online ? " • LIVE" : available ? " • OFFLINE" : ""}${deviceLabel}`;
+
+        button.disabled = !available;
+
+        if (camRole === selectedReplayCam) {
+          button.style.borderColor = "var(--teal)";
+          button.style.boxShadow = "0 0 0 2px rgba(8,184,187,.15)";
+        }
+
+        button.addEventListener("click", () => {
+          selectedReplayCam = camRole;
+          renderCameraButtons(list);
+          replayStatus.textContent = `Replay camera: ${camRole}`;
+        });
+
+        cameraButtons.appendChild(button);
+      }
+    }
 
     function cleanupReplayObjectUrl() {
       if (replayObjectUrl) {
@@ -986,7 +1041,7 @@ export async function renderViewer(path) {
     }
 
     btnReplay30?.addEventListener("click", () => {
-      openReplay(30, "cam1");
+      openReplay(30, selectedReplayCam);
     });
 
     btnBackLive?.addEventListener("click", () => {
@@ -1008,6 +1063,8 @@ export async function renderViewer(path) {
         });
 
         if (myToken !== streamCheckToken) return;
+
+        renderCameraButtons(picked.mobileSources);
 
         const webrtcUrl = String(picked.webrtcUrl || "").trim();
         const hlsUrl = String(picked.hlsUrl || picked.selectedUrl || "").trim();
