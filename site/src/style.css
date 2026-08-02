@@ -2693,3 +2693,419 @@ textarea {
     width: 100%;
   }
 }
+
+/* =========================================================
+   VOXCOURT LIVE SCORE REDESIGN
+   ========================================================= */
+
+/* Main live-score panel */
+.panel.section:has(#nameA) {
+  position: relative;
+  overflow: hidden;
+  border-color: rgba(0, 205, 210, 0.17);
+  background:
+    radial-gradient(
+      circle at 12% 0%,
+      rgba(0, 190, 190, 0.075),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 95% 0%,
+      rgba(162, 75, 225, 0.06),
+      transparent 31%
+    ),
+    rgba(3, 13, 17, 0.94);
+}
+
+/* Remove Photo / No Photo text completely */
+#photoATitle + .hint,
+#photoBTitle + .hint {
+  display: none !important;
+}
+
+/* Player names inside the upper profile cards */
+#photoATitle,
+#photoBTitle {
+  margin: 0 !important;
+  font-size: clamp(18px, 2vw, 27px) !important;
+  line-height: 1.12 !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+
+/* Player A and Player B profile cards */
+div:has(> #serveAIcon),
+div:has(> #serveBIcon) {
+  min-height: 126px !important;
+  padding: 18px 22px !important;
+  border-radius: 20px !important;
+  overflow: hidden;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease;
+}
+
+/* Player A card */
+div:has(> #serveAIcon) {
+  border-color: rgba(0, 220, 220, 0.27) !important;
+  background:
+    linear-gradient(
+      110deg,
+      rgba(0, 190, 190, 0.13),
+      rgba(255, 255, 255, 0.025) 62%
+    ) !important;
+  box-shadow:
+    inset 3px 0 0 rgba(0, 225, 225, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+/* Player B card */
+div:has(> #serveBIcon) {
+  border-color: rgba(174, 84, 234, 0.25) !important;
+  background:
+    linear-gradient(
+      110deg,
+      rgba(150, 65, 215, 0.12),
+      rgba(255, 255, 255, 0.025) 62%
+    ) !important;
+  box-shadow:
+    inset 3px 0 0 rgba(178, 84, 235, 0.68),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+div:has(> #serveAIcon):hover,
+div:has(> #serveBIcon):hover {
+  transform: translateY(-2px);
+}
+
+/* Avatar/photo wrappers */
+div:has(> #photoA),
+div:has(> #photoB) {
+  width: 88px !important;
+  height: 88px !important;
+  min-width: 88px !important;
+  flex: 0 0 88px !important;
+  border-radius: 999px !important;
+  overflow: hidden;
+}
+
+/* Actual player photos */
+#photoA,
+#photoB {
+  width: 88px !important;
+  height: 88px !important;
+  min-width: 88px !important;
+  border-radius: 999px !important;
+  object-fit: cover !important;
+}
+
+/* Initial placeholders A / B */
+#photoAph,
+#photoBPh,
+#photoBph {
+  width: 88px !important;
+  height: 88px !important;
+  min-width: 88px !important;
+  border-radius: 999px !important;
+  font-size: 32px !important;
+  font-weight: 900 !important;
+}
+
+/* Teal A avatar */
+#photoAph {
+  color: #fff !important;
+  border: 2px solid rgba(0, 225, 225, 0.65) !important;
+  background:
+    radial-gradient(
+      circle at 35% 25%,
+      rgba(0, 225, 225, 0.36),
+      rgba(0, 75, 80, 0.66) 60%,
+      rgba(4, 22, 28, 0.95)
+    ) !important;
+  box-shadow:
+    0 0 0 5px rgba(0, 205, 210, 0.06),
+    0 0 24px rgba(0, 210, 215, 0.11);
+}
+
+/* Purple B avatar */
+#photoBPh,
+#photoBph {
+  color: #fff !important;
+  border: 2px solid rgba(184, 91, 238, 0.6) !important;
+  background:
+    radial-gradient(
+      circle at 35% 25%,
+      rgba(183, 89, 235, 0.38),
+      rgba(79, 38, 110, 0.67) 60%,
+      rgba(20, 13, 31, 0.96)
+    ) !important;
+  box-shadow:
+    0 0 0 5px rgba(176, 80, 230, 0.055),
+    0 0 24px rgba(177, 79, 230, 0.1);
+}
+
+/* Service indicator */
+#serveAIcon,
+#serveBIcon {
+  width: 18px !important;
+  height: 18px !important;
+  right: 20px !important;
+  background: #ffd84f !important;
+  border: 2px solid rgba(255, 244, 177, 0.8);
+  box-shadow:
+    0 0 0 6px rgba(255, 216, 79, 0.13),
+    0 0 22px rgba(255, 216, 79, 0.65) !important;
+  animation: voxcourtServePulse 1.65s ease-in-out infinite;
+}
+
+@keyframes voxcourtServePulse {
+  0%,
+  100% {
+    transform: translateY(-50%) scale(1);
+  }
+
+  50% {
+    transform: translateY(-50%) scale(1.12);
+  }
+}
+
+/* Score table */
+.panel.section:has(#nameA) .table {
+  margin-top: 20px;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.085);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.018);
+}
+
+/* Header */
+.panel.section:has(#nameA) .table thead th {
+  padding: 15px 14px !important;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.075em;
+  color: rgba(255, 255, 255, 0.62);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+/* Different header accents */
+.panel.section:has(#nameA) .table thead th:nth-child(2),
+.panel.section:has(#nameA) .table thead th:nth-child(3) {
+  color: rgba(58, 224, 222, 0.88);
+}
+
+.panel.section:has(#nameA) .table thead th:nth-child(4) {
+  color: rgba(192, 111, 238, 0.9);
+}
+
+/* Table rows */
+.panel.section:has(#nameA) .table tbody tr {
+  position: relative;
+  transition: background 160ms ease;
+}
+
+.panel.section:has(#nameA) .table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.panel.section:has(#nameA) .table tbody td {
+  padding: 14px !important;
+  vertical-align: middle;
+}
+
+/* Player names in table */
+#nameA,
+#nameB {
+  position: relative;
+  padding-left: 21px !important;
+  font-size: 17px !important;
+  font-weight: 900 !important;
+  color: #fff;
+}
+
+#nameA::before,
+#nameB::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 22%;
+  width: 4px;
+  height: 56%;
+  border-radius: 999px;
+}
+
+#nameA::before {
+  background: #18d9da;
+  box-shadow: 0 0 12px rgba(24, 217, 218, 0.45);
+}
+
+#nameB::before {
+  background: #aa55df;
+  box-shadow: 0 0 12px rgba(170, 85, 223, 0.42);
+}
+
+/* Score values become modern boxes */
+#pointA,
+#pointB,
+#gamesA,
+#gamesB,
+#setsA,
+#setsB {
+  font-size: 19px !important;
+  font-weight: 900 !important;
+  text-align: center;
+}
+
+/* Teal point/game cells */
+#pointA,
+#pointB,
+#gamesA,
+#gamesB {
+  color: #fff;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(0, 173, 178, 0.16),
+      rgba(0, 83, 88, 0.12)
+    );
+  box-shadow: inset 0 0 0 1px rgba(0, 213, 215, 0.1);
+}
+
+/* Purple sets cells */
+#setsA,
+#setsB {
+  color: #fff;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(145, 63, 202, 0.17),
+      rgba(77, 33, 105, 0.14)
+    );
+  box-shadow: inset 0 0 0 1px rgba(177, 86, 232, 0.11);
+}
+
+/* Rounded score boxes inside cells */
+#pointA,
+#pointB,
+#gamesA,
+#gamesB,
+#setsA,
+#setsB {
+  background-clip: padding-box;
+  border-radius: 11px;
+}
+
+/* Status lines */
+.panel.section:has(#nameA) #status,
+.panel.section:has(#nameA) #photostatus {
+  padding: 10px 13px;
+  margin-top: 9px !important;
+  border: 1px solid rgba(255, 255, 255, 0.065);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.panel.section:has(#nameA) #status {
+  border-left: 3px solid rgba(0, 213, 215, 0.72);
+}
+
+.panel.section:has(#nameA) #photostatus {
+  border-left: 3px solid rgba(174, 82, 226, 0.7);
+}
+
+/* Tablet */
+@media (max-width: 900px) {
+  div:has(> #serveAIcon),
+  div:has(> #serveBIcon) {
+    min-height: 112px !important;
+    padding: 15px 17px !important;
+  }
+
+  div:has(> #photoA),
+  div:has(> #photoB),
+  #photoA,
+  #photoB,
+  #photoAph,
+  #photoBPh,
+  #photoBph {
+    width: 76px !important;
+    height: 76px !important;
+    min-width: 76px !important;
+  }
+}
+
+/* Mobile */
+@media (max-width: 560px) {
+  div:has(> #serveAIcon),
+  div:has(> #serveBIcon) {
+    min-height: 98px !important;
+    padding: 12px 14px !important;
+    border-radius: 16px !important;
+  }
+
+  div:has(> #photoA),
+  div:has(> #photoB),
+  #photoA,
+  #photoB,
+  #photoAph,
+  #photoBPh,
+  #photoBph {
+    width: 64px !important;
+    height: 64px !important;
+    min-width: 64px !important;
+  }
+
+  #photoAph,
+  #photoBPh,
+  #photoBph {
+    font-size: 24px !important;
+  }
+
+  #photoATitle,
+  #photoBTitle {
+    font-size: 17px !important;
+  }
+
+  #serveAIcon,
+  #serveBIcon {
+    right: 12px !important;
+    width: 15px !important;
+    height: 15px !important;
+  }
+
+  .panel.section:has(#nameA) .table {
+    margin-top: 14px;
+  }
+
+  .panel.section:has(#nameA) .table thead th,
+  .panel.section:has(#nameA) .table tbody td {
+    padding: 10px 7px !important;
+  }
+
+  .panel.section:has(#nameA) .table thead th {
+    font-size: 10px;
+    letter-spacing: 0.025em;
+  }
+
+  #nameA,
+  #nameB {
+    padding-left: 16px !important;
+    font-size: 14px !important;
+  }
+
+  #pointA,
+  #pointB,
+  #gamesA,
+  #gamesB,
+  #setsA,
+  #setsB {
+    font-size: 16px !important;
+    border-radius: 8px;
+  }
+}
