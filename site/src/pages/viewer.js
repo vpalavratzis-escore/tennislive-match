@@ -932,6 +932,163 @@ export async function renderViewer(path) {
           </div>
         </div>
 
+        <section
+          id="replayStudio"
+          class="replay-studio"
+          style="display:none;"
+          aria-label="Replay Studio"
+        >
+          <div class="replay-studio__header">
+            <div class="replay-studio__identity">
+              <span class="replay-studio__eyebrow">
+                VOXCOURT REPLAY STUDIO
+              </span>
+
+              <strong id="replayStudioTitle">
+                Event Replay
+              </strong>
+
+              <span id="replayStudioSubtitle">
+                Professional instant replay
+              </span>
+            </div>
+
+            <button
+              id="replayStudioBackLive"
+              class="replay-studio__back-live"
+              type="button"
+            >
+              <span aria-hidden="true">←</span>
+              <span>Back to Live</span>
+            </button>
+          </div>
+
+          <div class="replay-studio__timeline">
+            <span id="replayCurrentTime">0:00</span>
+
+            <input
+              id="replayProgress"
+              class="replay-studio__progress"
+              type="range"
+              min="0"
+              max="1000"
+              value="0"
+              step="1"
+              aria-label="Replay progress"
+            />
+
+            <span id="replayDuration">0:00</span>
+          </div>
+
+          <div class="replay-studio__main-controls">
+            <button
+              id="replaySeekBack"
+              class="replay-control replay-control--secondary"
+              type="button"
+              aria-label="Go back 10 seconds"
+            >
+              <span class="replay-control__icon">↶</span>
+              <span>-10s</span>
+            </button>
+
+            <button
+              id="replayPlayPause"
+              class="replay-control replay-control--primary"
+              type="button"
+              aria-label="Play replay"
+            >
+              <span id="replayPlayPauseIcon">▶</span>
+              <span id="replayPlayPauseText">Play</span>
+            </button>
+
+            <button
+              id="replaySeekForward"
+              class="replay-control replay-control--secondary"
+              type="button"
+              aria-label="Go forward 10 seconds"
+            >
+              <span class="replay-control__icon">↷</span>
+              <span>+10s</span>
+            </button>
+          </div>
+
+          <div class="replay-studio__tools">
+            <div class="replay-studio__speed-group">
+              <span class="replay-studio__tool-label">
+                Playback speed
+              </span>
+
+              <div
+                id="replaySpeedButtons"
+                class="replay-speed-buttons"
+                role="group"
+                aria-label="Playback speed"
+              >
+                <button
+                  type="button"
+                  class="replay-speed-button"
+                  data-replay-speed="0.25"
+                >
+                  0.25×
+                </button>
+
+                <button
+                  type="button"
+                  class="replay-speed-button"
+                  data-replay-speed="0.5"
+                >
+                  0.5×
+                </button>
+
+                <button
+                  type="button"
+                  class="replay-speed-button replay-speed-button--active"
+                  data-replay-speed="1"
+                >
+                  1×
+                </button>
+
+                <button
+                  type="button"
+                  class="replay-speed-button"
+                  data-replay-speed="1.5"
+                >
+                  1.5×
+                </button>
+              </div>
+            </div>
+
+            <div class="replay-studio__action-group">
+              <button
+                id="replayFullscreen"
+                class="replay-tool-button"
+                type="button"
+              >
+                <span aria-hidden="true">⛶</span>
+                <span>Fullscreen</span>
+              </button>
+
+              <button
+                id="replayDownload"
+                class="replay-tool-button"
+                type="button"
+              >
+                <span aria-hidden="true">↓</span>
+                <span>Download</span>
+              </button>
+
+              <button
+                id="replayShare"
+                class="replay-tool-button replay-tool-button--accent"
+                type="button"
+              >
+                <span aria-hidden="true">↗</span>
+                <span>Share</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
         <div
           id="cameraButtons"
           style="
@@ -1146,6 +1303,35 @@ export async function renderViewer(path) {
   const btnBackLive = app.querySelector("#btnBackLive");
   const replayStatus = app.querySelector("#replayStatus");
 
+  const replayStudio = app.querySelector("#replayStudio");
+  const replayStudioTitle = app.querySelector("#replayStudioTitle");
+  const replayStudioSubtitle = app.querySelector("#replayStudioSubtitle");
+  const replayStudioBackLive = app.querySelector(
+    "#replayStudioBackLive"
+  );
+
+  const replayCurrentTime = app.querySelector("#replayCurrentTime");
+  const replayDuration = app.querySelector("#replayDuration");
+  const replayProgress = app.querySelector("#replayProgress");
+
+  const replaySeekBack = app.querySelector("#replaySeekBack");
+  const replaySeekForward = app.querySelector("#replaySeekForward");
+  const replayPlayPause = app.querySelector("#replayPlayPause");
+  const replayPlayPauseIcon = app.querySelector(
+    "#replayPlayPauseIcon"
+  );
+  const replayPlayPauseText = app.querySelector(
+    "#replayPlayPauseText"
+  );
+
+  const replaySpeedButtons = app.querySelector(
+    "#replaySpeedButtons"
+  );
+
+  const replayFullscreen = app.querySelector("#replayFullscreen");
+  const replayDownload = app.querySelector("#replayDownload");
+  const replayShare = app.querySelector("#replayShare");
+
   const nameAEl = app.querySelector("#nameA");
   const nameBEl = app.querySelector("#nameB");
   const pointAEl = app.querySelector("#pointA");
@@ -1170,6 +1356,11 @@ export async function renderViewer(path) {
   let lastFailedStreamUrl = "";
   let lastFailedAt = 0;
   let openAttemptTimer = null;
+
+  let currentReplayBlob = null;
+  let currentReplayFilename = "voxcourt-replay.mp4";
+  let currentReplaySourceUrl = "";
+  let currentReplayTitle = "Event Replay";
 
   function clearOpenAttemptTimer() {
     if (openAttemptTimer) {
@@ -1685,6 +1876,156 @@ ${window.location.href}`
       }
     }
 
+    function formatReplayClock(value) {
+      const seconds = Math.max(
+        0,
+        Math.floor(Number(value || 0))
+      );
+
+      const minutes = Math.floor(seconds / 60);
+      const remainingSeconds = seconds % 60;
+
+      return `${minutes}:${String(remainingSeconds).padStart(2, "0")}`;
+    }
+
+    function setReplayStudioVisible(visible) {
+      if (replayStudio) {
+        replayStudio.style.display = visible ? "grid" : "none";
+      }
+
+      cameraButtons?.classList.toggle(
+        "camera-buttons--replay-active",
+        visible
+      );
+    }
+
+    function setReplayStudioMetadata({
+      title = "Event Replay",
+      subtitle = "Professional instant replay",
+      filename = "voxcourt-replay.mp4",
+      sourceUrl = ""
+    } = {}) {
+      currentReplayTitle = String(title || "Event Replay");
+      currentReplayFilename = String(
+        filename || "voxcourt-replay.mp4"
+      );
+      currentReplaySourceUrl = String(sourceUrl || "");
+
+      if (replayStudioTitle) {
+        replayStudioTitle.textContent = currentReplayTitle;
+      }
+
+      if (replayStudioSubtitle) {
+        replayStudioSubtitle.textContent = String(
+          subtitle || "Professional instant replay"
+        );
+      }
+    }
+
+    function updateReplayPlayPauseButton() {
+      if (!replayVideoEl) return;
+
+      const playing =
+        !replayVideoEl.paused &&
+        !replayVideoEl.ended;
+
+      if (replayPlayPauseIcon) {
+        replayPlayPauseIcon.textContent = playing ? "❚❚" : "▶";
+      }
+
+      if (replayPlayPauseText) {
+        replayPlayPauseText.textContent = playing
+          ? "Pause"
+          : "Play";
+      }
+
+      replayPlayPause?.setAttribute(
+        "aria-label",
+        playing ? "Pause replay" : "Play replay"
+      );
+    }
+
+    function updateReplayProgress() {
+      if (!replayVideoEl) return;
+
+      const current = Number(
+        replayVideoEl.currentTime || 0
+      );
+
+      const duration = Number(
+        replayVideoEl.duration || 0
+      );
+
+      if (replayCurrentTime) {
+        replayCurrentTime.textContent =
+          formatReplayClock(current);
+      }
+
+      if (replayDuration) {
+        replayDuration.textContent =
+          formatReplayClock(duration);
+      }
+
+      if (
+        replayProgress &&
+        Number.isFinite(duration) &&
+        duration > 0
+      ) {
+        replayProgress.value = String(
+          Math.round((current / duration) * 1000)
+        );
+      }
+    }
+
+    function resetReplayStudioControls() {
+      if (replayProgress) {
+        replayProgress.value = "0";
+      }
+
+      if (replayCurrentTime) {
+        replayCurrentTime.textContent = "0:00";
+      }
+
+      if (replayDuration) {
+        replayDuration.textContent = "0:00";
+      }
+
+      if (replayVideoEl) {
+        replayVideoEl.playbackRate = 1;
+      }
+
+      replaySpeedButtons
+        ?.querySelectorAll("[data-replay-speed]")
+        .forEach((button) => {
+          button.classList.toggle(
+            "replay-speed-button--active",
+            button.dataset.replaySpeed === "1"
+          );
+        });
+
+      updateReplayPlayPauseButton();
+    }
+
+    function activateReplayStudio({
+      blob,
+      title,
+      subtitle,
+      filename,
+      sourceUrl
+    }) {
+      currentReplayBlob = blob || null;
+
+      setReplayStudioMetadata({
+        title,
+        subtitle,
+        filename,
+        sourceUrl
+      });
+
+      setReplayStudioVisible(true);
+      resetReplayStudioControls();
+    }
+
     function cleanupReplayObjectUrl() {
       if (replayObjectUrl) {
         try {
@@ -1740,6 +2081,14 @@ ${window.location.href}`
       replayVideoEl.style.display = "none";
       replayVideoEl.classList.remove("replay-video--active");
       setReplayLoading(false);
+      setReplayStudioVisible(false);
+
+      currentReplayBlob = null;
+      currentReplaySourceUrl = "";
+      currentReplayFilename = "voxcourt-replay.mp4";
+      currentReplayTitle = "Event Replay";
+
+      resetReplayStudioControls();
 
       btnBackLive.style.display = "none";
       btnReplay30.disabled = false;
@@ -1793,6 +2142,16 @@ ${window.location.href}`
         replayVideoEl.src = replayObjectUrl;
         replayVideoEl.currentTime = 0;
         replayVideoEl.style.display = "block";
+
+        activateReplayStudio({
+          blob,
+          title: `Replay ${seconds}s`,
+          subtitle: `Camera ${String(cam).replace("cam", "")}`,
+          filename: `voxcourt-replay-${seconds}s.mp4`,
+          sourceUrl: replayUrl
+        });
+
+        setReplayLoading(false);
         setVideoMode("replay");
 
         videoEl.style.display = "none";
@@ -1814,6 +2173,203 @@ ${window.location.href}`
     btnBackLive?.addEventListener("click", () => {
       backToLive();
     });
+
+    replayStudioBackLive?.addEventListener("click", () => {
+      backToLive();
+    });
+
+    replayPlayPause?.addEventListener("click", () => {
+      if (!replayVideoEl?.src) return;
+
+      if (replayVideoEl.paused || replayVideoEl.ended) {
+        replayVideoEl.play().catch(() => {});
+      } else {
+        replayVideoEl.pause();
+      }
+    });
+
+    replaySeekBack?.addEventListener("click", () => {
+      if (!replayVideoEl?.src) return;
+
+      replayVideoEl.currentTime = Math.max(
+        0,
+        Number(replayVideoEl.currentTime || 0) - 10
+      );
+    });
+
+    replaySeekForward?.addEventListener("click", () => {
+      if (!replayVideoEl?.src) return;
+
+      const duration = Number(
+        replayVideoEl.duration || 0
+      );
+
+      replayVideoEl.currentTime = Math.min(
+        Number.isFinite(duration) && duration > 0
+          ? duration
+          : Number(replayVideoEl.currentTime || 0) + 10,
+        Number(replayVideoEl.currentTime || 0) + 10
+      );
+    });
+
+    replayProgress?.addEventListener("input", () => {
+      const duration = Number(
+        replayVideoEl?.duration || 0
+      );
+
+      if (
+        !replayVideoEl ||
+        !Number.isFinite(duration) ||
+        duration <= 0
+      ) {
+        return;
+      }
+
+      replayVideoEl.currentTime =
+        (Number(replayProgress.value || 0) / 1000) *
+        duration;
+    });
+
+    replaySpeedButtons?.addEventListener("click", (event) => {
+      const button = event.target.closest(
+        "[data-replay-speed]"
+      );
+
+      if (!button || !replayVideoEl) return;
+
+      const speed = Number(
+        button.dataset.replaySpeed || 1
+      );
+
+      replayVideoEl.playbackRate =
+        Number.isFinite(speed) && speed > 0
+          ? speed
+          : 1;
+
+      replaySpeedButtons
+        .querySelectorAll("[data-replay-speed]")
+        .forEach((item) => {
+          item.classList.toggle(
+            "replay-speed-button--active",
+            item === button
+          );
+        });
+
+      replayStatus.textContent =
+        `${currentReplayTitle} • ${replayVideoEl.playbackRate}× speed`;
+    });
+
+    replayFullscreen?.addEventListener("click", async () => {
+      const replayStage = replayVideoEl?.closest(
+        ".cam--viewer"
+      );
+
+      try {
+        if (!document.fullscreenElement) {
+          await replayStage?.requestFullscreen?.();
+        } else {
+          await document.exitFullscreen?.();
+        }
+      } catch (_) {
+        replayStatus.textContent =
+          "Fullscreen is unavailable in this browser.";
+      }
+    });
+
+    replayDownload?.addEventListener("click", () => {
+      if (!replayObjectUrl || !currentReplayBlob) {
+        replayStatus.textContent =
+          "Replay file is not ready yet.";
+        return;
+      }
+
+      const link = document.createElement("a");
+      link.href = replayObjectUrl;
+      link.download = currentReplayFilename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      replayStatus.textContent =
+        "Replay download started.";
+    });
+
+    replayShare?.addEventListener("click", async () => {
+      if (!currentReplayBlob) {
+        replayStatus.textContent =
+          "Replay file is not ready yet.";
+        return;
+      }
+
+      try {
+        const file = new File(
+          [currentReplayBlob],
+          currentReplayFilename,
+          { type: "video/mp4" }
+        );
+
+        if (
+          navigator.share &&
+          navigator.canShare?.({ files: [file] })
+        ) {
+          await navigator.share({
+            title: currentReplayTitle,
+            text: "VoxCourt instant replay",
+            files: [file]
+          });
+
+          replayStatus.textContent =
+            "Replay shared successfully.";
+          return;
+        }
+
+        if (
+          currentReplaySourceUrl &&
+          navigator.clipboard?.writeText
+        ) {
+          await navigator.clipboard.writeText(
+            currentReplaySourceUrl
+          );
+
+          replayStatus.textContent =
+            "Replay link copied.";
+          return;
+        }
+
+        replayStatus.textContent =
+          "Use Download to save and share this replay.";
+      } catch (error) {
+        if (error?.name !== "AbortError") {
+          replayStatus.textContent =
+            `Share failed: ${error.message}`;
+        }
+      }
+    });
+
+    replayVideoEl?.addEventListener(
+      "loadedmetadata",
+      updateReplayProgress
+    );
+
+    replayVideoEl?.addEventListener(
+      "durationchange",
+      updateReplayProgress
+    );
+
+    replayVideoEl?.addEventListener(
+      "timeupdate",
+      updateReplayProgress
+    );
+
+    replayVideoEl?.addEventListener(
+      "play",
+      updateReplayPlayPauseButton
+    );
+
+    replayVideoEl?.addEventListener(
+      "pause",
+      updateReplayPlayPauseButton
+    );
 
     replayVideoEl?.addEventListener("ended", () => {
       replayStatus.textContent = "Replay finished • Returning to live…";
@@ -2251,6 +2807,16 @@ ${window.location.href}`
             replayVideoEl.currentTime = 0;
             replayVideoEl.style.display = "block";
             replayVideoEl.classList.add("replay-video--active");
+
+            activateReplayStudio({
+              blob,
+              title: display.title || "Event Replay",
+              subtitle:
+                `${winnerName || "Match event"} • ${eventTime}`,
+              filename: `voxcourt-${eventId}.mp4`,
+              sourceUrl: replayUrl
+            });
+
             setReplayLoading(false);
             setVideoMode("replay");
 
