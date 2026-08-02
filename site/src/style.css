@@ -2101,3 +2101,45 @@ textarea {
     width: 100%;
   }
 }
+
+/* Match Timeline: fixed maximum height with internal scrolling */
+#timelineList {
+  max-height: 620px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 6px;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+/* Slim scrollbar */
+#timelineList::-webkit-scrollbar {
+  width: 9px;
+}
+
+#timelineList::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.035);
+  border-radius: 999px;
+}
+
+#timelineList::-webkit-scrollbar-thumb {
+  background: rgba(0, 190, 190, 0.38);
+  border-radius: 999px;
+}
+
+#timelineList::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 190, 190, 0.58);
+}
+
+/* Firefox */
+#timelineList {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 190, 190, 0.48) rgba(255, 255, 255, 0.035);
+}
+
+@media (max-width: 700px) {
+  #timelineList {
+    max-height: 520px;
+    padding-right: 4px;
+  }
+}
