@@ -5126,3 +5126,716 @@ div:has(> #serveBIcon):hover {
     font-size: 22px;
   }
 }
+
+/* === VOXCOURT PREMIUM HIGHLIGHTS V2 START === */
+
+/* =========================================================
+   PREMIUM VIDEO HIGHLIGHTS
+   Mobile-first responsive ATP / Tennis TV inspired layout
+   ========================================================= */
+
+.highlights-panel {
+  gap: 20px;
+  overflow: hidden;
+  padding: clamp(16px, 2.3vw, 25px) !important;
+  border: 1px solid rgba(85, 226, 223, 0.16) !important;
+  border-radius: 24px !important;
+  background:
+    radial-gradient(
+      circle at 8% 0%,
+      rgba(0, 205, 210, 0.1),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 100% 100%,
+      rgba(169, 76, 225, 0.08),
+      transparent 34%
+    ),
+    linear-gradient(
+      155deg,
+      rgba(5, 19, 27, 0.98),
+      rgba(2, 10, 15, 0.99)
+    ) !important;
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+.highlights-panel__header {
+  align-items: center;
+  gap: 18px;
+}
+
+.highlights-panel__title {
+  margin-top: 8px;
+  font-size: clamp(22px, 2.5vw, 31px);
+}
+
+.highlights-panel__status {
+  margin-top: 8px;
+}
+
+.highlights-filters {
+  gap: 8px;
+  max-width: 100%;
+  padding: 2px 1px 5px;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+}
+
+.highlights-filter {
+  min-height: 42px;
+  padding: 9px 15px;
+  scroll-snap-align: start;
+  border-color: rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.035);
+  font-size: 11px;
+  letter-spacing: 0.025em;
+  transition:
+    color 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease,
+    transform 120ms ease;
+}
+
+.highlights-filter:active {
+  transform: scale(0.97);
+}
+
+.highlights-filter--active {
+  border-color: rgba(85, 226, 223, 0.42);
+  background:
+    linear-gradient(
+      135deg,
+      rgba(0, 186, 190, 0.28),
+      rgba(0, 131, 153, 0.2)
+    );
+  box-shadow:
+    0 8px 22px rgba(0, 185, 190, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+/* Three columns on large desktop */
+.highlights-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+  gap: 18px;
+  min-width: 0;
+}
+
+/* Card event accent */
+.highlight-card {
+  --highlight-accent: #55e2df;
+  --highlight-accent-rgb: 85, 226, 223;
+
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid rgba(var(--highlight-accent-rgb), 0.18);
+  border-radius: 19px;
+  background: #061116;
+  box-shadow:
+    0 15px 38px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
+  isolation: isolate;
+  transition:
+    transform 200ms ease,
+    border-color 200ms ease,
+    box-shadow 200ms ease;
+}
+
+.highlight-card--point {
+  --highlight-accent: #55e2df;
+  --highlight-accent-rgb: 85, 226, 223;
+}
+
+.highlight-card--game {
+  --highlight-accent: #c778f0;
+  --highlight-accent-rgb: 199, 120, 240;
+}
+
+.highlight-card--set {
+  --highlight-accent: #ffd05b;
+  --highlight-accent-rgb: 255, 208, 91;
+  border-color: rgba(255, 208, 91, 0.27);
+  box-shadow:
+    0 17px 42px rgba(0, 0, 0, 0.27),
+    0 0 32px rgba(255, 208, 91, 0.035),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+/* Full 16:9 clickable video surface */
+.highlight-card__play {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(var(--highlight-accent-rgb), 0.13),
+      rgba(4, 13, 18, 0.98)
+    );
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.highlight-card__play:focus-visible {
+  outline: 3px solid rgba(var(--highlight-accent-rgb), 0.85);
+  outline-offset: -3px;
+}
+
+/* Full-card thumbnail */
+.highlight-card__visual {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 0;
+  background:
+    radial-gradient(
+      circle at 50% 35%,
+      rgba(var(--highlight-accent-rgb), 0.22),
+      transparent 42%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(var(--highlight-accent-rgb), 0.14),
+      rgba(3, 13, 18, 0.98)
+    );
+  isolation: isolate;
+}
+
+/* Bottom readability gradient */
+.highlight-card__visual::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(1, 8, 12, 0.05) 0%,
+      rgba(1, 8, 12, 0.08) 28%,
+      rgba(1, 8, 12, 0.58) 66%,
+      rgba(1, 8, 12, 0.97) 100%
+    ),
+    linear-gradient(
+      90deg,
+      rgba(1, 8, 12, 0.26),
+      transparent 55%
+    );
+  pointer-events: none;
+}
+
+.highlight-card__thumbnail {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transform: scale(1.025);
+  transition:
+    opacity 220ms ease,
+    transform 420ms ease;
+}
+
+.highlight-card__visual--has-thumbnail
+.highlight-card__thumbnail {
+  opacity: 1;
+}
+
+/* Fallback icon when thumbnail does not exist */
+.highlight-card__icon {
+  position: relative;
+  z-index: 1;
+  font-size: clamp(38px, 5vw, 58px);
+  opacity: 0.48;
+  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.35));
+}
+
+.highlight-card__visual--has-thumbnail
+.highlight-card__icon {
+  opacity: 0;
+}
+
+/* Central premium play button */
+.highlight-card__play-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 6;
+  display: grid;
+  place-items: center;
+  width: clamp(48px, 4.5vw, 60px);
+  height: clamp(48px, 4.5vw, 60px);
+  padding-left: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.47);
+  border-radius: 50%;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(5, 20, 26, 0.82),
+      rgba(1, 8, 12, 0.94)
+    );
+  color: #fff;
+  font-size: clamp(15px, 1.5vw, 19px);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.38),
+    0 0 0 6px rgba(255, 255, 255, 0.045),
+    0 0 24px rgba(var(--highlight-accent-rgb), 0.12);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transform: translate(-50%, -50%);
+  transition:
+    transform 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.highlight-card__play-icon::after {
+  content: "REPLAY";
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  color: rgba(255, 255, 255, 0.83);
+  font-size: 8px;
+  font-weight: 950;
+  letter-spacing: 0.16em;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+  transform: translateX(-50%);
+}
+
+/* Full overlay body */
+.highlight-card__body {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 4px;
+  min-width: 0;
+  padding:
+    clamp(58px, 7vw, 76px)
+    clamp(14px, 1.6vw, 19px)
+    clamp(13px, 1.5vw, 18px);
+  pointer-events: none;
+}
+
+/* POINT / GAME / SET badge */
+.highlight-card__type {
+  position: absolute;
+  top: clamp(12px, 1.4vw, 16px);
+  left: clamp(12px, 1.4vw, 16px);
+  display: inline-flex;
+  align-items: center;
+  min-height: 27px;
+  padding: 6px 10px;
+  border: 1px solid rgba(var(--highlight-accent-rgb), 0.45);
+  border-radius: 999px;
+  background: rgba(2, 12, 17, 0.76);
+  color: var(--highlight-accent);
+  font-size: 9px;
+  line-height: 1;
+  font-weight: 950;
+  letter-spacing: 0.13em;
+  box-shadow:
+    0 7px 18px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Main event title */
+.highlight-card__title {
+  display: -webkit-box;
+  max-width: calc(100% - 8px);
+  padding: 0;
+  overflow: hidden;
+  color: #fff;
+  font-size: clamp(16px, 1.65vw, 21px);
+  line-height: 1.12;
+  font-weight: 950;
+  letter-spacing: -0.025em;
+  text-shadow: 0 3px 14px rgba(0, 0, 0, 0.9);
+  white-space: normal;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.highlight-card__player {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: clamp(11px, 1vw, 13px);
+  line-height: 1.25;
+  font-weight: 750;
+  text-overflow: ellipsis;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95);
+  white-space: nowrap;
+}
+
+/* Score pills */
+.highlight-card__scores {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 7px;
+}
+
+.highlight-card__scores span {
+  min-height: 26px;
+  padding: 6px 9px;
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: 8px;
+  background: rgba(2, 12, 17, 0.69);
+  color: rgba(255, 255, 255, 0.84);
+  font-size: 9px;
+  line-height: 1.15;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
+}
+
+.highlight-card__scores span:first-child {
+  border-color: rgba(var(--highlight-accent-rgb), 0.38);
+  background: rgba(var(--highlight-accent-rgb), 0.17);
+  color: #fff;
+}
+
+/* Event time top-right */
+.highlight-card__time {
+  position: absolute;
+  top: clamp(12px, 1.4vw, 16px);
+  right: clamp(12px, 1.4vw, 16px);
+  z-index: 7;
+  min-height: 27px;
+  padding: 6px 9px;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 999px;
+  background: rgba(2, 12, 17, 0.72);
+  color: rgba(255, 255, 255, 0.76);
+  font-size: 9px;
+  line-height: 1;
+  font-weight: 850;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 7px 18px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  pointer-events: none;
+}
+
+/* View all spans complete grid */
+.highlights-view-all {
+  grid-column: 1 / -1;
+  justify-self: center;
+  min-width: min(100%, 240px);
+  min-height: 47px;
+  padding: 11px 20px;
+  border: 1px solid rgba(85, 226, 223, 0.22);
+  border-radius: 13px;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(0, 181, 186, 0.14),
+      rgba(255, 255, 255, 0.025)
+    );
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition:
+    transform 130ms ease,
+    border-color 160ms ease,
+    background 160ms ease;
+}
+
+.highlights-view-all:active {
+  transform: scale(0.98);
+}
+
+/* Empty state */
+.highlights-empty {
+  grid-column: 1 / -1;
+  min-height: 210px;
+  border-radius: 19px;
+  background:
+    radial-gradient(
+      circle at 50% 30%,
+      rgba(85, 226, 223, 0.06),
+      transparent 42%
+    ),
+    rgba(255, 255, 255, 0.015);
+}
+
+/* Mouse-only effects: no sticky hover on phones */
+@media (hover: hover) and (pointer: fine) {
+  .highlight-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(var(--highlight-accent-rgb), 0.46);
+    box-shadow:
+      0 23px 55px rgba(0, 0, 0, 0.34),
+      0 0 35px rgba(var(--highlight-accent-rgb), 0.055);
+  }
+
+  .highlight-card:hover
+  .highlight-card__thumbnail {
+    transform: scale(1.07);
+  }
+
+  .highlight-card:hover
+  .highlight-card__play-icon {
+    background:
+      linear-gradient(
+        145deg,
+        rgba(var(--highlight-accent-rgb), 0.92),
+        rgba(var(--highlight-accent-rgb), 0.62)
+      );
+    box-shadow:
+      0 15px 35px rgba(0, 0, 0, 0.4),
+      0 0 0 7px rgba(var(--highlight-accent-rgb), 0.09),
+      0 0 32px rgba(var(--highlight-accent-rgb), 0.25);
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+
+  .highlights-view-all:hover {
+    border-color: rgba(85, 226, 223, 0.42);
+    background: rgba(85, 226, 223, 0.1);
+  }
+}
+
+/* Touch feedback */
+.highlight-card__play:active
+.highlight-card__play-icon {
+  transform: translate(-50%, -50%) scale(0.93);
+}
+
+/* =========================================================
+   TABLET — two columns
+   ========================================================= */
+
+@media (max-width: 1050px) {
+  .highlights-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 15px;
+  }
+
+  .highlight-card__title {
+    font-size: clamp(16px, 2.2vw, 20px);
+  }
+}
+
+/* =========================================================
+   MOBILE — one card per row
+   ========================================================= */
+
+@media (max-width: 680px) {
+  .highlights-panel {
+    gap: 17px;
+    padding: 15px !important;
+    border-radius: 20px !important;
+  }
+
+  .highlights-panel__header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .highlights-panel__title {
+    margin-top: 5px;
+    font-size: 23px;
+  }
+
+  .highlights-panel__status {
+    margin-top: 6px;
+  }
+
+  .highlights-filters {
+    width: 100%;
+    margin: 0;
+    padding-bottom: 7px;
+  }
+
+  .highlights-filter {
+    min-height: 44px;
+    padding: 10px 15px;
+    font-size: 11px;
+  }
+
+  .highlights-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 15px;
+    width: 100%;
+  }
+
+  .highlight-card {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 17px;
+  }
+
+  .highlight-card__play {
+    width: 100%;
+    min-height: 0;
+    aspect-ratio: 16 / 9;
+  }
+
+  .highlight-card__visual {
+    width: 100%;
+    height: 100%;
+  }
+
+  .highlight-card__body {
+    padding: 58px 14px 13px;
+  }
+
+  .highlight-card__type {
+    top: 11px;
+    left: 11px;
+    min-height: 28px;
+    padding: 6px 9px;
+  }
+
+  .highlight-card__time {
+    top: 11px;
+    right: 11px;
+    min-height: 28px;
+  }
+
+  .highlight-card__title {
+    max-width: 100%;
+    font-size: clamp(16px, 5vw, 19px);
+    line-height: 1.12;
+  }
+
+  .highlight-card__player {
+    font-size: 11px;
+  }
+
+  .highlight-card__scores {
+    gap: 5px;
+    margin-top: 6px;
+  }
+
+  .highlight-card__scores span {
+    min-height: 25px;
+    padding: 6px 8px;
+    font-size: 9px;
+  }
+
+  .highlight-card__play-icon {
+    width: 52px;
+    height: 52px;
+    font-size: 16px;
+  }
+
+  .highlights-view-all {
+    width: 100%;
+    min-width: 0;
+    min-height: 50px;
+    justify-self: stretch;
+  }
+}
+
+/* Very small phones: 320–380px */
+@media (max-width: 380px) {
+  .highlights-panel {
+    padding: 12px !important;
+  }
+
+  .highlights-grid {
+    gap: 12px;
+  }
+
+  .highlight-card__body {
+    padding: 53px 11px 10px;
+  }
+
+  .highlight-card__type {
+    top: 9px;
+    left: 9px;
+    min-height: 26px;
+    padding: 5px 8px;
+    font-size: 8px;
+  }
+
+  .highlight-card__time {
+    top: 9px;
+    right: 9px;
+    min-height: 26px;
+    padding: 5px 7px;
+    font-size: 8px;
+  }
+
+  .highlight-card__title {
+    font-size: 15px;
+  }
+
+  .highlight-card__player {
+    font-size: 10px;
+  }
+
+  .highlight-card__scores {
+    margin-top: 4px;
+  }
+
+  .highlight-card__scores span {
+    min-height: 23px;
+    padding: 5px 6px;
+    font-size: 8px;
+  }
+
+  .highlight-card__play-icon {
+    width: 46px;
+    height: 46px;
+    font-size: 14px;
+  }
+
+  .highlight-card__play-icon::after {
+    top: calc(100% + 7px);
+    font-size: 7px;
+  }
+}
+
+/* Landscape phones: keep cards usable without excessive height */
+@media (max-width: 900px) and (orientation: landscape) {
+  .highlights-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Reduced motion accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .highlight-card,
+  .highlight-card__thumbnail,
+  .highlight-card__play-icon,
+  .highlights-filter,
+  .highlights-view-all {
+    transition: none !important;
+  }
+}
+
+/* === VOXCOURT PREMIUM HIGHLIGHTS V2 END === */
