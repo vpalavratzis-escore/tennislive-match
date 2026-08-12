@@ -2461,10 +2461,49 @@ ${safeUrl}`
       }
     }
 
+    function scrollToReplayPlayer() {
+      const target =
+        replayLoadingOverlay?.parentElement ||
+        replayVideoEl ||
+        videoEl;
+
+      if (!target) return;
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          try {
+            const rect = target.getBoundingClientRect();
+
+            const top = Math.max(
+              0,
+              window.scrollY + rect.top - 12
+            );
+
+            window.scrollTo({
+              top,
+              behavior: "smooth"
+            });
+          } catch (_) {
+            try {
+              target.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+                inline: "nearest"
+              });
+            } catch (_) {}
+          }
+        });
+      });
+    }
+
     function setReplayLoading(loading, message = "Preparing replay…") {
       if (!replayLoadingOverlay) return;
 
       replayLoadingOverlay.style.display = loading ? "grid" : "none";
+
+      if (loading) {
+        scrollToReplayPlayer();
+      }
 
       const title = replayLoadingOverlay.querySelector(
         ".replay-loading-title"
