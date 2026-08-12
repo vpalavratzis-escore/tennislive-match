@@ -3614,6 +3614,7 @@ ${safeUrl}`
     const collapsedTimelineGames = new Set();
 
     let currentHighlightFilter = "all";
+    let lastHighlightsRenderSignature = "";
 
     let currentHighlightEventId = "";
     let replayAutoNextEnabled = false;
@@ -3649,6 +3650,37 @@ ${safeUrl}`
           Number(b?.timestamp || 0) -
           Number(a?.timestamp || 0)
         ));
+    }
+
+    function getHighlightsRenderSignature(events) {
+      const available = getAvailableHighlightEvents(events);
+
+      return JSON.stringify(
+        available.map((event) => {
+          const display = event?.display || {};
+          const metadata = event?.metadata || {};
+
+          return [
+            String(event?.eventId || ""),
+            Number(event?.timestamp || 0),
+            getHighlightType(event),
+            String(display.title || ""),
+            String(
+              display.scoringSide ||
+              display.winner ||
+              metadata.scoringSide ||
+              metadata.winner ||
+              ""
+            ),
+            String(metadata.nameA || ""),
+            String(metadata.nameB || ""),
+            String(display.score || ""),
+            String(display.games || ""),
+            String(display.sets || ""),
+            display.replayAvailable === true
+          ];
+        })
+      );
     }
 
     function eventMatchesHighlightFilter(event) {
@@ -4152,16 +4184,19 @@ ${safeUrl}`
 
         const title = document.createElement("strong");
         title.className = "highlight-card__title";
-        title.textContent =
-      eventType === "POINT" &&
-      scoringName &&
-      scoringName !== "Match event"
-        ? scoringName
-        : display.title || "Match Highlight";
+
+        const scoringNameIsTitle =
+          (eventType === "POINT" || eventType === "GAME") &&
+          scoringName &&
+          scoringName !== "Match event";
+
+        title.textContent = scoringNameIsTitle
+          ? scoringName
+          : display.title || "Match Highlight";
 
         const player = document.createElement("span");
         player.className = "highlight-card__player";
-        player.textContent = eventType === "POINT" ? "" : scoringName;
+        player.textContent = scoringNameIsTitle ? "" : scoringName;
 
         const scores = document.createElement("span");
         scores.className = "highlight-card__scores";
@@ -4934,7 +4969,19 @@ ${safeUrl}`
           : [];
 
         renderTimelineEvents(events);
-        renderHighlights(events);
+
+        const highlightsRenderSignature =
+          getHighlightsRenderSignature(events);
+
+        if (
+          highlightsRenderSignature !==
+          lastHighlightsRenderSignature
+        ) {
+          lastHighlightsRenderSignature =
+            highlightsRenderSignature;
+
+          renderHighlights(events);
+        }
       } catch (error) {
         if (requestSequence === timelineRefreshSequence) {
           timelineStatus.textContent =
