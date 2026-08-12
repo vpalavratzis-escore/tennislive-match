@@ -1602,9 +1602,10 @@ export async function renderViewer(path) {
   let replayPinchStartScale = 1;
 
   // VOXCOURT REPLAY FULLSCREEN CONTROLS
-  const REPLAY_FRAME_STEP_SECONDS = 1 / 60;
+  const REPLAY_FRAME_STEP_SECONDS = 1 / 25;
   const REPLAY_FULLSCREEN_HIDE_DELAY = 3000;
   let replayFullscreenControlsTimer = null;
+  let replayFrameTargetTime = null;
 
   function clearOpenAttemptTimer() {
     if (openAttemptTimer) {
@@ -2946,6 +2947,10 @@ ${safeUrl}`
       }
     }
 
+    function clearReplayFrameTarget() {
+      replayFrameTargetTime = null;
+    }
+
     function stepReplayFrame(direction) {
       if (!replayVideoEl?.src) return;
 
@@ -2959,8 +2964,13 @@ ${safeUrl}`
         replayVideoEl.currentTime || 0
       );
 
+      const base =
+        Number.isFinite(replayFrameTargetTime)
+          ? replayFrameTargetTime
+          : current;
+
       let next =
-        current +
+        base +
         Number(direction || 0) *
           REPLAY_FRAME_STEP_SECONDS;
 
@@ -2973,11 +2983,17 @@ ${safeUrl}`
         next = Math.min(duration, next);
       }
 
+      replayFrameTargetTime = next;
       replayVideoEl.currentTime = next;
 
       syncReplayFullscreenControls();
       showReplayFullscreenControls();
     }
+
+    replayVideoEl?.addEventListener(
+      "loadedmetadata",
+      clearReplayFrameTarget
+    );
 
     replayFsPlayPause?.addEventListener(
       "click",
@@ -2990,6 +3006,7 @@ ${safeUrl}`
           replayVideoEl.paused ||
           replayVideoEl.ended
         ) {
+          clearReplayFrameTarget();
           replayVideoEl.play().catch(() => {});
         } else {
           replayVideoEl.pause();
@@ -3007,6 +3024,7 @@ ${safeUrl}`
         if (!replayVideoEl?.src) return;
 
         replayVideoEl.pause();
+        clearReplayFrameTarget();
         replayVideoEl.currentTime = 0;
 
         syncReplayFullscreenControls();
@@ -3046,6 +3064,8 @@ ${safeUrl}`
         ) {
           return;
         }
+
+        clearReplayFrameTarget();
 
         replayVideoEl.currentTime =
           (Number(replayFsProgress.value || 0) / 1000) *
