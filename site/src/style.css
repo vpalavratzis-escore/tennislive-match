@@ -5891,10 +5891,11 @@ div:has(> #serveBIcon):hover {
 .cam--viewer:fullscreen
 .replay-fullscreen-controls--visible {
   opacity: 1;
-  pointer-events: auto;
+  pointer-events: none;
 }
 
 .replay-fullscreen-controls__panel {
+  pointer-events: auto;
   width: min(100%, 980px);
   display: grid;
   gap: 12px;
