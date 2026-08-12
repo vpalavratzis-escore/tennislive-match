@@ -4153,11 +4153,15 @@ ${safeUrl}`
         const title = document.createElement("strong");
         title.className = "highlight-card__title";
         title.textContent =
-          display.title || "Match Highlight";
+      eventType === "POINT" &&
+      scoringName &&
+      scoringName !== "Match event"
+        ? scoringName
+        : display.title || "Match Highlight";
 
         const player = document.createElement("span");
         player.className = "highlight-card__player";
-        player.textContent = scoringName;
+        player.textContent = eventType === "POINT" ? "" : scoringName;
 
         const scores = document.createElement("span");
         scores.className = "highlight-card__scores";
