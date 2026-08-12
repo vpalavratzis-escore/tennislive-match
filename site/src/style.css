@@ -6052,3 +6052,15 @@ div:has(> #serveBIcon):hover {
     padding: 5px 9px;
   }
 }
+
+/* VOXCOURT REPLAY FULLSCREEN - PREVENT CONTROL TEXT SELECTION */
+.replay-fullscreen-controls,
+.replay-fullscreen-controls * {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.replay-fullscreen-controls button {
+  -webkit-tap-highlight-color: transparent;
+}
