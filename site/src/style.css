@@ -6064,3 +6064,32 @@ div:has(> #serveBIcon):hover {
 .replay-fullscreen-controls button {
   -webkit-tap-highlight-color: transparent;
 }
+
+
+/* =====================================================
+   VOXCOURT NORMAL REPLAY FRAME CONTROLS
+   ===================================================== */
+
+.replay-studio__frame-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.replay-control--frame {
+  min-height: 42px;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (max-width: 700px) {
+  .replay-studio__frame-controls {
+    gap: 7px;
+  }
+
+  .replay-control--frame {
+    min-height: 46px;
+  }
+}

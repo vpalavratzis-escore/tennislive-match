@@ -1105,6 +1105,29 @@ export async function renderViewer(path) {
             </button>
           </div>
 
+          <!-- VOXCOURT NORMAL REPLAY FRAME CONTROLS -->
+          <div class="replay-studio__frame-controls">
+            <button
+              id="replayFrameBack"
+              class="replay-control replay-control--secondary replay-control--frame"
+              type="button"
+              aria-label="Previous frame"
+              title="Previous frame"
+            >
+              Frame ◀
+            </button>
+
+            <button
+              id="replayFrameForward"
+              class="replay-control replay-control--secondary replay-control--frame"
+              type="button"
+              aria-label="Next frame"
+              title="Next frame"
+            >
+              Frame ▶
+            </button>
+          </div>
+
           <div class="replay-studio__tools">
             <div class="replay-studio__speed-group">
               <span class="replay-studio__tool-label">
@@ -1523,6 +1546,8 @@ export async function renderViewer(path) {
 
   const replaySeekBack = app.querySelector("#replaySeekBack");
   const replaySeekForward = app.querySelector("#replaySeekForward");
+  const replayFrameBack = app.querySelector("#replayFrameBack");
+  const replayFrameForward = app.querySelector("#replayFrameForward");
   const replayPlayPause = app.querySelector("#replayPlayPause");
   const replayPlayPauseIcon = app.querySelector(
     "#replayPlayPauseIcon"
@@ -2763,6 +2788,7 @@ ${safeUrl}`
       if (!replayVideoEl?.src) return;
 
       if (replayVideoEl.paused || replayVideoEl.ended) {
+        clearReplayFrameTarget();
         replayVideoEl.play().catch(() => {});
       } else {
         replayVideoEl.pause();
@@ -2772,6 +2798,8 @@ ${safeUrl}`
     replaySeekBack?.addEventListener("click", () => {
       if (!replayVideoEl?.src) return;
 
+      clearReplayFrameTarget();
+
       replayVideoEl.currentTime = Math.max(
         0,
         Number(replayVideoEl.currentTime || 0) - 10
@@ -2780,6 +2808,8 @@ ${safeUrl}`
 
     replaySeekForward?.addEventListener("click", () => {
       if (!replayVideoEl?.src) return;
+
+      clearReplayFrameTarget();
 
       const duration = Number(
         replayVideoEl.duration || 0
@@ -2793,7 +2823,18 @@ ${safeUrl}`
       );
     });
 
+    // VOXCOURT NORMAL REPLAY FRAME CONTROLS
+    replayFrameBack?.addEventListener("click", () => {
+      stepReplayFrame(-1);
+    });
+
+    replayFrameForward?.addEventListener("click", () => {
+      stepReplayFrame(1);
+    });
+
     replayProgress?.addEventListener("input", () => {
+      clearReplayFrameTarget();
+
       const duration = Number(
         replayVideoEl?.duration || 0
       );
