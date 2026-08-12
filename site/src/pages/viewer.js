@@ -923,6 +923,100 @@ export async function renderViewer(path) {
             </div>
           </div>
 
+          <!-- VOXCOURT REPLAY FULLSCREEN CONTROLS -->
+          <div
+            id="replayFullscreenControls"
+            class="replay-fullscreen-controls"
+            aria-hidden="true"
+          >
+            <div class="replay-fullscreen-controls__panel">
+
+              <div class="replay-fullscreen-controls__timeline">
+                <span id="replayFsCurrentTime">0:00</span>
+
+                <input
+                  id="replayFsProgress"
+                  class="replay-fullscreen-controls__progress"
+                  type="range"
+                  min="0"
+                  max="1000"
+                  value="0"
+                  step="1"
+                  aria-label="Fullscreen replay progress"
+                />
+
+                <span id="replayFsDuration">0:00</span>
+              </div>
+
+              <div class="replay-fullscreen-controls__buttons">
+                <button
+                  id="replayFsFrameBack"
+                  class="replay-fs-button"
+                  type="button"
+                  aria-label="Previous frame"
+                  title="Previous frame"
+                >
+                  ◀ Frame
+                </button>
+
+                <button
+                  id="replayFsStop"
+                  class="replay-fs-button"
+                  type="button"
+                  aria-label="Stop replay"
+                  title="Stop"
+                >
+                  ■ Stop
+                </button>
+
+                <button
+                  id="replayFsPlayPause"
+                  class="replay-fs-button replay-fs-button--primary"
+                  type="button"
+                  aria-label="Pause replay"
+                  title="Play / Pause"
+                >
+                  ❚❚
+                </button>
+
+                <button
+                  id="replayFsFrameForward"
+                  class="replay-fs-button"
+                  type="button"
+                  aria-label="Next frame"
+                  title="Next frame"
+                >
+                  Frame ▶
+                </button>
+
+                <label class="replay-fs-speed">
+                  <span>Speed</span>
+
+                  <select
+                    id="replayFsSpeed"
+                    aria-label="Replay playback speed"
+                  >
+                    <option value="0.25">0.25×</option>
+                    <option value="0.5">0.5×</option>
+                    <option value="1" selected>1×</option>
+                    <option value="1.5">1.5×</option>
+                  </select>
+                </label>
+
+                <button
+                  id="replayFsExit"
+                  class="replay-fs-button"
+                  type="button"
+                  aria-label="Exit fullscreen"
+                  title="Exit fullscreen"
+                >
+                  ⛶ Exit
+                </button>
+              </div>
+
+            </div>
+          </div>
+
           <div id="videoOverlay" class="videoOverlay videoOverlay--show">
             <div class="videoOverlay__box">
               <div class="videoOverlay__title">Checking video…</div>
@@ -1442,6 +1536,19 @@ export async function renderViewer(path) {
   );
 
   const replayFullscreen = app.querySelector("#replayFullscreen");
+
+  const replayFullscreenControls = app.querySelector(
+    "#replayFullscreenControls"
+  );
+  const replayFsCurrentTime = app.querySelector("#replayFsCurrentTime");
+  const replayFsDuration = app.querySelector("#replayFsDuration");
+  const replayFsProgress = app.querySelector("#replayFsProgress");
+  const replayFsFrameBack = app.querySelector("#replayFsFrameBack");
+  const replayFsStop = app.querySelector("#replayFsStop");
+  const replayFsPlayPause = app.querySelector("#replayFsPlayPause");
+  const replayFsFrameForward = app.querySelector("#replayFsFrameForward");
+  const replayFsSpeed = app.querySelector("#replayFsSpeed");
+  const replayFsExit = app.querySelector("#replayFsExit");
   const replayDownload = app.querySelector("#replayDownload");
   const replayShare = app.querySelector("#replayShare");
 
@@ -1493,6 +1600,11 @@ export async function renderViewer(path) {
   const replayPointers = new Map();
   let replayPinchStartDistance = 0;
   let replayPinchStartScale = 1;
+
+  // VOXCOURT REPLAY FULLSCREEN CONTROLS
+  const REPLAY_FRAME_STEP_SECONDS = 1 / 60;
+  const REPLAY_FULLSCREEN_HIDE_DELAY = 3000;
+  let replayFullscreenControlsTimer = null;
 
   function clearOpenAttemptTimer() {
     if (openAttemptTimer) {
@@ -2726,6 +2838,336 @@ ${safeUrl}`
       replayStatus.textContent =
         `${currentReplayTitle} • ${replayVideoEl.playbackRate}× speed`;
     });
+
+    // =====================================================
+    // VOXCOURT REPLAY FULLSCREEN CONTROLS
+    // =====================================================
+
+    const replayFullscreenStage = replayVideoEl?.closest(
+      ".cam--viewer"
+    );
+
+    function clearReplayFullscreenControlsTimer() {
+      if (replayFullscreenControlsTimer) {
+        window.clearTimeout(replayFullscreenControlsTimer);
+        replayFullscreenControlsTimer = null;
+      }
+    }
+
+    function replayFullscreenIsActive() {
+      return Boolean(
+        replayFullscreenStage &&
+        document.fullscreenElement === replayFullscreenStage
+      );
+    }
+
+    function hideReplayFullscreenControls() {
+      clearReplayFullscreenControlsTimer();
+
+      replayFullscreenControls?.classList.remove(
+        "replay-fullscreen-controls--visible"
+      );
+
+      replayFullscreenControls?.setAttribute(
+        "aria-hidden",
+        "true"
+      );
+    }
+
+    function showReplayFullscreenControls() {
+      if (!replayFullscreenIsActive()) return;
+
+      replayFullscreenControls?.classList.add(
+        "replay-fullscreen-controls--visible"
+      );
+
+      replayFullscreenControls?.setAttribute(
+        "aria-hidden",
+        "false"
+      );
+
+      clearReplayFullscreenControlsTimer();
+
+      replayFullscreenControlsTimer = window.setTimeout(
+        hideReplayFullscreenControls,
+        REPLAY_FULLSCREEN_HIDE_DELAY
+      );
+    }
+
+    function syncReplayFullscreenControls() {
+      if (!replayVideoEl) return;
+
+      const current = Number(
+        replayVideoEl.currentTime || 0
+      );
+
+      const duration = Number(
+        replayVideoEl.duration || 0
+      );
+
+      if (replayFsCurrentTime) {
+        replayFsCurrentTime.textContent =
+          formatReplayClock(current);
+      }
+
+      if (replayFsDuration) {
+        replayFsDuration.textContent =
+          formatReplayClock(duration);
+      }
+
+      if (
+        replayFsProgress &&
+        Number.isFinite(duration) &&
+        duration > 0
+      ) {
+        replayFsProgress.value = String(
+          Math.round((current / duration) * 1000)
+        );
+      }
+
+      const playing =
+        !replayVideoEl.paused &&
+        !replayVideoEl.ended;
+
+      if (replayFsPlayPause) {
+        replayFsPlayPause.textContent =
+          playing ? "❚❚" : "▶";
+
+        replayFsPlayPause.setAttribute(
+          "aria-label",
+          playing ? "Pause replay" : "Play replay"
+        );
+      }
+
+      if (replayFsSpeed) {
+        replayFsSpeed.value = String(
+          replayVideoEl.playbackRate || 1
+        );
+      }
+    }
+
+    function stepReplayFrame(direction) {
+      if (!replayVideoEl?.src) return;
+
+      replayVideoEl.pause();
+
+      const duration = Number(
+        replayVideoEl.duration || 0
+      );
+
+      const current = Number(
+        replayVideoEl.currentTime || 0
+      );
+
+      let next =
+        current +
+        Number(direction || 0) *
+          REPLAY_FRAME_STEP_SECONDS;
+
+      next = Math.max(0, next);
+
+      if (
+        Number.isFinite(duration) &&
+        duration > 0
+      ) {
+        next = Math.min(duration, next);
+      }
+
+      replayVideoEl.currentTime = next;
+
+      syncReplayFullscreenControls();
+      showReplayFullscreenControls();
+    }
+
+    replayFsPlayPause?.addEventListener(
+      "click",
+      (event) => {
+        event.stopPropagation();
+
+        if (!replayVideoEl?.src) return;
+
+        if (
+          replayVideoEl.paused ||
+          replayVideoEl.ended
+        ) {
+          replayVideoEl.play().catch(() => {});
+        } else {
+          replayVideoEl.pause();
+        }
+
+        showReplayFullscreenControls();
+      }
+    );
+
+    replayFsStop?.addEventListener(
+      "click",
+      (event) => {
+        event.stopPropagation();
+
+        if (!replayVideoEl?.src) return;
+
+        replayVideoEl.pause();
+        replayVideoEl.currentTime = 0;
+
+        syncReplayFullscreenControls();
+        showReplayFullscreenControls();
+      }
+    );
+
+    replayFsFrameBack?.addEventListener(
+      "click",
+      (event) => {
+        event.stopPropagation();
+        stepReplayFrame(-1);
+      }
+    );
+
+    replayFsFrameForward?.addEventListener(
+      "click",
+      (event) => {
+        event.stopPropagation();
+        stepReplayFrame(1);
+      }
+    );
+
+    replayFsProgress?.addEventListener(
+      "input",
+      (event) => {
+        event.stopPropagation();
+
+        const duration = Number(
+          replayVideoEl?.duration || 0
+        );
+
+        if (
+          !replayVideoEl ||
+          !Number.isFinite(duration) ||
+          duration <= 0
+        ) {
+          return;
+        }
+
+        replayVideoEl.currentTime =
+          (Number(replayFsProgress.value || 0) / 1000) *
+          duration;
+
+        syncReplayFullscreenControls();
+        showReplayFullscreenControls();
+      }
+    );
+
+    replayFsSpeed?.addEventListener(
+      "change",
+      (event) => {
+        event.stopPropagation();
+
+        if (!replayVideoEl) return;
+
+        const speed = Number(
+          replayFsSpeed.value || 1
+        );
+
+        if (
+          Number.isFinite(speed) &&
+          speed > 0
+        ) {
+          replayVideoEl.playbackRate = speed;
+        }
+
+        syncReplayFullscreenControls();
+        showReplayFullscreenControls();
+      }
+    );
+
+    replayFsExit?.addEventListener(
+      "click",
+      async (event) => {
+        event.stopPropagation();
+
+        try {
+          await document.exitFullscreen?.();
+        } catch (_) {}
+      }
+    );
+
+    [
+      "timeupdate",
+      "loadedmetadata",
+      "durationchange",
+      "ratechange",
+      "seeked"
+    ].forEach((eventName) => {
+      replayVideoEl?.addEventListener(
+        eventName,
+        syncReplayFullscreenControls
+      );
+    });
+
+    replayVideoEl?.addEventListener(
+      "play",
+      () => {
+        syncReplayFullscreenControls();
+
+        if (replayFullscreenIsActive()) {
+          showReplayFullscreenControls();
+        }
+      }
+    );
+
+    replayVideoEl?.addEventListener(
+      "pause",
+      () => {
+        syncReplayFullscreenControls();
+
+        if (replayFullscreenIsActive()) {
+          showReplayFullscreenControls();
+        }
+      }
+    );
+
+    replayVideoEl?.addEventListener(
+      "ended",
+      () => {
+        syncReplayFullscreenControls();
+
+        if (replayFullscreenIsActive()) {
+          showReplayFullscreenControls();
+        }
+      }
+    );
+
+    replayFullscreenStage?.addEventListener(
+      "pointermove",
+      showReplayFullscreenControls
+    );
+
+    replayFullscreenStage?.addEventListener(
+      "pointerdown",
+      showReplayFullscreenControls
+    );
+
+    replayFullscreenStage?.addEventListener(
+      "mousemove",
+      showReplayFullscreenControls
+    );
+
+    replayFullscreenStage?.addEventListener(
+      "touchstart",
+      showReplayFullscreenControls,
+      { passive: true }
+    );
+
+    document.addEventListener(
+      "fullscreenchange",
+      () => {
+        if (replayFullscreenIsActive()) {
+          syncReplayFullscreenControls();
+          showReplayFullscreenControls();
+        } else {
+          hideReplayFullscreenControls();
+        }
+      }
+    );
 
     replayFullscreen?.addEventListener("click", async () => {
       const replayStage = replayVideoEl?.closest(
