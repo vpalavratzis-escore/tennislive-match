@@ -877,6 +877,7 @@ export async function renderViewer(path) {
             playsinline
             muted
             autoplay
+            controlslist="nofullscreen"
             style="
               width:100%;
               height:100%;
@@ -889,6 +890,7 @@ export async function renderViewer(path) {
           <video
             id="replayVideo"
             playsinline
+            controlslist="nofullscreen"
             style="
               position:absolute;
               inset:0;
@@ -920,6 +922,16 @@ export async function renderViewer(path) {
               <span class="mini-scoreboard-stat"><small>S</small><b id="miniSetsB">—</b></span>
             </div>
           </div>
+
+          <button
+            id="playerFullscreenButton"
+            class="player-fullscreen-button"
+            type="button"
+            aria-label="Fullscreen video"
+            title="Fullscreen video"
+          >
+            <span aria-hidden="true">⛶</span>
+          </button>
 
           <div
             id="videoModeBadge"
@@ -1605,6 +1617,7 @@ export async function renderViewer(path) {
   const serveAIcon = app.querySelector("#serveAIcon");
   const serveBIcon = app.querySelector("#serveBIcon");
 
+  const playerFullscreenButton = app.querySelector("#playerFullscreenButton");
   const miniScoreboard = app.querySelector("#miniScoreboard");
   const miniNameA = app.querySelector("#miniNameA");
   const miniNameB = app.querySelector("#miniNameB");
@@ -1615,6 +1628,8 @@ export async function renderViewer(path) {
   const miniSetsA = app.querySelector("#miniSetsA");
   const miniSetsB = app.querySelector("#miniSetsB");
   const playerFullscreenStage = videoEl?.closest(".cam--viewer");
+  videoEl?.controlsList?.add("nofullscreen");
+  replayVideoEl?.controlsList?.add("nofullscreen");
 
   let currentSelectedStreamUrl = "";
   let selectedLiveCamera = "cam1";
@@ -1649,6 +1664,7 @@ export async function renderViewer(path) {
   let replayFullscreenControlsTimer = null;
   let replayFrameTargetTime = null;
   let playerPseudoFullscreen = false;
+  let redirectingRawVideoFullscreen = false;
 
   function playerFullscreenIsActive() {
     return Boolean(
@@ -1703,14 +1719,54 @@ export async function renderViewer(path) {
     syncPlayerFullscreenUi();
   }
 
-  document.addEventListener("fullscreenchange", syncPlayerFullscreenUi);
-  document.addEventListener("webkitfullscreenchange", syncPlayerFullscreenUi);
+  async function handlePlayerFullscreenChange() {
+    const fullscreenElement = document.fullscreenElement;
+    const rawVideoFullscreen =
+      fullscreenElement === videoEl || fullscreenElement === replayVideoEl;
+
+    if (rawVideoFullscreen && !redirectingRawVideoFullscreen) {
+      redirectingRawVideoFullscreen = true;
+      try {
+        await document.exitFullscreen?.();
+        await setPlayerFullscreen(true);
+      } finally {
+        redirectingRawVideoFullscreen = false;
+        syncPlayerFullscreenUi();
+      }
+      return;
+    }
+
+    syncPlayerFullscreenUi();
+  }
+
+  document.addEventListener("fullscreenchange", handlePlayerFullscreenChange);
+  document.addEventListener("webkitfullscreenchange", handlePlayerFullscreenChange);
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && playerPseudoFullscreen) {
       event.preventDefault();
       event.stopImmediatePropagation();
       setPlayerFullscreen(false);
     }
+  });
+
+  playerFullscreenButton?.addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setPlayerFullscreen();
+  });
+
+  videoEl?.addEventListener("dblclick", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setPlayerFullscreen();
+  });
+
+  videoEl?.addEventListener("webkitbeginfullscreen", (event) => {
+    event.preventDefault();
+    window.setTimeout(() => {
+      try { videoEl.webkitExitFullscreen?.(); } catch (_) {}
+      setPlayerFullscreen(true);
+    }, 0);
   });
 
   function clearOpenAttemptTimer() {
@@ -2735,6 +2791,9 @@ ${safeUrl}`
         videoModeBadgeText.textContent = replayMode
           ? "REPLAY"
           : `LIVE • ${selectedLiveCamera === "cam2" ? "CAMERA 2" : "CAMERA 1"}`;
+      }
+      if (playerFullscreenButton) {
+        playerFullscreenButton.hidden = replayMode;
       }
       renderModeButtons();
     }
