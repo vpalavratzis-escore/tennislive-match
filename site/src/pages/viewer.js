@@ -202,7 +202,7 @@ async function pickBestStreamSource({ apiBase, courtObj, courtId }) {
       result.hlsUrl = legacyPiFallbackUrl;
       result.webrtcUrl = buildWebRtcUrlFromHlsUrl(legacyPiFallbackUrl);
       result.selectedUrl = result.hlsUrl;
-      result.sourceLabel = "Pi fallback stream";
+      result.sourceLabel = "Configured live stream";
       return result;
     }
 
@@ -222,7 +222,7 @@ async function pickBestStreamSource({ apiBase, courtObj, courtId }) {
       result.hlsUrl = legacyPiFallbackUrl;
       result.webrtcUrl = buildWebRtcUrlFromHlsUrl(legacyPiFallbackUrl);
       result.selectedUrl = result.hlsUrl;
-      result.sourceLabel = "Pi fallback stream";
+      result.sourceLabel = "Configured live stream";
       return result;
     }
 
@@ -358,6 +358,7 @@ function attachWebRtcToVideo(video, url, onReady, onFatal) {
 
       onError: (error) => {
         console.warn("MediaMTX WebRTC reader:", error);
+        safeFatal(error?.message || String(error));
       },
 
       onDataChannel: () => {}
@@ -365,9 +366,6 @@ function attachWebRtcToVideo(video, url, onReady, onFatal) {
 
     video._webrtcReader = reader;
 
-    video.onloadeddata = safeReady;
-    video.oncanplay = safeReady;
-    video.onplaying = safeReady;
     video.onerror = () => safeFatal("video element error");
 
     return true;
@@ -717,7 +715,7 @@ export async function renderViewer(path) {
 
     <div class="viewerWrap" style="grid-template-columns: 1fr 1fr; gap:16px; align-items:stretch;">
 
-      <div class="panel section" style="display:flex; flex-direction:column;">
+      <div class="panel section viewer-score-panel" style="display:flex; flex-direction:column;">
         <div class="badge"><i></i> Live score</div>
 
         <div style="display:flex; gap:16px; margin: 10px 0 12px 0;">
@@ -868,7 +866,7 @@ export async function renderViewer(path) {
         <div style="flex:1 1 auto;"></div>
       </div>
 
-      <div class="panel section" style="display:flex; flex-direction:column;">
+      <div class="panel section viewer-player-panel" style="display:flex; flex-direction:column;">
         <div class="badge"><i></i> Camera / Stream</div>
 
         <div class="hint" id="streamSourceLabel" style="margin-top:10px;">Source: detecting…</div>
@@ -1044,6 +1042,11 @@ export async function renderViewer(path) {
               <span id="replayStudioSubtitle">
                 Professional instant replay
               </span>
+
+              <div id="replayCameraButtons" class="replay-camera-buttons" role="group" aria-label="Replay camera">
+                <button type="button" class="replay-camera-button replay-camera-button--active" data-replay-cam="cam1">Replay Camera 1</button>
+                <button type="button" class="replay-camera-button" data-replay-cam="cam2">Replay Camera 2</button>
+              </div>
             </div>
 
             <button
@@ -1244,35 +1247,13 @@ export async function renderViewer(path) {
           </div>
         </section>
 
-        <div
-          id="cameraButtons"
-          style="
-            display:flex;
-            gap:8px;
-            flex-wrap:wrap;
-            margin-top:12px;
-          "
-        ></div>
-
-        <div style="
-          display:flex;
-          gap:10px;
-          flex-wrap:wrap;
-          margin-top:12px;
-        ">
-          <button id="btnReplay30" class="btn small" type="button">
-            Replay
-          </button>
-
-          <button
-            id="btnBackLive"
-            class="btn small"
-            type="button"
-            style="display:none;"
-          >
-            Back to Live
-          </button>
+        <div id="cameraButtons" class="live-mode-controls" role="group" aria-label="Player mode">
+          <button id="btnLiveCam1" class="live-mode-button live-mode-button--active" type="button" aria-pressed="true">Camera 1</button>
+          <button id="btnLiveCam2" class="live-mode-button" type="button" aria-pressed="false">Camera 2</button>
+          <button id="btnReplay30" class="live-mode-button" type="button" aria-pressed="false">Replay</button>
         </div>
+
+        <button id="btnBackLive" class="btn small" type="button" style="display:none; margin-top:12px;">Back to Camera 1</button>
 
         <div class="hint" id="replayStatus" style="margin-top:8px;">
           Replay ready
@@ -1529,6 +1510,9 @@ export async function renderViewer(path) {
 
   const replayVideoEl = app.querySelector("#replayVideo");
   const cameraButtons = app.querySelector("#cameraButtons");
+  const btnLiveCam1 = app.querySelector("#btnLiveCam1");
+  const btnLiveCam2 = app.querySelector("#btnLiveCam2");
+  const replayCameraButtons = app.querySelector("#replayCameraButtons");
   const btnReplay30 = app.querySelector("#btnReplay30");
   const btnBackLive = app.querySelector("#btnBackLive");
   const replayStatus = app.querySelector("#replayStatus");
@@ -1602,6 +1586,8 @@ export async function renderViewer(path) {
   const serveBIcon = app.querySelector("#serveBIcon");
 
   let currentSelectedStreamUrl = "";
+  let selectedLiveCamera = "cam1";
+  let playerMode = "live";
   let streamCheckToken = 0;
   let lastFailedStreamUrl = "";
   let lastFailedAt = 0;
@@ -1679,6 +1665,19 @@ export async function renderViewer(path) {
     const stateUrl = resolveUrl(courtObj.state || "");
     const photosCourt = String(courtObj.photosCourt || courtId || "court-1").trim() || "court-1";
     const apiBase = isAbsUrl(stateUrl) ? new URL(stateUrl).origin : window.location.origin;
+
+    const liveStreams = {
+      cam1: {
+        label: "Camera 1",
+        webrtcUrl: buildWebRtcUrl(apiBase, "court1"),
+        hlsUrl: buildMobileHlsUrl(apiBase, "court1")
+      },
+      cam2: {
+        label: "Camera 2",
+        webrtcUrl: buildWebRtcUrl(apiBase, "court1-cam2"),
+        hlsUrl: buildMobileHlsUrl(apiBase, "court1-cam2")
+      }
+    };
 
     function formatMatchStart(value) {
       const timestamp = Number(value || 0);
@@ -2105,46 +2104,32 @@ ${window.location.href}`
     let replayObjectUrl = "";
     let selectedReplayCam = "cam1";
 
-    function renderCameraButtons(sources) {
-      if (!cameraButtons) return;
+    function renderModeButtons() {
+      const replayActive = playerMode === "replay";
+      const states = [
+        [btnLiveCam1, !replayActive && selectedLiveCamera === "cam1"],
+        [btnLiveCam2, !replayActive && selectedLiveCamera === "cam2"],
+        [btnReplay30, replayActive]
+      ];
 
-      const list = Array.isArray(sources) ? sources : [];
-      cameraButtons.innerHTML = "";
+      states.forEach(([button, active]) => {
+        if (!button) return;
+        button.classList.toggle("live-mode-button--active", active);
+        button.setAttribute("aria-pressed", active ? "true" : "false");
+      });
 
-      const knownCams = ["cam1", "cam2", "cam3", "cam4"];
+      replayCameraButtons?.querySelectorAll("[data-replay-cam]").forEach((button) => {
+        button.classList.toggle(
+          "replay-camera-button--active",
+          button.dataset.replayCam === selectedReplayCam
+        );
+      });
+    }
 
-      for (const camRole of knownCams) {
-        const source = list.find((s) => s?.camRole === camRole);
-        const available = Boolean(source?.streamKey);
-        const online = Boolean(source?.liveActive);
-
-        const button = document.createElement("button");
-        button.type = "button";
-        button.className = "btn small";
-        button.dataset.camRole = camRole;
-
-        const camNumber = camRole.replace("cam", "");
-
-        button.textContent = `Camera ${camNumber}`;
-        button.title = source?.deviceName
-          ? `${source.deviceName} • ${online ? "LIVE" : "OFFLINE"}`
-          : `${online ? "LIVE" : available ? "OFFLINE" : "Not configured"}`;
-
-        button.disabled = !available;
-
-        if (camRole === selectedReplayCam) {
-          button.style.borderColor = "var(--teal)";
-          button.style.boxShadow = "0 0 0 2px rgba(8,184,187,.15)";
-        }
-
-        button.addEventListener("click", () => {
-          selectedReplayCam = camRole;
-          renderCameraButtons(list);
-          replayStatus.textContent = `Replay camera: ${camRole}`;
-        });
-
-        cameraButtons.appendChild(button);
-      }
+    function selectLiveCamera(camRole) {
+      if (camRole !== "cam1" && camRole !== "cam2") return;
+      selectedLiveCamera = camRole;
+      backToLive();
     }
 
     function isLikelyMobileDevice() {
@@ -2654,55 +2639,45 @@ ${safeUrl}`
 
     function setVideoMode(mode) {
       const replayMode = mode === "replay";
-
-      videoModeBadge?.classList.toggle(
-        "video-mode-badge--replay",
-        replayMode
-      );
-
-      videoModeBadge?.classList.toggle(
-        "video-mode-badge--live",
-        !replayMode
-      );
-
+      videoModeBadge?.classList.toggle("video-mode-badge--replay", replayMode);
+      videoModeBadge?.classList.toggle("video-mode-badge--live", !replayMode);
       if (videoModeBadgeText) {
         videoModeBadgeText.textContent = replayMode
           ? "REPLAY"
-          : "LIVE";
+          : `LIVE • ${selectedLiveCamera === "cam2" ? "CAMERA 2" : "CAMERA 1"}`;
       }
+      renderModeButtons();
     }
 
     function backToLive() {
       cleanupReplayObjectUrl();
-
-      try {
-        replayVideoEl.pause();
-      } catch (_) {}
-
+      try { replayVideoEl.pause(); } catch (_) {}
       replayVideoEl.removeAttribute("src");
       replayVideoEl.load();
       replayVideoEl.style.display = "none";
       replayVideoEl.classList.remove("replay-video--active");
       setReplayLoading(false);
       setReplayStudioVisible(false);
-
       currentReplayBlob = null;
       currentReplaySourceUrl = "";
       currentReplayFilename = "voxcourt-replay.mp4";
       currentReplayTitle = "Event Replay";
       currentHighlightEventId = "";
-
       updateReplayHighlightNavigation();
       resetReplayStudioControls();
       resetReplayZoom();
-
       btnBackLive.style.display = "none";
       btnReplay30.disabled = false;
       replayStatus.textContent = "Replay ready";
 
+      playerMode = "live";
+      ++streamCheckToken;
+      clearOpenAttemptTimer();
+      currentSelectedStreamUrl = "";
+      resetVideoElement(videoEl);
       videoEl.style.display = "block";
-      videoEl.play?.().catch(() => {});
       setVideoMode("live");
+      refreshStreamSource();
     }
 
     async function openReplay(seconds = 30, cam = "cam1") {
@@ -2757,6 +2732,11 @@ ${safeUrl}`
           sourceUrl: replayUrl
         });
 
+        playerMode = "replay";
+        ++streamCheckToken;
+        clearOpenAttemptTimer();
+        currentSelectedStreamUrl = "";
+        resetVideoElement(videoEl);
         setReplayLoading(false);
         setVideoMode("replay");
 
@@ -2772,8 +2752,21 @@ ${safeUrl}`
       }
     }
 
+    btnLiveCam1?.addEventListener("click", () => selectLiveCamera("cam1"));
+    btnLiveCam2?.addEventListener("click", () => selectLiveCamera("cam2"));
+
     btnReplay30?.addEventListener("click", () => {
+      selectedReplayCam = selectedLiveCamera;
+      renderModeButtons();
       openReplay(30, selectedReplayCam);
+    });
+
+    replayCameraButtons?.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-replay-cam]");
+      if (!button) return;
+      selectedReplayCam = button.dataset.replayCam === "cam2" ? "cam2" : "cam1";
+      renderModeButtons();
+      if (playerMode === "replay") openReplay(30, selectedReplayCam);
     });
 
     btnBackLive?.addEventListener("click", () => {
@@ -4999,207 +4992,78 @@ ${safeUrl}`
 
 
     async function refreshStreamSource() {
+      if (playerMode !== "live") return;
       const myToken = ++streamCheckToken;
+      const picked = liveStreams[selectedLiveCamera] || liveStreams.cam1;
+      const sourceIdentity = picked.webrtcUrl || picked.hlsUrl;
+      const cameraLabel = picked.label;
 
-      try {
-        const picked = await pickBestStreamSource({
-          apiBase,
-          courtObj,
-          courtId: `${country}/${city}/${clubId}/${courtId}`
-        });
+      const alreadyPlaying =
+        sourceIdentity === currentSelectedStreamUrl &&
+        (videoEl._webrtcReader || videoEl._hls || videoEl.currentSrc || videoEl.srcObject);
+      if (alreadyPlaying) return;
 
-        if (myToken !== streamCheckToken) return;
+      clearOpenAttemptTimer();
+      resetVideoElement(videoEl);
+      showVideoLoading(videoEl, videoOverlay, `Loading ${cameraLabel}…`, "Connecting to the live court camera.");
+      streamSourceLabel.textContent = `LIVE • ${cameraLabel} • Connecting`;
 
-        renderCameraButtons(picked.mobileSources);
+      let playbackStarted = false;
+      let fallbackStarted = false;
 
-        const webrtcUrl = String(picked.webrtcUrl || "").trim();
-        const hlsUrl = String(picked.hlsUrl || picked.selectedUrl || "").trim();
-        const sourceIdentity = webrtcUrl || hlsUrl;
+      const isCurrent = () =>
+        myToken === streamCheckToken &&
+        playerMode === "live" &&
+        picked === liveStreams[selectedLiveCamera];
 
-        if (!sourceIdentity) {
-          status.textContent = "No stream source available.";
-          streamSourceLabel.textContent = "Source: No live source";
-          currentSelectedStreamUrl = "";
-
-          showVideoUnavailable(
-            videoEl,
-            videoOverlay,
-            "Video not available",
-            "No active video source for this court."
-          );
-          return;
-        }
-
-        const now = Date.now();
-
-        if (
-          sourceIdentity === lastFailedStreamUrl &&
-          now - lastFailedAt < 15000
-        ) {
-          const cachedLabel = picked.sourcesPayloadLabel
-            ? `${picked.sourcesPayloadLabel} (offline)`
-            : `${picked.sourceLabel} (offline)`;
-
-          streamSourceLabel.textContent = `Source: ${cachedLabel}`;
-          currentSelectedStreamUrl = "";
-
-          showVideoUnavailable(
-            videoEl,
-            videoOverlay,
-            "Video not available",
-            "Last detected source is offline."
-          );
-          return;
-        }
-
-        const alreadyPlaying =
-          sourceIdentity === currentSelectedStreamUrl &&
-          (
-            videoEl._webrtcReader ||
-            videoEl._hls ||
-            videoEl.currentSrc ||
-            videoEl.srcObject
-          );
-
-        if (alreadyPlaying) {
-          return;
-        }
-
+      const markReady = (transport) => {
+        if (!isCurrent()) return;
+        playbackStarted = true;
         clearOpenAttemptTimer();
-
-        showVideoLoading(
-          videoEl,
-          videoOverlay,
-          "Checking video…",
-          "Opening low-latency live stream."
-        );
-
-        let playbackStarted = false;
-        let fallbackStarted = false;
-
-        const markReady = (mode) => {
-          if (myToken !== streamCheckToken) return;
-
-          playbackStarted = true;
-          clearOpenAttemptTimer();
-
-          currentSelectedStreamUrl = sourceIdentity;
-          lastFailedStreamUrl = "";
-          lastFailedAt = 0;
-
-          streamSourceLabel.textContent =
-            `Source: ${picked.sourceLabel} • ${mode}`;
-
-          showVideoReady(videoEl, videoOverlay);
-        };
-
-        const markFailed = (message) => {
-          if (myToken !== streamCheckToken) return;
-
-          clearOpenAttemptTimer();
-
-          lastFailedStreamUrl = sourceIdentity;
-          lastFailedAt = Date.now();
-          currentSelectedStreamUrl = "";
-
-          markCurrentVideoAsUnavailable(
-            message,
-            picked.sourcesPayloadLabel
-              ? `${picked.sourcesPayloadLabel} (offline)`
-              : `${picked.sourceLabel} (offline)`
-          );
-        };
-
-        const startHlsFallback = async () => {
-          if (fallbackStarted || playbackStarted) return;
-          if (myToken !== streamCheckToken) return;
-
-          fallbackStarted = true;
-          clearOpenAttemptTimer();
-
-          if (!hlsUrl) {
-            markFailed("WebRTC failed and no HLS fallback is configured.");
-            return;
-          }
-
-          streamSourceLabel.textContent =
-            `Source: ${picked.sourceLabel} • switching to HLS fallback`;
-
-          showVideoLoading(
-            videoEl,
-            videoOverlay,
-            "Switching stream…",
-            "WebRTC is unavailable. Trying HLS fallback."
-          );
-
-          const hlsReachable = await probeStreamUrl(hlsUrl, 4500);
-
-          if (myToken !== streamCheckToken || playbackStarted) return;
-
-          if (!hlsReachable) {
-            markFailed(
-              "Neither WebRTC nor the HLS fallback stream is responding."
-            );
-            return;
-          }
-
-          const hlsOk = attachHlsToVideo(
-            videoEl,
-            hlsUrl,
-            () => markReady("HLS fallback"),
-            () => markFailed("The HLS fallback stream could not be opened.")
-          );
-
-          if (!hlsOk) {
-            markFailed("No valid HLS fallback URL.");
-            return;
-          }
-
-          openAttemptTimer = setTimeout(() => {
-            if (!playbackStarted) {
-              markFailed("The HLS fallback stream did not start in time.");
-            }
-          }, 9000);
-        };
-
         currentSelectedStreamUrl = sourceIdentity;
+        lastFailedStreamUrl = "";
+        lastFailedAt = 0;
+        streamSourceLabel.textContent = `LIVE • ${cameraLabel} • ${transport}`;
+        setVideoMode("live");
+        showVideoReady(videoEl, videoOverlay);
+      };
 
-        if (webrtcUrl) {
-          streamSourceLabel.textContent =
-            `Source: ${picked.sourceLabel} • WebRTC`;
+      const markFailed = (message) => {
+        if (!isCurrent()) return;
+        clearOpenAttemptTimer();
+        currentSelectedStreamUrl = "";
+        streamSourceLabel.textContent = `LIVE • ${cameraLabel} • Offline`;
+        showVideoUnavailable(videoEl, videoOverlay, `${cameraLabel} unavailable`, message);
+      };
 
-          const webrtcOk = attachWebRtcToVideo(
-            videoEl,
-            webrtcUrl,
-            () => markReady("WebRTC"),
-            () => startHlsFallback()
-          );
-
-          if (!webrtcOk) {
-            await startHlsFallback();
-            return;
-          }
-
-          openAttemptTimer = setTimeout(() => {
-            if (!playbackStarted) {
-              startHlsFallback();
-            }
-          }, 5000);
-
+      const startHlsFallback = async () => {
+        if (fallbackStarted || playbackStarted || !isCurrent()) return;
+        fallbackStarted = true;
+        clearOpenAttemptTimer();
+        streamSourceLabel.textContent = `LIVE • ${cameraLabel} • Switching to HLS fallback`;
+        showVideoLoading(videoEl, videoOverlay, `Loading ${cameraLabel}…`, "WebRTC is unavailable. Trying the fallback stream.");
+        if (!(await probeStreamUrl(picked.hlsUrl, 4500)) || !isCurrent()) {
+          markFailed("Neither WebRTC nor the fallback stream is responding.");
           return;
         }
+        if (!attachHlsToVideo(videoEl, picked.hlsUrl, () => markReady("HLS fallback"), () => markFailed("The fallback stream could not be opened."))) {
+          markFailed("No valid fallback stream is configured.");
+          return;
+        }
+        openAttemptTimer = setTimeout(() => {
+          if (!playbackStarted) markFailed("The fallback stream did not start in time.");
+        }, 9000);
+      };
 
+      currentSelectedStreamUrl = sourceIdentity;
+      streamSourceLabel.textContent = `LIVE • ${cameraLabel} • WebRTC`;
+      if (!attachWebRtcToVideo(videoEl, picked.webrtcUrl, () => markReady("WebRTC"), startHlsFallback)) {
         await startHlsFallback();
-      } catch (e) {
-        if (myToken !== streamCheckToken) return;
-        streamSourceLabel.textContent = "Source: unavailable";
-        showVideoUnavailable(
-          videoEl,
-          videoOverlay,
-          "Video not available",
-          `Unable to check stream source: ${e.message}`
-        );
+        return;
       }
+      openAttemptTimer = setTimeout(() => {
+        if (!playbackStarted) startHlsFallback();
+      }, 5000);
     }
 
     document.addEventListener(
@@ -5261,6 +5125,8 @@ ${safeUrl}`
       }
     );
 
+    renderModeButtons();
+    setVideoMode("live");
     await refreshStreamSource();
     setInterval(refreshStreamSource, 5000);
 
@@ -5424,51 +5290,3 @@ ${safeUrl}`
     );
   }
 }
-
-/* VOXCOURT FORCE TWO CAMERAS START */
-
-const voxcourtCleanCameraButtons = () => {
-  document.querySelectorAll("button").forEach((button) => {
-    const label = String(button.textContent || "")
-      .replace(/\s+/g, " ")
-      .trim();
-
-    if (/^Camera\s*3$/i.test(label) || /^Camera\s*4$/i.test(label)) {
-      button.remove();
-      return;
-    }
-
-    if (/^Replay\s*30s$/i.test(label)) {
-      button.textContent = "Replay";
-    }
-  });
-};
-
-if (document.readyState === "loading") {
-  document.addEventListener(
-    "DOMContentLoaded",
-    voxcourtCleanCameraButtons,
-    { once: true }
-  );
-} else {
-  voxcourtCleanCameraButtons();
-}
-
-if (window.__voxcourtCameraButtonObserver) {
-  window.__voxcourtCameraButtonObserver.disconnect();
-}
-
-window.__voxcourtCameraButtonObserver = new MutationObserver(() => {
-  voxcourtCleanCameraButtons();
-});
-
-window.__voxcourtCameraButtonObserver.observe(
-  document.documentElement,
-  {
-    childList: true,
-    subtree: true
-  }
-);
-
-/* VOXCOURT FORCE TWO CAMERAS END */
-
