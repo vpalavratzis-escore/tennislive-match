@@ -902,6 +902,26 @@ export async function renderViewer(path) {
           ></video>
 
           <div
+            id="miniScoreboard"
+            class="mini-scoreboard-overlay"
+            aria-label="Live score"
+            aria-hidden="true"
+          >
+            <div class="mini-scoreboard-row mini-scoreboard-row--a">
+              <span id="miniNameA" class="mini-scoreboard-name">Player A</span>
+              <strong id="miniPointA" class="mini-scoreboard-point">—</strong>
+              <span class="mini-scoreboard-stat"><small>G</small><b id="miniGamesA">—</b></span>
+              <span class="mini-scoreboard-stat"><small>S</small><b id="miniSetsA">—</b></span>
+            </div>
+            <div class="mini-scoreboard-row mini-scoreboard-row--b">
+              <span id="miniNameB" class="mini-scoreboard-name">Player B</span>
+              <strong id="miniPointB" class="mini-scoreboard-point">—</strong>
+              <span class="mini-scoreboard-stat"><small>G</small><b id="miniGamesB">—</b></span>
+              <span class="mini-scoreboard-stat"><small>S</small><b id="miniSetsB">—</b></span>
+            </div>
+          </div>
+
+          <div
             id="videoModeBadge"
             class="video-mode-badge video-mode-badge--live"
           >
@@ -1585,6 +1605,17 @@ export async function renderViewer(path) {
   const serveAIcon = app.querySelector("#serveAIcon");
   const serveBIcon = app.querySelector("#serveBIcon");
 
+  const miniScoreboard = app.querySelector("#miniScoreboard");
+  const miniNameA = app.querySelector("#miniNameA");
+  const miniNameB = app.querySelector("#miniNameB");
+  const miniPointA = app.querySelector("#miniPointA");
+  const miniPointB = app.querySelector("#miniPointB");
+  const miniGamesA = app.querySelector("#miniGamesA");
+  const miniGamesB = app.querySelector("#miniGamesB");
+  const miniSetsA = app.querySelector("#miniSetsA");
+  const miniSetsB = app.querySelector("#miniSetsB");
+  const playerFullscreenStage = videoEl?.closest(".cam--viewer");
+
   let currentSelectedStreamUrl = "";
   let selectedLiveCamera = "cam1";
   let playerMode = "live";
@@ -1617,6 +1648,70 @@ export async function renderViewer(path) {
   const REPLAY_FULLSCREEN_HIDE_DELAY = 3000;
   let replayFullscreenControlsTimer = null;
   let replayFrameTargetTime = null;
+  let playerPseudoFullscreen = false;
+
+  function playerFullscreenIsActive() {
+    return Boolean(
+      playerFullscreenStage &&
+      (
+        document.fullscreenElement === playerFullscreenStage ||
+        playerPseudoFullscreen
+      )
+    );
+  }
+
+  function syncPlayerFullscreenUi() {
+    const active = playerFullscreenIsActive();
+    playerFullscreenStage?.classList.toggle(
+      "player-pseudo-fullscreen",
+      playerPseudoFullscreen
+    );
+    document.body.classList.toggle(
+      "voxcourt-player-pseudo-fullscreen",
+      playerPseudoFullscreen
+    );
+    miniScoreboard?.setAttribute("aria-hidden", active ? "false" : "true");
+    if (fullscreenMatchText) {
+      fullscreenMatchText.textContent = active ? "Exit fullscreen" : "Fullscreen";
+    }
+  }
+
+  async function setPlayerFullscreen(enable = !playerFullscreenIsActive()) {
+    if (!playerFullscreenStage) return;
+
+    if (!enable) {
+      if (document.fullscreenElement === playerFullscreenStage) {
+        await document.exitFullscreen?.();
+      }
+      playerPseudoFullscreen = false;
+      syncPlayerFullscreenUi();
+      return;
+    }
+
+    if (playerFullscreenStage.requestFullscreen) {
+      try {
+        await playerFullscreenStage.requestFullscreen();
+        playerPseudoFullscreen = false;
+        syncPlayerFullscreenUi();
+        return;
+      } catch (_) {
+        // Fall through to the CSS fullscreen mode used on mobile browsers.
+      }
+    }
+
+    playerPseudoFullscreen = true;
+    syncPlayerFullscreenUi();
+  }
+
+  document.addEventListener("fullscreenchange", syncPlayerFullscreenUi);
+  document.addEventListener("webkitfullscreenchange", syncPlayerFullscreenUi);
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && playerPseudoFullscreen) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      setPlayerFullscreen(false);
+    }
+  });
 
   function clearOpenAttemptTimer() {
     if (openAttemptTimer) {
@@ -1965,6 +2060,26 @@ export async function renderViewer(path) {
       }
     }
 
+    function updateMiniScore({
+      nameA,
+      nameB,
+      pointA,
+      pointB,
+      gamesA,
+      gamesB,
+      setsA,
+      setsB
+    }) {
+      if (miniNameA) miniNameA.textContent = String(nameA || "Player A");
+      if (miniNameB) miniNameB.textContent = String(nameB || "Player B");
+      if (miniPointA) miniPointA.textContent = String(pointA ?? "—");
+      if (miniPointB) miniPointB.textContent = String(pointB ?? "—");
+      if (miniGamesA) miniGamesA.textContent = String(gamesA ?? "—");
+      if (miniGamesB) miniGamesB.textContent = String(gamesB ?? "—");
+      if (miniSetsA) miniSetsA.textContent = String(setsA ?? "—");
+      if (miniSetsB) miniSetsB.textContent = String(setsB ?? "—");
+    }
+
     function showMatchActionFeedback(message) {
       if (!matchActionFeedback) return;
 
@@ -2069,33 +2184,8 @@ ${window.location.href}`
       }
     });
 
-    btnMatchFullscreen?.addEventListener("click", async () => {
-      try {
-        if (!document.fullscreenElement) {
-          await matchHero?.closest(".wrap")?.requestFullscreen?.();
-        } else {
-          await document.exitFullscreen?.();
-        }
-      } catch (_) {
-        showMatchActionFeedback(
-          "Fullscreen is not available in this browser."
-        );
-      }
-    });
-
-    document.addEventListener("fullscreenchange", () => {
-      const fullscreenActive = Boolean(document.fullscreenElement);
-
-      document.body.classList.toggle(
-        "voxcourt-viewer-fullscreen",
-        fullscreenActive
-      );
-
-      if (fullscreenMatchText) {
-        fullscreenMatchText.textContent = fullscreenActive
-          ? "Exit fullscreen"
-          : "Fullscreen";
-      }
+    btnMatchFullscreen?.addEventListener("click", () => {
+      setPlayerFullscreen();
     });
 
     miTitle.textContent = `🎾 ${clubObj.name} – ${courtObj.name}`;
@@ -2878,9 +2968,7 @@ ${safeUrl}`
     // VOXCOURT REPLAY FULLSCREEN CONTROLS
     // =====================================================
 
-    const replayFullscreenStage = replayVideoEl?.closest(
-      ".cam--viewer"
-    );
+    const replayFullscreenStage = playerFullscreenStage;
 
     function clearReplayFullscreenControlsTimer() {
       if (replayFullscreenControlsTimer) {
@@ -2890,10 +2978,7 @@ ${safeUrl}`
     }
 
     function replayFullscreenIsActive() {
-      return Boolean(
-        replayFullscreenStage &&
-        document.fullscreenElement === replayFullscreenStage
-      );
+      return playerFullscreenIsActive();
     }
 
     function hideReplayFullscreenControls() {
@@ -3139,7 +3224,7 @@ ${safeUrl}`
         event.stopPropagation();
 
         try {
-          await document.exitFullscreen?.();
+          await setPlayerFullscreen(false);
         } catch (_) {}
       }
     );
@@ -3223,21 +3308,8 @@ ${safeUrl}`
       }
     );
 
-    replayFullscreen?.addEventListener("click", async () => {
-      const replayStage = replayVideoEl?.closest(
-        ".cam--viewer"
-      );
-
-      try {
-        if (!document.fullscreenElement) {
-          await replayStage?.requestFullscreen?.();
-        } else {
-          await document.exitFullscreen?.();
-        }
-      } catch (_) {
-        replayStatus.textContent =
-          "Fullscreen is unavailable in this browser.";
-      }
+    replayFullscreen?.addEventListener("click", () => {
+      setPlayerFullscreen();
     });
 
     replayDownload?.addEventListener("click", () => {
@@ -5239,6 +5311,16 @@ ${safeUrl}`
           setsA,
           setsB,
           server
+        });
+        updateMiniScore({
+          nameA,
+          nameB,
+          pointA,
+          pointB,
+          gamesA,
+          gamesB,
+          setsA,
+          setsB
         });
 
         nameAEl.textContent = clampText(nameA, 34);

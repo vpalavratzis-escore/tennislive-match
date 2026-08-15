@@ -6241,3 +6241,202 @@ div:has(> #serveBIcon):hover {
     margin-inline: auto;
   }
 }
+
+
+/* =========================================================
+   VOXCOURT FULLSCREEN MINI SCOREBOARD
+========================================================= */
+.mini-scoreboard-overlay {
+  position: absolute;
+  top: max(18px, env(safe-area-inset-top));
+  left: max(18px, env(safe-area-inset-left));
+  z-index: 19;
+  display: none;
+  width: min(390px, calc(100% - 36px));
+  overflow: hidden;
+  border: 1px solid rgba(118, 225, 229, 0.25);
+  border-radius: 14px;
+  background: rgba(3, 12, 17, 0.78);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.34);
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  pointer-events: none;
+}
+
+.cam--viewer:fullscreen .mini-scoreboard-overlay,
+.cam--viewer:-webkit-full-screen .mini-scoreboard-overlay,
+.cam--viewer.player-pseudo-fullscreen .mini-scoreboard-overlay {
+  display: block;
+}
+
+.mini-scoreboard-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(44px, auto) auto auto;
+  align-items: center;
+  gap: 13px;
+  min-height: 42px;
+  padding: 7px 12px;
+  border-left: 4px solid transparent;
+}
+
+.mini-scoreboard-row + .mini-scoreboard-row {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mini-scoreboard-row--a {
+  border-left-color: #55e2df;
+}
+
+.mini-scoreboard-row--b {
+  border-left-color: #a982ff;
+}
+
+.mini-scoreboard-name {
+  min-width: 0;
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.94);
+  font-size: 13px;
+  font-weight: 850;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mini-scoreboard-point {
+  min-width: 44px;
+  color: #fff;
+  font-size: 25px;
+  font-weight: 950;
+  line-height: 1;
+  text-align: center;
+}
+
+.mini-scoreboard-row--a .mini-scoreboard-point {
+  color: #71f0ed;
+}
+
+.mini-scoreboard-row--b .mini-scoreboard-point {
+  color: #c1a7ff;
+}
+
+.mini-scoreboard-stat {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  min-width: 34px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.mini-scoreboard-stat small {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.cam--viewer:fullscreen .video-mode-badge,
+.cam--viewer:-webkit-full-screen .video-mode-badge,
+.cam--viewer.player-pseudo-fullscreen .video-mode-badge {
+  right: max(18px, env(safe-area-inset-right));
+  left: auto;
+}
+
+.cam--viewer:fullscreen #camVideo,
+.cam--viewer:fullscreen #replayVideo,
+.cam--viewer:-webkit-full-screen #camVideo,
+.cam--viewer:-webkit-full-screen #replayVideo,
+.cam--viewer.player-pseudo-fullscreen #camVideo,
+.cam--viewer.player-pseudo-fullscreen #replayVideo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain !important;
+}
+
+.cam--viewer.player-pseudo-fullscreen {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 2147483000;
+  width: 100vw !important;
+  width: 100dvw !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  max-width: none !important;
+  max-height: none !important;
+  margin: 0 !important;
+  aspect-ratio: auto !important;
+  border: 0;
+  border-radius: 0;
+  background: #000;
+}
+
+.voxcourt-player-pseudo-fullscreen {
+  overflow: hidden !important;
+}
+
+.cam--viewer.player-pseudo-fullscreen
+.replay-fullscreen-controls--visible {
+  opacity: 1;
+  pointer-events: none;
+}
+
+@media (max-width: 600px) {
+  .mini-scoreboard-overlay {
+    top: max(10px, env(safe-area-inset-top));
+    left: max(10px, env(safe-area-inset-left));
+    width: min(310px, calc(100% - 20px - env(safe-area-inset-right)));
+    border-radius: 11px;
+  }
+
+  .mini-scoreboard-row {
+    grid-template-columns: minmax(0, 1fr) minmax(38px, auto) auto auto;
+    gap: 8px;
+    min-height: 36px;
+    padding: 5px 8px;
+    border-left-width: 3px;
+  }
+
+  .mini-scoreboard-name {
+    font-size: 11px;
+  }
+
+  .mini-scoreboard-point {
+    min-width: 38px;
+    font-size: 21px;
+  }
+
+  .mini-scoreboard-stat {
+    min-width: 28px;
+    gap: 3px;
+    font-size: 12px;
+  }
+
+  .mini-scoreboard-stat small {
+    font-size: 8px;
+  }
+
+  .cam--viewer:fullscreen .video-mode-badge,
+  .cam--viewer:-webkit-full-screen .video-mode-badge,
+  .cam--viewer.player-pseudo-fullscreen .video-mode-badge {
+    right: max(10px, env(safe-area-inset-right));
+  }
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+  .mini-scoreboard-overlay {
+    top: max(8px, env(safe-area-inset-top));
+    left: max(8px, env(safe-area-inset-left));
+    width: min(285px, calc(100% - 16px - env(safe-area-inset-right)));
+  }
+
+  .mini-scoreboard-row {
+    min-height: 32px;
+    padding-block: 4px;
+  }
+
+  .mini-scoreboard-point {
+    font-size: 19px;
+  }
+}
