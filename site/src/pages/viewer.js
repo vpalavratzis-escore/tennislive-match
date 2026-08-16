@@ -1678,11 +1678,29 @@ export async function renderViewer(path) {
   let playerExpanded = false;
   let redirectingRawVideoFullscreen = false;
 
+  function getFullscreenElement() {
+    return document.fullscreenElement || document.webkitFullscreenElement || null;
+  }
+
+  async function exitDocumentFullscreen() {
+    if (document.exitFullscreen) {
+      await document.exitFullscreen();
+      return;
+    }
+
+    if (document.webkitExitFullscreen) {
+      await document.webkitExitFullscreen();
+      return;
+    }
+
+    document.webkitCancelFullScreen?.();
+  }
+
   function playerFullscreenIsActive() {
     return Boolean(
       playerFullscreenStage &&
       (
-        document.fullscreenElement === playerFullscreenStage ||
+        getFullscreenElement() === playerFullscreenStage ||
         playerPseudoFullscreen ||
         playerExpanded
       )
@@ -1738,17 +1756,21 @@ export async function renderViewer(path) {
     playerExpanded = enable;
 
     if (!enable) {
-      if (document.fullscreenElement === playerFullscreenStage) {
-        await document.exitFullscreen?.();
+      if (getFullscreenElement() === playerFullscreenStage) {
+        await exitDocumentFullscreen();
       }
       playerPseudoFullscreen = false;
       syncPlayerFullscreenUi();
       return;
     }
 
-    if (playerFullscreenStage.requestFullscreen) {
+    const requestWrapperFullscreen =
+      playerFullscreenStage.requestFullscreen ||
+      playerFullscreenStage.webkitRequestFullscreen;
+
+    if (requestWrapperFullscreen) {
       try {
-        await playerFullscreenStage.requestFullscreen();
+        await requestWrapperFullscreen.call(playerFullscreenStage);
         playerPseudoFullscreen = false;
         syncPlayerFullscreenUi();
         return;
@@ -1761,20 +1783,36 @@ export async function renderViewer(path) {
     syncPlayerFullscreenUi();
   }
 
+  async function redirectRawVideoFullscreen(targetVideo) {
+    if (!targetVideo || redirectingRawVideoFullscreen) return;
+
+    redirectingRawVideoFullscreen = true;
+    try {
+      if (getFullscreenElement()) {
+        await exitDocumentFullscreen();
+      }
+
+      try { targetVideo.webkitExitFullscreen?.(); } catch (_) {}
+      try {
+        if (targetVideo.webkitPresentationMode === "fullscreen") {
+          targetVideo.webkitSetPresentationMode?.("inline");
+        }
+      } catch (_) {}
+
+      await setPlayerFullscreen(true);
+    } finally {
+      redirectingRawVideoFullscreen = false;
+      syncPlayerFullscreenUi();
+    }
+  }
+
   async function handlePlayerFullscreenChange() {
-    const fullscreenElement = document.fullscreenElement;
+    const fullscreenElement = getFullscreenElement();
     const rawVideoFullscreen =
       fullscreenElement === videoEl || fullscreenElement === replayVideoEl;
 
     if (rawVideoFullscreen && !redirectingRawVideoFullscreen) {
-      redirectingRawVideoFullscreen = true;
-      try {
-        await document.exitFullscreen?.();
-        await setPlayerFullscreen(true);
-      } finally {
-        redirectingRawVideoFullscreen = false;
-        syncPlayerFullscreenUi();
-      }
+      await redirectRawVideoFullscreen(fullscreenElement);
       return;
     }
 
@@ -1807,12 +1845,18 @@ export async function renderViewer(path) {
     setPlayerFullscreen();
   });
 
-  videoEl?.addEventListener("webkitbeginfullscreen", (event) => {
-    event.preventDefault();
-    window.setTimeout(() => {
-      try { videoEl.webkitExitFullscreen?.(); } catch (_) {}
-      setPlayerFullscreen(true);
-    }, 0);
+  [videoEl, replayVideoEl].forEach((targetVideo) => {
+    targetVideo?.addEventListener("webkitbeginfullscreen", (event) => {
+      event.preventDefault();
+      window.setTimeout(() => {
+        redirectRawVideoFullscreen(targetVideo);
+      }, 0);
+    });
+
+    targetVideo?.addEventListener("webkitpresentationmodechanged", () => {
+      if (targetVideo.webkitPresentationMode !== "fullscreen") return;
+      redirectRawVideoFullscreen(targetVideo);
+    });
   });
 
   function clearOpenAttemptTimer() {
