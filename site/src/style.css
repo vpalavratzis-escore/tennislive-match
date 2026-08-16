@@ -6247,6 +6247,29 @@ div:has(> #serveBIcon):hover {
 /* =========================================================
    VOXCOURT FULLSCREEN MINI SCOREBOARD
 ========================================================= */
+.video-watermark {
+  position: absolute;
+  bottom: clamp(54px, 6cqi, 78px);
+  left: clamp(10px, 1.8cqi, 22px);
+  z-index: 7;
+  display: block;
+  width: clamp(86px, 14cqi, 184px);
+  max-width: calc(34% - 20px);
+  height: auto;
+  opacity: 0.62;
+  filter: drop-shadow(0 2px 7px rgba(0, 0, 0, 0.68));
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.cam--viewer.viewer-mode-replay.viewer-expanded .video-watermark,
+.cam--viewer.viewer-mode-replay:fullscreen .video-watermark,
+.cam--viewer.viewer-mode-replay:-webkit-full-screen .video-watermark,
+.cam--viewer.viewer-mode-replay.player-pseudo-fullscreen .video-watermark {
+  bottom: clamp(116px, 13cqi, 156px);
+}
+
 .mini-scoreboard-overlay {
   position: absolute;
   top: max(18px, env(safe-area-inset-top));

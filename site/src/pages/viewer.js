@@ -903,6 +903,15 @@ export async function renderViewer(path) {
             "
           ></video>
 
+          <img
+            id="videoWatermark"
+            class="video-watermark"
+            src="${base}logoText.png"
+            alt=""
+            aria-hidden="true"
+            draggable="false"
+          />
+
           <div
             id="miniScoreboard"
             class="mini-scoreboard-overlay"
@@ -1628,6 +1637,8 @@ export async function renderViewer(path) {
   const miniSetsA = app.querySelector("#miniSetsA");
   const miniSetsB = app.querySelector("#miniSetsB");
   const playerFullscreenStage = videoEl?.closest(".cam--viewer");
+  const playerStageOriginalParent = playerFullscreenStage?.parentNode || null;
+  const playerStageOriginalNextSibling = playerFullscreenStage?.nextSibling || null;
   videoEl?.controlsList?.add("nofullscreen");
   replayVideoEl?.controlsList?.add("nofullscreen");
 
@@ -1678,8 +1689,31 @@ export async function renderViewer(path) {
     );
   }
 
+  function syncPlayerStageHost() {
+    if (!playerFullscreenStage || !playerStageOriginalParent) return;
+
+    if (playerPseudoFullscreen) {
+      if (playerFullscreenStage.parentNode !== document.body) {
+        document.body.append(playerFullscreenStage);
+      }
+      return;
+    }
+
+    if (playerFullscreenStage.parentNode !== playerStageOriginalParent) {
+      const restoreBefore =
+        playerStageOriginalNextSibling?.parentNode === playerStageOriginalParent
+          ? playerStageOriginalNextSibling
+          : null;
+      playerStageOriginalParent.insertBefore(playerFullscreenStage, restoreBefore);
+    }
+  }
+
   function syncPlayerFullscreenUi() {
     const active = playerFullscreenIsActive();
+    // The page layout creates a containing block for fixed descendants. Mount the
+    // same player node at body level in CSS-expanded mode so every overlay remains
+    // inside the video that is actually visible, without recreating the stream.
+    syncPlayerStageHost();
     playerFullscreenStage?.classList.toggle(
       "player-pseudo-fullscreen",
       playerPseudoFullscreen
@@ -2797,6 +2831,7 @@ ${safeUrl}`
 
     function setVideoMode(mode) {
       const replayMode = mode === "replay";
+      playerFullscreenStage?.classList.toggle("viewer-mode-replay", replayMode);
       videoModeBadge?.classList.toggle("video-mode-badge--replay", replayMode);
       videoModeBadge?.classList.toggle("video-mode-badge--live", !replayMode);
       if (videoModeBadgeText) {
