@@ -889,6 +889,7 @@ textarea {
 .cam--viewer {
   position: relative;
   overflow: hidden;
+  container-type: inline-size;
 }
 
 .videoOverlay {
@@ -6252,7 +6253,8 @@ div:has(> #serveBIcon):hover {
   left: max(18px, env(safe-area-inset-left));
   z-index: 19;
   display: none;
-  width: min(390px, calc(100% - 36px));
+  width: clamp(220px, 38cqi, 390px);
+  max-width: calc(100% - 36px);
   overflow: hidden;
   border: 1px solid rgba(118, 225, 229, 0.25);
   border-radius: 14px;
@@ -6276,9 +6278,9 @@ div:has(> #serveBIcon):hover {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(44px, auto) auto auto;
   align-items: center;
-  gap: 13px;
-  min-height: 42px;
-  padding: 7px 12px;
+  gap: clamp(7px, 1.3cqi, 13px);
+  min-height: clamp(34px, 4.2cqi, 42px);
+  padding: clamp(5px, .7cqi, 7px) clamp(8px, 1.2cqi, 12px);
   border-left: 4px solid transparent;
 }
 
@@ -6298,7 +6300,7 @@ div:has(> #serveBIcon):hover {
   min-width: 0;
   overflow: hidden;
   color: rgba(255, 255, 255, 0.94);
-  font-size: 13px;
+  font-size: clamp(10px, 1.35cqi, 13px);
   font-weight: 850;
   line-height: 1.15;
   text-overflow: ellipsis;
@@ -6306,9 +6308,9 @@ div:has(> #serveBIcon):hover {
 }
 
 .mini-scoreboard-point {
-  min-width: 44px;
+  min-width: clamp(36px, 4.4cqi, 44px);
   color: #fff;
-  font-size: 25px;
+  font-size: clamp(18px, 2.6cqi, 25px);
   font-weight: 950;
   line-height: 1;
   text-align: center;
@@ -6326,15 +6328,15 @@ div:has(> #serveBIcon):hover {
   display: inline-flex;
   align-items: baseline;
   gap: 4px;
-  min-width: 34px;
+  min-width: clamp(26px, 3.4cqi, 34px);
   color: #fff;
-  font-size: 14px;
+  font-size: clamp(11px, 1.45cqi, 14px);
   font-weight: 900;
 }
 
 .mini-scoreboard-stat small {
   color: rgba(255, 255, 255, 0.55);
-  font-size: 9px;
+  font-size: clamp(7px, .9cqi, 9px);
   font-weight: 800;
 }
 

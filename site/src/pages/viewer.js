@@ -1664,6 +1664,7 @@ export async function renderViewer(path) {
   let replayFullscreenControlsTimer = null;
   let replayFrameTargetTime = null;
   let playerPseudoFullscreen = false;
+  let playerExpanded = false;
   let redirectingRawVideoFullscreen = false;
 
   function playerFullscreenIsActive() {
@@ -1671,7 +1672,8 @@ export async function renderViewer(path) {
       playerFullscreenStage &&
       (
         document.fullscreenElement === playerFullscreenStage ||
-        playerPseudoFullscreen
+        playerPseudoFullscreen ||
+        playerExpanded
       )
     );
   }
@@ -1698,6 +1700,8 @@ export async function renderViewer(path) {
 
   async function setPlayerFullscreen(enable = !playerFullscreenIsActive()) {
     if (!playerFullscreenStage) return;
+
+    playerExpanded = enable;
 
     if (!enable) {
       if (document.fullscreenElement === playerFullscreenStage) {
@@ -1738,6 +1742,10 @@ export async function renderViewer(path) {
         syncPlayerFullscreenUi();
       }
       return;
+    }
+
+    if (!fullscreenElement && !playerPseudoFullscreen) {
+      playerExpanded = false;
     }
 
     syncPlayerFullscreenUi();
