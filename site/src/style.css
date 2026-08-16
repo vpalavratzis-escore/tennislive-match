@@ -6267,6 +6267,7 @@ div:has(> #serveBIcon):hover {
 
 .cam--viewer:fullscreen .mini-scoreboard-overlay,
 .cam--viewer:-webkit-full-screen .mini-scoreboard-overlay,
+.cam--viewer.viewer-expanded .mini-scoreboard-overlay,
 .cam--viewer.player-pseudo-fullscreen .mini-scoreboard-overlay {
   display: block;
 }
@@ -6421,6 +6422,18 @@ div:has(> #serveBIcon):hover {
   .cam--viewer:-webkit-full-screen .video-mode-badge,
   .cam--viewer.player-pseudo-fullscreen .video-mode-badge {
     right: max(10px, env(safe-area-inset-right));
+  }
+}
+
+@media (orientation: portrait) and (max-width: 600px) {
+  .cam--viewer.viewer-expanded .mini-scoreboard-overlay,
+  .cam--viewer:fullscreen .mini-scoreboard-overlay,
+  .cam--viewer:-webkit-full-screen .mini-scoreboard-overlay,
+  .cam--viewer.player-pseudo-fullscreen .mini-scoreboard-overlay {
+    top: max(56px, calc(env(safe-area-inset-top) + 46px));
+    left: 50%;
+    width: min(350px, calc(100% - 24px));
+    transform: translateX(-50%);
   }
 }
 

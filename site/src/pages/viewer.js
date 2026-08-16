@@ -1682,6 +1682,10 @@ export async function renderViewer(path) {
       "player-pseudo-fullscreen",
       playerPseudoFullscreen
     );
+    playerFullscreenStage?.classList.toggle(
+      "viewer-expanded",
+      active
+    );
     document.body.classList.toggle(
       "voxcourt-player-pseudo-fullscreen",
       playerPseudoFullscreen
@@ -2795,6 +2799,15 @@ ${safeUrl}`
       if (playerFullscreenButton) {
         playerFullscreenButton.hidden = replayMode;
       }
+      if (replayStatus) {
+        replayStatus.hidden = !replayMode;
+      }
+      if (replayFullscreenControls) {
+        replayFullscreenControls.hidden = !replayMode;
+        if (!replayMode) {
+          hideReplayFullscreenControls();
+        }
+      }
       renderModeButtons();
     }
 
@@ -3054,7 +3067,7 @@ ${safeUrl}`
     }
 
     function showReplayFullscreenControls() {
-      if (!replayFullscreenIsActive()) return;
+      if (playerMode !== "replay" || !replayFullscreenIsActive()) return;
 
       replayFullscreenControls?.classList.add(
         "replay-fullscreen-controls--visible"
