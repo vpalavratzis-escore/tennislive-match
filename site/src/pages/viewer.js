@@ -311,21 +311,36 @@ function attachWebRtcToVideo(video, url, onReady, onFatal) {
 
   let readyCalled = false;
   let fatalCalled = false;
+  let mutedTooLongTimer = null;
 
-  const safeReady = () => {
-    if (readyCalled || fatalCalled) return;
-    readyCalled = true;
-
-    video.play?.().catch(() => {});
-
-    if (typeof onReady === "function") {
-      onReady();
+  const clearMutedTooLongTimer = () => {
+    if (mutedTooLongTimer) {
+      window.clearTimeout(mutedTooLongTimer);
+      mutedTooLongTimer = null;
     }
   };
 
+  const safeReady = () => {
+    if (fatalCalled) return;
+
+    clearMutedTooLongTimer();
+
+    if (!readyCalled) {
+      readyCalled = true;
+
+      if (typeof onReady === "function") {
+        onReady();
+      }
+    }
+
+    video.play?.().catch(() => {});
+  };
+
   const safeFatal = (reason) => {
-    if (fatalCalled || readyCalled) return;
+    if (fatalCalled) return;
     fatalCalled = true;
+
+    clearMutedTooLongTimer();
 
     console.warn("WebRTC stream error:", reason);
 
@@ -344,15 +359,41 @@ function attachWebRtcToVideo(video, url, onReady, onFatal) {
       onTrack: (evt) => {
         if (!evt?.track) return;
 
+        const track = evt.track;
+
         const alreadyAdded = mediaStream
           .getTracks()
-          .some((track) => track.id === evt.track.id);
+          .some((existingTrack) => existingTrack.id === track.id);
 
         if (!alreadyAdded) {
-          mediaStream.addTrack(evt.track);
+          mediaStream.addTrack(track);
         }
 
-        evt.track.onunmute = safeReady;
+        if (track.kind === "video") {
+          track.onunmute = () => {
+            clearMutedTooLongTimer();
+            safeReady();
+          };
+
+          track.onmute = () => {
+            clearMutedTooLongTimer();
+
+            mutedTooLongTimer = window.setTimeout(() => {
+              if (
+                !fatalCalled &&
+                track.readyState !== "ended" &&
+                track.muted
+              ) {
+                safeFatal("WebRTC video track stalled");
+              }
+            }, 5000);
+          };
+
+          track.onended = () => {
+            safeFatal("WebRTC video track ended");
+          };
+        }
+
         safeReady();
       },
 
@@ -366,7 +407,9 @@ function attachWebRtcToVideo(video, url, onReady, onFatal) {
 
     video._webrtcReader = reader;
 
-    video.onerror = () => safeFatal("video element error");
+    video.onerror = () => {
+      safeFatal("video element error");
+    };
 
     return true;
   } catch (error) {
@@ -1826,6 +1869,85 @@ export async function renderViewer(path) {
   let openAttemptTimer = null;
 
   /*
+   * Automatic Live reconnect.
+   *
+   * Retries:
+   * 1.5s -> 3s -> 5s -> 8s -> 12s -> 15s
+   * and then continues every 15 seconds.
+   */
+  const LIVE_RECONNECT_DELAYS_MS = [
+    1500,
+    3000,
+    5000,
+    8000,
+    12000,
+    15000
+  ];
+
+  let liveReconnectTimer = null;
+  let liveReconnectAttempt = 0;
+
+  function clearLiveReconnectTimer(resetAttempt = false) {
+    if (liveReconnectTimer) {
+      window.clearTimeout(liveReconnectTimer);
+      liveReconnectTimer = null;
+    }
+
+    if (resetAttempt) {
+      liveReconnectAttempt = 0;
+    }
+  }
+
+  function scheduleLiveReconnect(
+    cameraLabel = "Camera",
+    qualityLabel = ""
+  ) {
+    if (
+      playerMode !== "live" ||
+      liveReconnectTimer
+    ) {
+      return;
+    }
+
+    const delay =
+      LIVE_RECONNECT_DELAYS_MS[
+        Math.min(
+          liveReconnectAttempt,
+          LIVE_RECONNECT_DELAYS_MS.length - 1
+        )
+      ];
+
+    liveReconnectAttempt += 1;
+
+    const seconds = Math.max(
+      1,
+      Math.round(delay / 1000)
+    );
+
+    streamSourceLabel.textContent =
+      `LIVE • ${cameraLabel} • ${qualityLabel} • Reconnecting`;
+
+    showVideoLoading(
+      videoEl,
+      videoOverlay,
+      "Reconnecting live video…",
+      `Automatic retry in ${seconds}s. No refresh is required.`
+    );
+
+    liveReconnectTimer = window.setTimeout(() => {
+      liveReconnectTimer = null;
+
+      if (playerMode !== "live") {
+        return;
+      }
+
+      currentSelectedStreamUrl = "";
+
+      refreshStreamSource();
+    }, delay);
+  }
+
+  /*
    * Mobile / tablet quality-control visibility.
    * One touch on the player reveals the control temporarily.
    */
@@ -3229,6 +3351,7 @@ ${safeUrl}`
       playerMode = "live";
       ++streamCheckToken;
       clearOpenAttemptTimer();
+      clearLiveReconnectTimer(true);
       currentSelectedStreamUrl = "";
       resetVideoElement(videoEl);
       videoEl.style.display = "block";
@@ -5531,6 +5654,9 @@ ${safeUrl}`
 
     async function refreshStreamSource() {
       if (playerMode !== "live") return;
+
+      clearLiveReconnectTimer(false);
+
       const myToken = ++streamCheckToken;
       const picked = liveStreams[selectedLiveCamera] || liveStreams.cam1;
       const sourceIdentity = picked.webrtcUrl || picked.hlsUrl;
@@ -5560,6 +5686,7 @@ ${safeUrl}`
         if (!isCurrent()) return;
         playbackStarted = true;
         clearOpenAttemptTimer();
+        clearLiveReconnectTimer(true);
         currentSelectedStreamUrl = sourceIdentity;
         lastFailedStreamUrl = "";
         lastFailedAt = 0;
@@ -5573,13 +5700,33 @@ ${safeUrl}`
         if (!isCurrent()) return;
         clearOpenAttemptTimer();
         currentSelectedStreamUrl = "";
-        streamSourceLabel.textContent = `LIVE • ${cameraLabel} • Offline`;
-        showVideoUnavailable(videoEl, videoOverlay, `${cameraLabel} unavailable`, message);
+        streamSourceLabel.textContent =
+          `LIVE • ${cameraLabel} • ${qualityLabel} • Offline`;
+
+        showVideoUnavailable(
+          videoEl,
+          videoOverlay,
+          `${cameraLabel} temporarily unavailable`,
+          message
+        );
+
+        scheduleLiveReconnect(
+          cameraLabel,
+          qualityLabel
+        );
       };
 
-      const startHlsFallback = async () => {
-        if (fallbackStarted || playbackStarted || !isCurrent()) return;
+      const startHlsFallback = async (force = false) => {
+        if (
+          fallbackStarted ||
+          (!force && playbackStarted) ||
+          !isCurrent()
+        ) {
+          return;
+        }
+
         fallbackStarted = true;
+        playbackStarted = false;
         clearOpenAttemptTimer();
         streamSourceLabel.textContent = `LIVE • ${cameraLabel} • Switching to HLS fallback`;
         showVideoLoading(videoEl, videoOverlay, `Loading ${cameraLabel}…`, "WebRTC is unavailable. Trying the fallback stream.");
