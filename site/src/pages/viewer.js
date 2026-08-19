@@ -667,6 +667,77 @@ export async function renderViewer(path) {
         overflow: hidden;
       }
 
+      .live-quality-control {
+        position: absolute;
+        left: 12px;
+        bottom: 58px;
+        z-index: 30;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 7px 9px;
+        border: 1px solid rgba(85,226,223,.28);
+        border-radius: 12px;
+        background: rgba(2,14,17,.82);
+        color: rgba(255,255,255,.88);
+        box-shadow: 0 8px 24px rgba(0,0,0,.30);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .live-quality-control span {
+        color: rgba(255,255,255,.62);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+      }
+
+      .live-quality-control select {
+        min-width: 78px;
+        border: 0;
+        outline: 0;
+        border-radius: 8px;
+        padding: 5px 7px;
+        background: rgba(255,255,255,.10);
+        color: #fff;
+        font-weight: 900;
+        cursor: pointer;
+      }
+
+      .live-quality-control option {
+        color: #111;
+        background: #fff;
+      }
+
+      .cam--viewer.viewer-mode-replay .live-quality-control {
+        display: none;
+      }
+
+      .cam--viewer:fullscreen .live-quality-control,
+      .cam--viewer:-webkit-full-screen .live-quality-control,
+      .cam--viewer.player-pseudo-fullscreen .live-quality-control {
+        left: max(14px, env(safe-area-inset-left));
+        bottom: max(64px, calc(env(safe-area-inset-bottom) + 50px));
+      }
+
+      @media (max-width: 600px) {
+        .live-quality-control {
+          left: 9px;
+          bottom: 52px;
+          padding: 6px 8px;
+        }
+
+        .live-quality-control span {
+          display: none;
+        }
+
+        .live-quality-control select {
+          min-width: 72px;
+        }
+      }
+
       .videoOverlay {
         position: absolute;
         inset: 0;
@@ -902,6 +973,18 @@ export async function renderViewer(path) {
               z-index:6;
             "
           ></video>
+
+          <label
+            id="liveQualityControl"
+            class="live-quality-control"
+            aria-label="Live video quality"
+          >
+            <span>Quality</span>
+            <select id="liveQualitySelect" aria-label="Live video quality">
+              <option value="1080">1080p</option>
+              <option value="720">720p</option>
+            </select>
+          </label>
 
           <img
             id="videoWatermark"
@@ -1529,6 +1612,8 @@ export async function renderViewer(path) {
   const status = app.querySelector("#status");
   const photoStatus = app.querySelector("#photostatus");
   const streamSourceLabel = app.querySelector("#streamSourceLabel");
+  const liveQualityControl = app.querySelector("#liveQualityControl");
+  const liveQualitySelect = app.querySelector("#liveQualitySelect");
   const videoEl = app.querySelector("#camVideo");
   const videoOverlay = app.querySelector("#videoOverlay");
   const videoModeBadge = app.querySelector("#videoModeBadge");
@@ -1641,6 +1726,21 @@ export async function renderViewer(path) {
   const playerStageOriginalNextSibling = playerFullscreenStage?.nextSibling || null;
   videoEl?.controlsList?.add("nofullscreen");
   replayVideoEl?.controlsList?.add("nofullscreen");
+
+  const LIVE_QUALITY_STORAGE_KEY = "voxcourt.live.quality";
+
+  let selectedLiveQuality = "1080";
+
+  try {
+    const savedQuality = localStorage.getItem(LIVE_QUALITY_STORAGE_KEY);
+    if (savedQuality === "720" || savedQuality === "1080") {
+      selectedLiveQuality = savedQuality;
+    }
+  } catch (_) {}
+
+  if (liveQualitySelect) {
+    liveQualitySelect.value = selectedLiveQuality;
+  }
 
   let currentSelectedStreamUrl = "";
   let selectedLiveCamera = "cam1";
@@ -1907,18 +2007,56 @@ export async function renderViewer(path) {
     const photosCourt = String(courtObj.photosCourt || courtId || "court-1").trim() || "court-1";
     const apiBase = isAbsUrl(stateUrl) ? new URL(stateUrl).origin : window.location.origin;
 
-    const liveStreams = {
-      cam1: {
-        label: "Camera 1",
-        webrtcUrl: buildWebRtcUrl(apiBase, "court1"),
-        hlsUrl: buildMobileHlsUrl(apiBase, "court1")
+    const liveQualityStreamKeys = {
+      "1080": {
+        cam1: "court1-1080",
+        cam2: "court1-cam2-1080"
       },
-      cam2: {
-        label: "Camera 2",
-        webrtcUrl: buildWebRtcUrl(apiBase, "court1-cam2"),
-        hlsUrl: buildMobileHlsUrl(apiBase, "court1-cam2")
+      "720": {
+        cam1: "court1-720",
+        cam2: "court1-cam2-720"
       }
     };
+
+    const liveFallbackStreamKeys = {
+      cam1: "court1",
+      cam2: "court1-cam2"
+    };
+
+    function makeLiveStream(camRole) {
+      const quality =
+        selectedLiveQuality === "720" ? "720" : "1080";
+
+      const streamKey =
+        liveQualityStreamKeys[quality][camRole];
+
+      return {
+        label: camRole === "cam2" ? "Camera 2" : "Camera 1",
+        quality,
+        qualityLabel: `${quality}p`,
+        webrtcUrl: buildWebRtcUrl(apiBase, streamKey),
+
+        // Fallback keeps the same selected quality.
+        hlsUrl: buildMobileHlsUrl(
+          apiBase,
+          streamKey
+        )
+      };
+    }
+
+    const liveStreams = {
+      cam1: makeLiveStream("cam1"),
+      cam2: makeLiveStream("cam2")
+    };
+
+    function applyLiveQualityToStreams() {
+      Object.assign(liveStreams.cam1, makeLiveStream("cam1"));
+      Object.assign(liveStreams.cam2, makeLiveStream("cam2"));
+
+      if (liveQualitySelect) {
+        liveQualitySelect.value = selectedLiveQuality;
+      }
+    }
 
     function formatMatchStart(value) {
       const timestamp = Number(value || 0);
@@ -2367,6 +2505,33 @@ ${window.location.href}`
       selectedLiveCamera = camRole;
       backToLive();
     }
+
+    liveQualitySelect?.addEventListener("change", () => {
+      const nextQuality =
+        liveQualitySelect.value === "720" ? "720" : "1080";
+
+      if (nextQuality === selectedLiveQuality) return;
+
+      selectedLiveQuality = nextQuality;
+
+      try {
+        localStorage.setItem(
+          LIVE_QUALITY_STORAGE_KEY,
+          selectedLiveQuality
+        );
+      } catch (_) {}
+
+      applyLiveQualityToStreams();
+
+      // Force a clean WebRTC reconnect to the selected quality.
+      currentSelectedStreamUrl = "";
+      lastFailedStreamUrl = "";
+      lastFailedAt = 0;
+
+      if (playerMode === "live") {
+        refreshStreamSource();
+      }
+    });
 
     function isLikelyMobileDevice() {
       return (
@@ -5228,6 +5393,7 @@ ${safeUrl}`
       const picked = liveStreams[selectedLiveCamera] || liveStreams.cam1;
       const sourceIdentity = picked.webrtcUrl || picked.hlsUrl;
       const cameraLabel = picked.label;
+      const qualityLabel = picked.qualityLabel || "1080p";
 
       const alreadyPlaying =
         sourceIdentity === currentSelectedStreamUrl &&
@@ -5237,7 +5403,8 @@ ${safeUrl}`
       clearOpenAttemptTimer();
       resetVideoElement(videoEl);
       showVideoLoading(videoEl, videoOverlay, `Loading ${cameraLabel}…`, "Connecting to the live court camera.");
-      streamSourceLabel.textContent = `LIVE • ${cameraLabel} • Connecting`;
+      streamSourceLabel.textContent =
+        `LIVE • ${cameraLabel} • ${qualityLabel} • Connecting`;
 
       let playbackStarted = false;
       let fallbackStarted = false;
@@ -5254,7 +5421,8 @@ ${safeUrl}`
         currentSelectedStreamUrl = sourceIdentity;
         lastFailedStreamUrl = "";
         lastFailedAt = 0;
-        streamSourceLabel.textContent = `LIVE • ${cameraLabel} • ${transport}`;
+        streamSourceLabel.textContent =
+          `LIVE • ${cameraLabel} • ${qualityLabel} • ${transport}`;
         setVideoMode("live");
         showVideoReady(videoEl, videoOverlay);
       };
@@ -5287,7 +5455,8 @@ ${safeUrl}`
       };
 
       currentSelectedStreamUrl = sourceIdentity;
-      streamSourceLabel.textContent = `LIVE • ${cameraLabel} • WebRTC`;
+      streamSourceLabel.textContent =
+        `LIVE • ${cameraLabel} • ${qualityLabel} • WebRTC`;
       if (!attachWebRtcToVideo(videoEl, picked.webrtcUrl, () => markReady("WebRTC"), startHlsFallback)) {
         await startHlsFallback();
         return;
