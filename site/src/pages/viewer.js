@@ -58,6 +58,25 @@ function destroyVideoWebRtc(video) {
   if (!video) return;
 
   try {
+    if (video._webrtcHealthTimer) {
+      window.clearInterval(video._webrtcHealthTimer);
+      video._webrtcHealthTimer = null;
+    }
+  } catch (_) {}
+
+  try {
+    if (
+      video._webrtcFrameCallbackId != null &&
+      typeof video.cancelVideoFrameCallback === "function"
+    ) {
+      video.cancelVideoFrameCallback(
+        video._webrtcFrameCallbackId
+      );
+    }
+    video._webrtcFrameCallbackId = null;
+  } catch (_) {}
+
+  try {
     if (video._webrtcReader) {
       video._webrtcReader.close();
       video._webrtcReader = null;
@@ -313,6 +332,84 @@ function attachWebRtcToVideo(video, url, onReady, onFatal) {
   let fatalCalled = false;
   let mutedTooLongTimer = null;
 
+  /*
+   * Real video-frame watchdog.
+   *
+   * MediaStream / WebRTC can remain "connected" even when
+   * the upstream publisher disappeared. In that situation
+   * onmute/onended are not guaranteed to fire.
+   *
+   * requestVideoFrameCallback tells us when an actual frame
+   * was presented by the browser.
+   */
+  let lastVideoFrameAt = performance.now();
+
+  const clearFrameWatchdog = () => {
+    try {
+      if (video._webrtcHealthTimer) {
+        window.clearInterval(video._webrtcHealthTimer);
+        video._webrtcHealthTimer = null;
+      }
+    } catch (_) {}
+
+    try {
+      if (
+        video._webrtcFrameCallbackId != null &&
+        typeof video.cancelVideoFrameCallback === "function"
+      ) {
+        video.cancelVideoFrameCallback(
+          video._webrtcFrameCallbackId
+        );
+      }
+      video._webrtcFrameCallbackId = null;
+    } catch (_) {}
+  };
+
+  const startFrameWatchdog = () => {
+    if (
+      typeof video.requestVideoFrameCallback !== "function"
+    ) {
+      return;
+    }
+
+    const watchFrame = () => {
+      if (fatalCalled) return;
+
+      lastVideoFrameAt = performance.now();
+
+      try {
+        video._webrtcFrameCallbackId =
+          video.requestVideoFrameCallback(watchFrame);
+      } catch (_) {}
+    };
+
+    try {
+      video._webrtcFrameCallbackId =
+        video.requestVideoFrameCallback(watchFrame);
+    } catch (_) {
+      return;
+    }
+
+    video._webrtcHealthTimer = window.setInterval(() => {
+      if (
+        fatalCalled ||
+        !readyCalled ||
+        document.hidden
+      ) {
+        return;
+      }
+
+      const noFrameFor =
+        performance.now() - lastVideoFrameAt;
+
+      if (noFrameFor >= 7000) {
+        safeFatal(
+          "WebRTC video frames stopped"
+        );
+      }
+    }, 2000);
+  };
+
   const clearMutedTooLongTimer = () => {
     if (mutedTooLongTimer) {
       window.clearTimeout(mutedTooLongTimer);
@@ -341,6 +438,7 @@ function attachWebRtcToVideo(video, url, onReady, onFatal) {
     fatalCalled = true;
 
     clearMutedTooLongTimer();
+    clearFrameWatchdog();
 
     console.warn("WebRTC stream error:", reason);
 
@@ -410,6 +508,8 @@ function attachWebRtcToVideo(video, url, onReady, onFatal) {
     video.onerror = () => {
       safeFatal("video element error");
     };
+
+    startFrameWatchdog();
 
     return true;
   } catch (error) {
@@ -5746,7 +5846,14 @@ ${safeUrl}`
       currentSelectedStreamUrl = sourceIdentity;
       streamSourceLabel.textContent =
         `LIVE • ${cameraLabel} • ${qualityLabel} • WebRTC`;
-      if (!attachWebRtcToVideo(videoEl, picked.webrtcUrl, () => markReady("WebRTC"), startHlsFallback)) {
+      if (
+        !attachWebRtcToVideo(
+          videoEl,
+          picked.webrtcUrl,
+          () => markReady("WebRTC"),
+          () => startHlsFallback(true)
+        )
+      ) {
         await startHlsFallback();
         return;
       }
