@@ -667,24 +667,39 @@ export async function renderViewer(path) {
         overflow: hidden;
       }
 
+      /*
+       * LIVE QUALITY
+       * Desktop: visible only while hovering the player.
+       * Touch: JS reveals it temporarily after a tap.
+       */
       .live-quality-control {
         position: absolute;
-        left: 12px;
-        bottom: 58px;
-        z-index: 30;
+        right: 62px;
+        bottom: 12px;
+        z-index: 32;
         display: inline-flex;
         align-items: center;
         gap: 7px;
         padding: 7px 9px;
-        border: 1px solid rgba(85,226,223,.28);
+        border: 1px solid rgba(85,226,223,.24);
         border-radius: 12px;
-        background: rgba(2,14,17,.82);
+        background: rgba(2,14,17,.84);
         color: rgba(255,255,255,.88);
         box-shadow: 0 8px 24px rgba(0,0,0,.30);
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
         font-size: 12px;
         font-weight: 800;
+
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transform: translateY(4px);
+
+        transition:
+          opacity .18s ease,
+          transform .18s ease,
+          visibility .18s ease;
       }
 
       .live-quality-control span {
@@ -711,21 +726,81 @@ export async function renderViewer(path) {
         background: #fff;
       }
 
-      .cam--viewer.viewer-mode-replay .live-quality-control {
-        display: none;
+      /*
+       * Desktop mouse.
+       */
+      @media (hover: hover) and (pointer: fine) {
+        .cam--viewer:hover .live-quality-control,
+        .cam--viewer:focus-within .live-quality-control {
+          opacity: 1;
+          visibility: visible;
+          pointer-events: auto;
+          transform: translateY(0);
+        }
       }
 
+      /*
+       * Touch / tablet / mobile.
+       */
+      .cam--viewer.quality-control-visible .live-quality-control {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        transform: translateY(0);
+      }
+
+      /*
+       * Never show quality in Replay.
+       */
+      .cam--viewer.viewer-mode-replay .live-quality-control {
+        display: none !important;
+      }
+
+      /*
+       * Keep it at bottom-right, but leave room
+       * for the fullscreen button.
+       */
       .cam--viewer:fullscreen .live-quality-control,
       .cam--viewer:-webkit-full-screen .live-quality-control,
       .cam--viewer.player-pseudo-fullscreen .live-quality-control {
-        left: max(14px, env(safe-area-inset-left));
-        bottom: max(64px, calc(env(safe-area-inset-bottom) + 50px));
+        right: max(
+          66px,
+          calc(env(safe-area-inset-right) + 58px)
+        );
+        bottom: max(
+          14px,
+          env(safe-area-inset-bottom)
+        );
       }
 
-      @media (max-width: 600px) {
+      /*
+       * VoxCourt watermark — bottom-left.
+       */
+      .cam--viewer:not(.viewer-mode-replay) .video-watermark {
+        left: 10px !important;
+        right: auto !important;
+        top: auto !important;
+        bottom: 8px !important;
+      }
+
+      .cam--viewer:fullscreen:not(.viewer-mode-replay) .video-watermark,
+      .cam--viewer:-webkit-full-screen:not(.viewer-mode-replay) .video-watermark,
+      .cam--viewer.player-pseudo-fullscreen:not(.viewer-mode-replay) .video-watermark {
+        left: max(
+          10px,
+          env(safe-area-inset-left)
+        ) !important;
+
+        bottom: max(
+          8px,
+          env(safe-area-inset-bottom)
+        ) !important;
+      }
+
+      @media (hover: none), (pointer: coarse) {
         .live-quality-control {
-          left: 9px;
-          bottom: 52px;
+          right: 57px;
+          bottom: 9px;
           padding: 6px 8px;
         }
 
@@ -1749,6 +1824,73 @@ export async function renderViewer(path) {
   let lastFailedStreamUrl = "";
   let lastFailedAt = 0;
   let openAttemptTimer = null;
+
+  /*
+   * Mobile / tablet quality-control visibility.
+   * One touch on the player reveals the control temporarily.
+   */
+  let liveQualityVisibilityTimer = null;
+
+  function hideLiveQualityControl() {
+    if (liveQualityVisibilityTimer) {
+      clearTimeout(liveQualityVisibilityTimer);
+      liveQualityVisibilityTimer = null;
+    }
+
+    playerFullscreenStage?.classList.remove(
+      "quality-control-visible"
+    );
+  }
+
+  function showLiveQualityControlTemporarily() {
+    if (playerMode !== "live") return;
+
+    if (liveQualityVisibilityTimer) {
+      clearTimeout(liveQualityVisibilityTimer);
+    }
+
+    playerFullscreenStage?.classList.add(
+      "quality-control-visible"
+    );
+
+    liveQualityVisibilityTimer = window.setTimeout(() => {
+      playerFullscreenStage?.classList.remove(
+        "quality-control-visible"
+      );
+      liveQualityVisibilityTimer = null;
+    }, 4500);
+  }
+
+  playerFullscreenStage?.addEventListener(
+    "pointerdown",
+    (event) => {
+      if (
+        event.pointerType === "touch" ||
+        event.pointerType === "pen"
+      ) {
+        showLiveQualityControlTemporarily();
+      }
+    }
+  );
+
+  liveQualityControl?.addEventListener(
+    "pointerdown",
+    (event) => {
+      if (
+        event.pointerType === "touch" ||
+        event.pointerType === "pen"
+      ) {
+        showLiveQualityControlTemporarily();
+      }
+    }
+  );
+
+  liveQualitySelect?.addEventListener(
+    "change",
+    () => {
+      showLiveQualityControlTemporarily();
+    }
+  );
 
   let currentReplayBlob = null;
   let currentReplayFilename = "voxcourt-replay.mp4";
