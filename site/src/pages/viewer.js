@@ -421,20 +421,71 @@ function attachWebRtcToVideo(video, url, onReady, onFatal) {
     }
   };
 
+  let playAttemptInFlight = false;
+
   const safeReady = () => {
     if (fatalCalled) return;
 
     clearMutedTooLongTimer();
 
-    if (!readyCalled) {
+    if (readyCalled) {
+      if (video.paused) {
+        video.play?.().catch((error) => {
+          console.warn("WebRTC resume play failed:", error);
+        });
+      }
+      return;
+    }
+
+    if (playAttemptInFlight) return;
+    playAttemptInFlight = true;
+
+    let playResult;
+
+    try {
+      playResult = video.play?.();
+    } catch (error) {
+      playAttemptInFlight = false;
+      console.warn("WebRTC play failed:", error);
+      return;
+    }
+
+    if (!playResult || typeof playResult.then !== "function") {
+      playAttemptInFlight = false;
       readyCalled = true;
 
       if (typeof onReady === "function") {
         onReady();
       }
+
+      return;
     }
 
-    video.play?.().catch(() => {});
+    playResult
+      .then(() => {
+        playAttemptInFlight = false;
+
+        if (fatalCalled || readyCalled) return;
+
+        readyCalled = true;
+
+        if (typeof onReady === "function") {
+          onReady();
+        }
+      })
+      .catch((error) => {
+        playAttemptInFlight = false;
+
+        console.warn(
+          "WebRTC autoplay did not start:",
+          error
+        );
+
+        /*
+         * Do NOT report WebRTC as healthy.
+         * refreshStreamSource() will fall back/retry automatically.
+         */
+      });
   };
 
   const safeFatal = (reason) => {
