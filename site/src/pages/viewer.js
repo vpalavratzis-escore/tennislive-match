@@ -2161,6 +2161,10 @@ export async function renderViewer(path) {
   let lastFailedAt = 0;
   let openAttemptTimer = null;
 
+  // Assigned later after liveStreams are initialized.
+  // Kept in renderViewer scope so reconnect timers can call it.
+  let refreshStreamSource = null;
+
   /*
    * Automatic Live reconnect.
    *
@@ -2236,7 +2240,9 @@ export async function renderViewer(path) {
 
       currentSelectedStreamUrl = "";
 
-      refreshStreamSource();
+      if (typeof refreshStreamSource === "function") {
+        refreshStreamSource();
+      }
     }, delay);
   }
 
@@ -5945,7 +5951,7 @@ ${safeUrl}`
     }
 
 
-    async function refreshStreamSource() {
+    refreshStreamSource = async function () {
       if (playerMode !== "live") return;
 
       clearLiveReconnectTimer(false);
@@ -6053,7 +6059,7 @@ ${safeUrl}`
       openAttemptTimer = setTimeout(() => {
         if (!playbackStarted) startHlsFallback();
       }, 5000);
-    }
+    };
 
     document.addEventListener(
       "keydown",
