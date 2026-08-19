@@ -365,50 +365,125 @@ function attachWebRtcToVideo(video, url, onReady, onFatal) {
     } catch (_) {}
   };
 
+  const getDecodedVideoFrameCount = () => {
+    try {
+      const quality = video.getVideoPlaybackQuality?.();
+      const count = Number(quality?.totalVideoFrames);
+
+      if (Number.isFinite(count)) {
+        return count;
+      }
+    } catch (_) {}
+
+    try {
+      const count = Number(video.webkitDecodedFrameCount);
+
+      if (Number.isFinite(count)) {
+        return count;
+      }
+    } catch (_) {}
+
+    return null;
+  };
+
   const startFrameWatchdog = () => {
-    if (
-      typeof video.requestVideoFrameCallback !== "function"
-    ) {
-      return;
+    /*
+     * Hybrid watchdog:
+     *
+     * 1. requestVideoFrameCallback where supported.
+     * 2. decoded-frame counter polling on every browser.
+     *
+     * Some Chromium-family browsers can keep the WebRTC
+     * MediaStream alive while no new video frames arrive.
+     */
+
+    let lastFrameCount = getDecodedVideoFrameCount();
+
+    if (!Number.isFinite(lastFrameCount)) {
+      lastFrameCount = 0;
     }
 
-    const watchFrame = () => {
-      if (fatalCalled) return;
+    lastVideoFrameAt = performance.now();
 
-      lastVideoFrameAt = performance.now();
+    if (
+      typeof video.requestVideoFrameCallback === "function"
+    ) {
+      const watchFrame = () => {
+        if (fatalCalled) return;
 
-      // Do not call WebRTC ready merely because a track exists.
-      // A real rendered video frame is the proof that Live is healthy.
-      safeReady();
+        lastVideoFrameAt = performance.now();
+
+        const count = getDecodedVideoFrameCount();
+
+        if (
+          Number.isFinite(count) &&
+          count > lastFrameCount
+        ) {
+          lastFrameCount = count;
+        }
+
+        safeReady();
+
+        try {
+          video._webrtcFrameCallbackId =
+            video.requestVideoFrameCallback(watchFrame);
+        } catch (_) {}
+      };
 
       try {
         video._webrtcFrameCallbackId =
           video.requestVideoFrameCallback(watchFrame);
-      } catch (_) {}
-    };
-
-    try {
-      video._webrtcFrameCallbackId =
-        video.requestVideoFrameCallback(watchFrame);
-    } catch (_) {
-      return;
+      } catch (_) {
+        video._webrtcFrameCallbackId = null;
+      }
     }
 
+    /*
+     * IMPORTANT:
+     * This timer starts even when requestVideoFrameCallback
+     * does not exist.
+     */
     video._webrtcHealthTimer = window.setInterval(() => {
-      if (
-        fatalCalled ||
-        !readyCalled ||
-        document.hidden
-      ) {
+      if (fatalCalled) return;
+
+      if (document.hidden) {
+        lastVideoFrameAt = performance.now();
+        lastFrameCount =
+          getDecodedVideoFrameCount() ?? lastFrameCount;
         return;
       }
 
-      const noFrameFor =
-        performance.now() - lastVideoFrameAt;
+      const now = performance.now();
+      const currentFrameCount =
+        getDecodedVideoFrameCount();
 
-      if (noFrameFor >= 7000) {
+      if (
+        Number.isFinite(currentFrameCount) &&
+        currentFrameCount > lastFrameCount
+      ) {
+        lastFrameCount = currentFrameCount;
+        lastVideoFrameAt = now;
+
+        if (!readyCalled) {
+          safeReady();
+        }
+
+        return;
+      }
+
+      /*
+       * Initial connection still uses the existing
+       * 5-second WebRTC open timeout.
+       *
+       * Once WebRTC has actually played, no new decoded
+       * frames for 7 seconds is a dead stream.
+       */
+      if (
+        readyCalled &&
+        now - lastVideoFrameAt >= 7000
+      ) {
         safeFatal(
-          "WebRTC video frames stopped"
+          "WebRTC decoded video frames stopped"
         );
       }
     }, 2000);
