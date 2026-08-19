@@ -87,20 +87,44 @@ function destroyVideoWebRtc(video) {
     const stream = video.srcObject;
     if (stream && typeof stream.getTracks === "function") {
       for (const track of stream.getTracks()) {
+        try {
+          track.onmute = null;
+          track.onunmute = null;
+          track.onended = null;
+        } catch (_) {}
+
         track.stop();
       }
     }
+
     video.srcObject = null;
+  } catch (_) {}
+
+  try {
+    video.onerror = null;
   } catch (_) {}
 }
 
 function resetVideoElement(video) {
   if (!video) return;
+
+  try {
+    video.onloadeddata = null;
+    video.oncanplay = null;
+    video.onplaying = null;
+    video.onerror = null;
+    video.onstalled = null;
+    video.onabort = null;
+    video.onemptied = null;
+  } catch (_) {}
+
   destroyVideoWebRtc(video);
   destroyVideoHls(video);
+
   try {
     video.pause();
   } catch (_) {}
+
   try {
     video.removeAttribute("src");
     video.load();
@@ -330,6 +354,7 @@ function attachWebRtcToVideo(video, url, onReady, onFatal) {
 
   let readyCalled = false;
   let fatalCalled = false;
+  let cleanedUp = false;
   let mutedTooLongTimer = null;
 
   /*
@@ -409,20 +434,28 @@ function attachWebRtcToVideo(video, url, onReady, onFatal) {
       typeof video.requestVideoFrameCallback === "function"
     ) {
       const watchFrame = () => {
-        if (fatalCalled) return;
+        if (fatalCalled || cleanedUp) return;
 
-        lastVideoFrameAt = performance.now();
-
+        const now = performance.now();
         const count = getDecodedVideoFrameCount();
 
-        if (
-          Number.isFinite(count) &&
-          count > lastFrameCount
-        ) {
-          lastFrameCount = count;
+        let actualNewFrame = false;
+
+        if (Number.isFinite(count)) {
+          if (count > lastFrameCount) {
+            lastFrameCount = count;
+            actualNewFrame = true;
+          }
+        } else {
+          // If decoded-frame counters are unavailable,
+          // requestVideoFrameCallback itself proves a presented frame.
+          actualNewFrame = true;
         }
 
-        safeReady();
+        if (actualNewFrame) {
+          lastVideoFrameAt = now;
+          safeReady();
+        }
 
         try {
           video._webrtcFrameCallbackId =
@@ -499,7 +532,7 @@ function attachWebRtcToVideo(video, url, onReady, onFatal) {
   let playAttemptInFlight = false;
 
   const safeReady = () => {
-    if (fatalCalled) return;
+    if (fatalCalled || cleanedUp) return;
 
     clearMutedTooLongTimer();
 
@@ -540,7 +573,7 @@ function attachWebRtcToVideo(video, url, onReady, onFatal) {
       .then(() => {
         playAttemptInFlight = false;
 
-        if (fatalCalled || readyCalled) return;
+        if (fatalCalled || cleanedUp || readyCalled) return;
 
         readyCalled = true;
 
@@ -564,11 +597,17 @@ function attachWebRtcToVideo(video, url, onReady, onFatal) {
   };
 
   const safeFatal = (reason) => {
-    if (fatalCalled) return;
+    if (fatalCalled || cleanedUp) return;
+
     fatalCalled = true;
+    cleanedUp = true;
 
     clearMutedTooLongTimer();
     clearFrameWatchdog();
+
+    // A dead WebRTC attachment must be completely removed
+    // before HLS fallback or a new WebRTC reader can attach.
+    destroyVideoWebRtc(video);
 
     console.warn("WebRTC stream error:", reason);
 
@@ -585,7 +624,7 @@ function attachWebRtcToVideo(video, url, onReady, onFatal) {
       token: "",
 
       onTrack: (evt) => {
-        if (!evt?.track) return;
+        if (fatalCalled || cleanedUp || !evt?.track) return;
 
         const track = evt.track;
 
@@ -616,6 +655,7 @@ function attachWebRtcToVideo(video, url, onReady, onFatal) {
             mutedTooLongTimer = window.setTimeout(() => {
               if (
                 !fatalCalled &&
+                !cleanedUp &&
                 track.readyState !== "ended" &&
                 track.muted
               ) {
@@ -648,6 +688,13 @@ function attachWebRtcToVideo(video, url, onReady, onFatal) {
 
       onDataChannel: () => {}
     });
+
+    if (cleanedUp) {
+      try {
+        reader.close();
+      } catch (_) {}
+      return false;
+    }
 
     video._webrtcReader = reader;
 
