@@ -377,6 +377,10 @@ function attachWebRtcToVideo(video, url, onReady, onFatal) {
 
       lastVideoFrameAt = performance.now();
 
+      // Do not call WebRTC ready merely because a track exists.
+      // A real rendered video frame is the proof that Live is healthy.
+      safeReady();
+
       try {
         video._webrtcFrameCallbackId =
           video.requestVideoFrameCallback(watchFrame);
@@ -470,7 +474,14 @@ function attachWebRtcToVideo(video, url, onReady, onFatal) {
         if (track.kind === "video") {
           track.onunmute = () => {
             clearMutedTooLongTimer();
-            safeReady();
+
+            // Older-browser fallback only.
+            // Modern browsers wait for an actual video frame.
+            if (
+              typeof video.requestVideoFrameCallback !== "function"
+            ) {
+              safeReady();
+            }
           };
 
           track.onmute = () => {
@@ -492,7 +503,16 @@ function attachWebRtcToVideo(video, url, onReady, onFatal) {
           };
         }
 
-        safeReady();
+        // IMPORTANT:
+        // onTrack only means that WebRTC supplied a MediaStreamTrack.
+        // It does NOT prove that video frames are arriving.
+        if (
+          track.kind === "video" &&
+          typeof video.requestVideoFrameCallback !== "function" &&
+          !track.muted
+        ) {
+          safeReady();
+        }
       },
 
       onError: (error) => {
@@ -5845,7 +5865,7 @@ ${safeUrl}`
 
       currentSelectedStreamUrl = sourceIdentity;
       streamSourceLabel.textContent =
-        `LIVE • ${cameraLabel} • ${qualityLabel} • WebRTC`;
+        `LIVE • ${cameraLabel} • ${qualityLabel} • Connecting WebRTC`;
       if (
         !attachWebRtcToVideo(
           videoEl,
