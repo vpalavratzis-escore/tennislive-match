@@ -485,3 +485,175 @@ window.setTimeout(
   50
 );
 
+
+
+/* ==========================================================
+   VOXCOURT PREVIEW V4 — CLUB SPONSORS
+   ========================================================== */
+
+function vcGetCurrentClubSlug() {
+  const url = new URL(window.location.href);
+  const p = url.searchParams.get("p") || "";
+
+  const parts = decodeURIComponent(p)
+    .split("/")
+    .filter(Boolean);
+
+  /*
+    Expected:
+    /gr/attica/chalkida-sports-center/court-1
+    Club = item before court.
+  */
+  if (parts.length >= 2) {
+    return parts[parts.length - 2];
+  }
+
+  return "";
+}
+
+
+async function installVoxCourtSponsors() {
+
+  const viewerWrap =
+    document.querySelector(".viewerWrap");
+
+  if (!viewerWrap) return;
+
+  if (
+    document.querySelector(".vc-sponsors")
+  ) return;
+
+  let data;
+
+  try {
+
+    const base =
+      import.meta.env.BASE_URL || "/";
+
+    const response =
+      await fetch(
+        `${base}config/sponsors.json`,
+        { cache: "no-store" }
+      );
+
+    if (!response.ok)
+      throw new Error("Sponsors config unavailable");
+
+    data = await response.json();
+
+  } catch (_) {
+
+    return;
+
+  }
+
+
+  const clubSlug =
+    vcGetCurrentClubSlug();
+
+
+  const sponsors =
+    data?.clubs?.[clubSlug] ||
+    data?.default ||
+    [];
+
+
+  if (!Array.isArray(sponsors) || !sponsors.length)
+    return;
+
+
+  const section =
+    document.createElement("section");
+
+  section.className =
+    "vc-sponsors";
+
+
+  section.innerHTML = `
+
+    <div class="vc-sponsors__intro">
+
+      <span class="vc-sponsors__eyebrow">
+        CLUB PARTNERS
+      </span>
+
+      <strong>
+        Sponsors
+      </strong>
+
+      <span>
+        Official partners of this venue
+      </span>
+
+    </div>
+
+
+    <div class="vc-sponsors__logos">
+
+      ${sponsors.map((sponsor) => `
+
+        <a
+          class="vc-sponsor"
+          href="${sponsor.url || "#"}"
+          ${sponsor.url && sponsor.url !== "#" ? 'target="_blank" rel="noopener noreferrer"' : ""}
+          aria-label="${sponsor.name || "Sponsor"}"
+        >
+
+          <img
+            src="${sponsor.logo}"
+            alt="${sponsor.name || "Sponsor"}"
+          />
+
+        </a>
+
+      `).join("")}
+
+    </div>
+
+  `;
+
+
+  viewerWrap.insertAdjacentElement(
+    "afterend",
+    section
+  );
+
+}
+
+
+const vcSponsorObserver =
+  new MutationObserver(() => {
+
+    installVoxCourtSponsors();
+
+  });
+
+
+const vcSponsorRoot =
+  document.getElementById("app");
+
+
+if (vcSponsorRoot) {
+
+  vcSponsorObserver.observe(
+    vcSponsorRoot,
+    {
+      childList: true,
+      subtree: true
+    }
+  );
+
+}
+
+
+window.setTimeout(
+  installVoxCourtSponsors,
+  100
+);
+
+
+
+
+
+
+

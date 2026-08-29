@@ -1,0 +1,59 @@
+{
+  "default": [
+    {
+      "name": "Aquacore",
+      "logo": "/tennislive-match/sponsors/demo/aquacore.svg",
+      "url": "#"
+    },
+    {
+      "name": "ProServe",
+      "logo": "/tennislive-match/sponsors/demo/proserve.svg",
+      "url": "#"
+    },
+    {
+      "name": "NetWave",
+      "logo": "/tennislive-match/sponsors/demo/netwave.svg",
+      "url": "#"
+    },
+    {
+      "name": "CourtFuel",
+      "logo": "/tennislive-match/sponsors/demo/courtfuel.svg",
+      "url": "#"
+    },
+    {
+      "name": "Padelix",
+      "logo": "/tennislive-match/sponsors/demo/padelix.svg",
+      "url": "#"
+    }
+  ],
+
+  "clubs": {
+    "chalkida-sports-center": [
+      {
+        "name": "Aquacore",
+        "logo": "/tennislive-match/sponsors/demo/aquacore.svg",
+        "url": "#"
+      },
+      {
+        "name": "ProServe",
+        "logo": "/tennislive-match/sponsors/demo/proserve.svg",
+        "url": "#"
+      },
+      {
+        "name": "NetWave",
+        "logo": "/tennislive-match/sponsors/demo/netwave.svg",
+        "url": "#"
+      },
+      {
+        "name": "CourtFuel",
+        "logo": "/tennislive-match/sponsors/demo/courtfuel.svg",
+        "url": "#"
+      },
+      {
+        "name": "Padelix",
+        "logo": "/tennislive-match/sponsors/demo/padelix.svg",
+        "url": "#"
+      }
+    ]
+  }
+}
