@@ -335,3 +335,261 @@ body{
     grid-template-columns:1fr !important;
   }
 }
+
+/* =========================================================
+   PREVIEW FIX 2 — CONTRAST + LIVE SCORE CLEANUP
+   ========================================================= */
+
+/* Logo readability on light navbar */
+.brand-image{
+  display:inline-flex !important;
+  align-items:center !important;
+  padding:8px 12px !important;
+  border-radius:12px !important;
+  background:#0b1a26 !important;
+}
+
+.brand-logo-image{
+  opacity:1 !important;
+}
+
+/* ---------- MATCH HEADER ---------- */
+#matchHero,
+.match-hero,
+.match-info,
+.match-info-panel{
+  background:#fff !important;
+  color:#10233a !important;
+  border-color:#dfe9ee !important;
+}
+
+#miTitle,
+#miLine2,
+#matchStatusText,
+#matchStartedAt,
+#matchFormat,
+.match-hero__title,
+.match-hero__meta,
+.match-info__title,
+.match-info__meta{
+  color:#10233a !important;
+  opacity:1 !important;
+}
+
+#miLine2,
+.match-hero__meta,
+.match-info__meta{
+  color:#6b7b8f !important;
+}
+
+/* ---------- LIVE SCORE PANEL ---------- */
+.viewer-score-panel{
+  background:#fff !important;
+  color:#10233a !important;
+}
+
+/* player cards */
+.viewer-score-panel > div:nth-of-type(2) > div{
+  background:#f8fbfc !important;
+  border-color:#dfe9ee !important;
+}
+
+/* all nested text inside player cards */
+.viewer-score-panel > div:nth-of-type(2) > div *{
+  color:#10233a !important;
+}
+
+#photoATitle,
+#photoBTitle{
+  color:#10233a !important;
+  opacity:1 !important;
+}
+
+/* A/B placeholders */
+#photoAph,
+#photoBph{
+  color:#fff !important;
+  opacity:1 !important;
+}
+
+/* score table fully light */
+.viewer-score-panel table,
+.viewer-score-panel thead,
+.viewer-score-panel tbody,
+.viewer-score-panel tr,
+.viewer-score-panel th,
+.viewer-score-panel td{
+  background:#fff !important;
+  color:#10233a !important;
+  border-color:#dfe9ee !important;
+}
+
+.viewer-score-panel th{
+  background:#f2f7f9 !important;
+  color:#6b7b8f !important;
+}
+
+.viewer-score-panel td{
+  font-weight:800 !important;
+}
+
+.viewer-score-panel td:nth-child(2),
+.viewer-score-panel td:nth-child(3){
+  background:#effafa !important;
+  color:#10233a !important;
+}
+
+.viewer-score-panel td:nth-child(4){
+  background:#f7f1fc !important;
+  color:#10233a !important;
+}
+
+/* ---------- VIDEO PANEL ---------- */
+.viewer-player-panel{
+  background:#fff !important;
+}
+
+.viewer-player-panel > .badge{
+  color:#42566c !important;
+}
+
+.cam--viewer{
+  border:1px solid #dfe9ee !important;
+}
+
+/* Camera buttons */
+.live-mode-controls{
+  background:#f6fafb !important;
+}
+
+.live-mode-button{
+  color:#40546a !important;
+  background:transparent !important;
+}
+
+.live-mode-button--active{
+  background:linear-gradient(135deg,#12c5cc,#079ba6) !important;
+  color:#fff !important;
+}
+
+/* ---------- TIMELINE ---------- */
+.timeline-filters,
+.timeline-toolbar,
+.timeline-scroll-wrapper{
+  color:#10233a !important;
+}
+
+.panel.section:not(.viewer-player-panel):not(.viewer-score-panel):not(.highlights-panel):not(.match-end-summary){
+  background:#fff !important;
+  color:#10233a !important;
+  box-shadow:0 14px 36px rgba(20,54,77,.08) !important;
+}
+
+/* ---------- HIGHLIGHTS ---------- */
+.highlights-panel{
+  background:#fff !important;
+  color:#10233a !important;
+}
+
+.highlights-panel__title,
+.highlights-panel__status,
+.highlights-panel .badge{
+  color:#10233a !important;
+}
+
+.highlights-grid{
+  color:#10233a !important;
+}
+
+/* ---------- FIND COURTS CONTRAST ---------- */
+.court-selector-card,
+.court-selector-card *{
+  color:#10233a !important;
+}
+
+.court-selector-card .badge,
+.court-selector-top h2,
+.court-selector-top p,
+.court-field label,
+.court-help,
+.court-help span{
+  opacity:1 !important;
+}
+
+.court-selector-card .badge{
+  color:#42566c !important;
+}
+
+.court-selector-top h2{
+  color:#10233a !important;
+}
+
+.court-selector-top p,
+.court-field label,
+.court-help{
+  color:#6b7b8f !important;
+}
+
+.court-field select,
+.court-field select:disabled{
+  background:#fff !important;
+  color:#10233a !important;
+  opacity:1 !important;
+  -webkit-text-fill-color:#10233a !important;
+}
+
+.court-field select:disabled{
+  background:#f4f7f8 !important;
+  color:#8291a0 !important;
+  -webkit-text-fill-color:#8291a0 !important;
+}
+
+.court-field option{
+  color:#10233a !important;
+  background:#fff !important;
+}
+
+.court-status{
+  color:#087e88 !important;
+  background:#eaf9fa !important;
+}
+
+/* ---------- MOBILE ---------- */
+@media(max-width:760px){
+
+  .brand-image{
+    padding:6px 9px !important;
+  }
+
+  .viewerWrap{
+    gap:12px !important;
+  }
+
+  .viewer-player-panel{
+    order:1 !important;
+  }
+
+  .viewer-score-panel{
+    order:2 !important;
+  }
+
+  .viewer-score-panel > div:nth-of-type(2){
+    gap:8px !important;
+  }
+
+  .viewer-score-panel > div:nth-of-type(2) > div{
+    height:92px !important;
+  }
+
+  .viewer-score-panel > div:nth-of-type(2) > div > div:first-child{
+    width:56px !important;
+    height:56px !important;
+  }
+
+  .viewer-score-panel td:nth-child(2),
+  .viewer-score-panel td:nth-child(3),
+  .viewer-score-panel td:nth-child(4){
+    font-size:20px !important;
+  }
+}
+
