@@ -2292,6 +2292,67 @@ export async function renderViewer(path) {
   const photoATitle = app.querySelector("#photoATitle");
   const photoBTitle = app.querySelector("#photoBTitle");
 
+  /* ===== VC TIMELINE PLAYER PHOTO HELPERS V3 START ===== */
+
+  function getTimelinePlayerPhotoSource(side) {
+    const normalized = String(side || "").toUpperCase();
+
+    if (normalized === "A") {
+      return (
+        photoAImg?.currentSrc ||
+        photoAImg?.src ||
+        PLAYER_DEFAULT_PHOTO_A
+      );
+    }
+
+    if (normalized === "B") {
+      return (
+        photoBImg?.currentSrc ||
+        photoBImg?.src ||
+        PLAYER_DEFAULT_PHOTO_B
+      );
+    }
+
+    return "";
+  }
+
+  function syncTimelinePlayerPhotos(side = "") {
+    const normalized = String(side || "").toUpperCase();
+
+    const updateSide = (playerSide) => {
+      const src = getTimelinePlayerPhotoSource(playerSide);
+
+      if (!src) return;
+
+      app
+        .querySelectorAll(
+          `.timeline-event-player-photo[data-player-side="${playerSide}"]`
+        )
+        .forEach((img) => {
+          if (img.getAttribute("src") !== src) {
+            img.src = src;
+          }
+        });
+    };
+
+    if (normalized === "A" || normalized === "B") {
+      updateSide(normalized);
+    } else {
+      updateSide("A");
+      updateSide("B");
+    }
+  }
+
+  photoAImg?.addEventListener("load", () => {
+    syncTimelinePlayerPhotos("A");
+  });
+
+  photoBImg?.addEventListener("load", () => {
+    syncTimelinePlayerPhotos("B");
+  });
+
+  /* ===== VC TIMELINE PLAYER PHOTO HELPERS V3 END ===== */
+
   const serveAIcon = app.querySelector("#serveAIcon");
   const serveBIcon = app.querySelector("#serveBIcon");
 
@@ -5692,9 +5753,11 @@ ${safeUrl}`
           background:rgba(255,255,255,.025);
         `;
 
+        /* ===== VC TIMELINE POINT PORTRAIT V3 START ===== */
+
         const iconBox = document.createElement("div");
         iconBox.className = "timeline-event-icon";
-        iconBox.textContent = icon;
+
         iconBox.style.cssText = `
           width:48px;
           height:48px;
@@ -5706,6 +5769,52 @@ ${safeUrl}`
           background:rgba(255,255,255,.055);
           border:1px solid rgba(255,255,255,.06);
         `;
+
+        if (
+          eventType === "POINT" &&
+          (winnerSide === "A" || winnerSide === "B")
+        ) {
+          const playerPhoto =
+            document.createElement("img");
+
+          playerPhoto.className =
+            "timeline-event-player-photo";
+
+          playerPhoto.dataset.playerSide =
+            winnerSide;
+
+          playerPhoto.alt =
+            winnerName || "Player";
+
+          playerPhoto.src =
+            getTimelinePlayerPhotoSource(
+              winnerSide
+            );
+
+          playerPhoto.onerror = () => {
+            playerPhoto.onerror = null;
+
+            playerPhoto.src =
+              winnerSide === "B"
+                ? PLAYER_DEFAULT_PHOTO_B
+                : PLAYER_DEFAULT_PHOTO_A;
+          };
+
+          iconBox.classList.add(
+            "timeline-event-icon--player"
+          );
+
+          iconBox.appendChild(
+            playerPhoto
+          );
+
+        } else {
+
+          iconBox.textContent =
+            icon;
+        }
+
+        /* ===== VC TIMELINE POINT PORTRAIT V3 END ===== */
 
         const info = document.createElement("div");
         info.style.minWidth = "0";

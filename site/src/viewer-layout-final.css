@@ -1645,3 +1645,265 @@ and (max-width:1180px){
 }
 
 /* ===== VC MATCH END WHITE COMPACT END ===== */
+
+/* ===== VC TIMELINE WHITE V3 START ===== */
+
+
+/* STATUS */
+
+.vc-viewer-page #timelineStatus{
+  color:#586f82 !important;
+  opacity:1 !important;
+  font-weight:700 !important;
+}
+
+
+/* EVENT CARD */
+
+.vc-viewer-page
+#timelineList
+.timeline-event{
+
+  color:#10233a !important;
+
+  border:
+    1px solid #d9e5ea !important;
+
+  background:
+    #ffffff !important;
+
+  box-shadow:
+    0 5px 16px
+    rgba(16,35,58,.045) !important;
+}
+
+
+/* TITLE */
+
+.vc-viewer-page
+#timelineList
+.timeline-event strong{
+
+  color:#10233a !important;
+
+  opacity:1 !important;
+
+  font-weight:900 !important;
+}
+
+
+/* SCORE / GAMES / SETS TEXT */
+
+.vc-viewer-page
+#timelineList
+.timeline-event .hint{
+
+  color:#627789 !important;
+
+  opacity:1 !important;
+
+  font-weight:650 !important;
+}
+
+
+/* SCORE CHIPS */
+
+.vc-viewer-page
+#timelineList
+.timeline-event-chips > span{
+
+  color:#435b70 !important;
+
+  border:
+    1px solid #d4e0e6 !important;
+
+  background:
+    #f0f5f7 !important;
+
+  opacity:1 !important;
+
+  font-weight:900 !important;
+}
+
+
+.vc-viewer-page
+#timelineList
+.timeline-event-chips > span:first-child{
+
+  color:#087c84 !important;
+
+  border-color:
+    #8fdcdf !important;
+
+  background:
+    #dff7f7 !important;
+}
+
+
+/* TIME */
+
+.vc-viewer-page
+#timelineList
+.timeline-event-right > .hint{
+
+  color:#667c8e !important;
+
+  opacity:1 !important;
+
+  font-weight:750 !important;
+}
+
+
+/* REPLAY BUTTON */
+
+.vc-viewer-page
+#timelineList
+.timeline-event-actions .btn{
+
+  color:#14737a !important;
+
+  border:
+    1px solid #b9dfe2 !important;
+
+  background:
+    #f1fbfb !important;
+
+  opacity:1 !important;
+
+  box-shadow:none !important;
+}
+
+
+.vc-viewer-page
+#timelineList
+.timeline-event-actions .btn:disabled{
+
+  color:#7b8e9d !important;
+
+  border-color:
+    #d9e3e8 !important;
+
+  background:
+    #eef3f5 !important;
+
+  opacity:1 !important;
+}
+
+
+/* PLAYER PHOTO IN POINT EVENT */
+
+.vc-viewer-page
+#timelineList
+.timeline-event-icon--player{
+
+  padding:0 !important;
+
+  overflow:hidden !important;
+
+  border:
+    2px solid #12aeb7 !important;
+
+  border-radius:
+    50% !important;
+
+  background:#ffffff !important;
+
+  box-shadow:
+    0 3px 10px
+    rgba(16,35,58,.12) !important;
+}
+
+
+.vc-viewer-page
+#timelineList
+.timeline-event-player-photo{
+
+  display:block !important;
+
+  width:100% !important;
+
+  height:100% !important;
+
+  object-fit:cover !important;
+
+  object-position:center !important;
+
+  border-radius:
+    inherit !important;
+}
+
+
+/* NON-POINT ICONS */
+
+.vc-viewer-page
+#timelineList
+.timeline-event-icon:not(.timeline-event-icon--player){
+
+  color:#10233a !important;
+
+  border:
+    1px solid #cbdbe2 !important;
+
+  background:
+    #f7fafb !important;
+
+  opacity:1 !important;
+}
+
+
+/* GAME GROUP */
+
+.vc-viewer-page
+#timelineList
+.timeline-game-group{
+
+  border:
+    1px solid #c5eaec !important;
+
+  background:
+    #f8fcfc !important;
+
+  opacity:1 !important;
+}
+
+
+.vc-viewer-page
+#timelineList
+.timeline-game-header
+.timeline-event{
+
+  border-color:
+    #b7e4e7 !important;
+
+  background:
+    #eefafa !important;
+
+  box-shadow:none !important;
+}
+
+
+/* GROUPED POINTS */
+
+.vc-viewer-page
+#timelineList
+.timeline-event--grouped-point{
+
+  background:
+    #ffffff !important;
+}
+
+
+/* TOP FILTERS */
+
+.vc-viewer-page
+.timeline-filter,
+.vc-viewer-page
+.timeline-toolbar-button{
+
+  color:#264158 !important;
+
+  opacity:1 !important;
+}
+
+
+/* ===== VC TIMELINE WHITE V3 END ===== */
