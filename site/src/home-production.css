@@ -916,3 +916,366 @@ body:has(.vc-home-prod){
 
 }
 
+
+/* ===== HOME RESPONSIVE ALIGNMENT V2 ===== */
+
+
+/* =====================================================
+   SPORT LABELS — EXACT POSITION OVER EACH SPORT
+   ===================================================== */
+
+.vc-home-sport-labels{
+  position:absolute !important;
+  inset:0 !important;
+
+  width:auto !important;
+
+  display:block !important;
+
+  z-index:7 !important;
+
+  pointer-events:none !important;
+}
+
+
+.vc-home-sport-labels span{
+  position:absolute !important;
+
+  bottom:24px !important;
+
+  min-width:112px !important;
+
+  padding:9px 18px !important;
+
+  text-align:center !important;
+
+  border:1.5px solid rgba(255,255,255,.78) !important;
+  border-radius:999px !important;
+
+  color:#fff !important;
+
+  background:rgba(8,27,40,.78) !important;
+
+  box-shadow:
+    0 8px 24px rgba(0,0,0,.20),
+    inset 0 1px 0 rgba(255,255,255,.12) !important;
+
+  backdrop-filter:blur(9px) !important;
+  -webkit-backdrop-filter:blur(9px) !important;
+
+  font-size:11px !important;
+  line-height:1 !important;
+
+  font-weight:900 !important;
+
+  letter-spacing:.075em !important;
+
+  transform:translateX(-50%) !important;
+}
+
+
+/* Tennis panel */
+.vc-home-sport-labels span:nth-child(1){
+  left:53% !important;
+}
+
+
+/* Padel panel */
+.vc-home-sport-labels span:nth-child(2){
+  left:72.5% !important;
+}
+
+
+/* Pickleball panel */
+.vc-home-sport-labels span:nth-child(3){
+  left:90.5% !important;
+}
+
+
+
+/* =====================================================
+   DESKTOP / TABLET
+   ===================================================== */
+
+@media (min-width:721px) and (max-width:1100px){
+
+  .vc-home-sport-labels span{
+    min-width:98px !important;
+
+    padding:8px 13px !important;
+
+    font-size:9px !important;
+  }
+
+  .vc-home-sport-labels span:nth-child(1){
+    left:55% !important;
+  }
+
+  .vc-home-sport-labels span:nth-child(2){
+    left:73.5% !important;
+  }
+
+  .vc-home-sport-labels span:nth-child(3){
+    left:91% !important;
+  }
+}
+
+
+
+/* =====================================================
+   MOBILE — TEXT FIRST, FULL MULTISPORT IMAGE BELOW
+   ===================================================== */
+
+@media (max-width:720px){
+
+  .vc-home-hero{
+    position:relative !important;
+
+    min-height:0 !important;
+
+    overflow:hidden !important;
+
+    border-radius:20px !important;
+  }
+
+
+  /*
+     Reserve real vertical space for the photograph.
+     56vw keeps approximately the original 16:9 ratio,
+     therefore tennis / padel / pickleball all remain visible.
+  */
+
+  .vc-home-hero__copy{
+    width:100% !important;
+
+    min-height:0 !important;
+
+    justify-content:flex-start !important;
+
+    padding:
+      29px 20px
+      calc(clamp(210px,56vw,245px) + 34px)
+      20px !important;
+  }
+
+
+  .vc-home-kicker{
+    margin-bottom:17px !important;
+
+    font-size:9px !important;
+
+    line-height:1.45 !important;
+  }
+
+
+  .vc-home-hero h1{
+    max-width:100% !important;
+
+    font-size:clamp(38px,11vw,48px) !important;
+
+    line-height:1.01 !important;
+
+    letter-spacing:-.045em !important;
+  }
+
+
+  .vc-home-hero__copy > p{
+    max-width:100% !important;
+
+    margin-top:20px !important;
+
+    font-size:13px !important;
+
+    line-height:1.6 !important;
+  }
+
+
+  .vc-home-actions{
+    display:grid !important;
+
+    grid-template-columns:1fr 1fr !important;
+
+    gap:9px !important;
+
+    margin-top:23px !important;
+  }
+
+
+  .vc-home-primary,
+  .vc-home-secondary{
+    width:100% !important;
+
+    min-width:0 !important;
+
+    min-height:48px !important;
+
+    padding:0 9px !important;
+
+    white-space:nowrap !important;
+
+    font-size:11px !important;
+  }
+
+
+  .vc-home-mini{
+    display:grid !important;
+
+    grid-template-columns:
+      repeat(2,minmax(0,1fr)) !important;
+
+    gap:10px 12px !important;
+
+    margin-top:22px !important;
+  }
+
+
+  .vc-home-mini span{
+    min-width:0 !important;
+
+    font-size:9px !important;
+  }
+
+
+  /*
+     The image becomes its own lower hero area.
+     No horizontal crop — all 3 sports stay visible.
+  */
+
+  .vc-home-hero__art{
+    position:absolute !important;
+
+    top:auto !important;
+    left:0 !important;
+    right:0 !important;
+    bottom:0 !important;
+
+    height:clamp(210px,56vw,245px) !important;
+
+    overflow:hidden !important;
+  }
+
+
+  .vc-home-hero__art img{
+    position:absolute !important;
+
+    inset:0 !important;
+
+    width:100% !important;
+    height:100% !important;
+
+    max-width:none !important;
+
+    object-fit:cover !important;
+
+    object-position:center center !important;
+
+    opacity:1 !important;
+
+
+    /*
+       Only the TOP softly melts into the white text area.
+       Left/right/bottom stay clear so all sports remain visible.
+    */
+
+    -webkit-mask-image:
+      linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(0,0,0,.38) 8%,
+        rgba(0,0,0,.88) 19%,
+        #000 31%,
+        #000 100%
+      ) !important;
+
+    mask-image:
+      linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(0,0,0,.38) 8%,
+        rgba(0,0,0,.88) 19%,
+        #000 31%,
+        #000 100%
+      ) !important;
+  }
+
+
+  .vc-home-hero__art::after{
+    background:
+      linear-gradient(
+        to bottom,
+        rgba(255,255,255,.88) 0%,
+        rgba(255,255,255,.26) 17%,
+        transparent 35%
+      ) !important;
+  }
+
+
+  /*
+     Mobile sport labels:
+     exact center of each of the 3 image panels.
+  */
+
+  .vc-home-sport-labels{
+    top:auto !important;
+
+    height:clamp(210px,56vw,245px) !important;
+
+    bottom:0 !important;
+  }
+
+
+  .vc-home-sport-labels span{
+    bottom:12px !important;
+
+    min-width:88px !important;
+
+    padding:8px 10px !important;
+
+    border:
+      1.5px solid rgba(255,255,255,.82) !important;
+
+    background:
+      rgba(7,24,36,.82) !important;
+
+    font-size:9px !important;
+
+    letter-spacing:.055em !important;
+  }
+
+
+  .vc-home-sport-labels span:nth-child(1){
+    left:17% !important;
+  }
+
+
+  .vc-home-sport-labels span:nth-child(2){
+    left:50% !important;
+  }
+
+
+  .vc-home-sport-labels span:nth-child(3){
+    left:83% !important;
+  }
+
+}
+
+
+
+/* Extra narrow phones */
+
+@media (max-width:370px){
+
+  .vc-home-sport-labels span{
+    min-width:80px !important;
+
+    padding:7px 7px !important;
+
+    font-size:8px !important;
+  }
+
+  .vc-home-hero h1{
+    font-size:37px !important;
+  }
+
+}
+
