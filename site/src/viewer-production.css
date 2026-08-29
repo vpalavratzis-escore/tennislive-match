@@ -1542,3 +1542,31 @@ body:has(.vc-viewer-page){
 
 }
 
+
+
+/* =========================================================
+   PROFESSIONAL DEFAULT PLAYER AVATARS
+   ========================================================= */
+
+.vc-player-photo{
+  overflow:hidden !important;
+  background:#162a31 !important;
+}
+
+.vc-player-photo img{
+  display:block;
+  width:100% !important;
+  height:100% !important;
+
+  object-fit:cover !important;
+  object-position:center center !important;
+
+  border-radius:50% !important;
+}
+
+/* Initial A/B letters are no longer needed.
+   The real default portraits are always available. */
+.vc-player-photo > span{
+  display:none !important;
+}
+

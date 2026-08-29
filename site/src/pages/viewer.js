@@ -31,16 +31,46 @@ function clampText(s, max = 28) {
   return t.length > max ? `${t.slice(0, max - 1)}…` : t;
 }
 
+const PLAYER_DEFAULT_PHOTO_A =
+  `${import.meta.env.BASE_URL || "/"}players/default-a.svg`;
+
+const PLAYER_DEFAULT_PHOTO_B =
+  `${import.meta.env.BASE_URL || "/"}players/default-b.svg`;
+
 function setPhoto(img, ph, url) {
-  const u = String(url || "").trim();
-  if (u) {
-    img.src = u;
-    img.style.display = "";
-    if (ph) ph.style.display = "none";
-  } else {
-    img.removeAttribute("src");
-    img.style.display = "none";
-    if (ph) ph.style.display = "";
+  if (!img) return;
+
+  const realPhoto = String(url || "").trim();
+
+  const fallback =
+    img.id === "photoB"
+      ? PLAYER_DEFAULT_PHOTO_B
+      : PLAYER_DEFAULT_PHOTO_A;
+
+  /*
+   * Real photo exists:
+   * use it.
+   *
+   * No photo / deleted photo:
+   * immediately return to the professional default avatar.
+   */
+  const targetSrc = realPhoto || fallback;
+
+  img.onerror = () => {
+    img.onerror = null;
+    img.src = fallback;
+    img.style.display = "block";
+
+    if (ph) {
+      ph.style.display = "none";
+    }
+  };
+
+  img.src = targetSrc;
+  img.style.display = "block";
+
+  if (ph) {
+    ph.style.display = "none";
   }
 }
 
