@@ -1096,71 +1096,116 @@ body:has(.vc-viewer-page){
 }
 
 
+/* =========================================================
+   LIVE SCOREBOARD V4
+   Balanced desktop vertical composition
+   ========================================================= */
+
 
 /* =========================================================
-   DESKTOP LIVE VIEWER FINISHING
-   Equal-height columns + player-name contrast
+   DESKTOP
    ========================================================= */
 
 @media (min-width:851px){
 
   /*
-   * Video + scoreboard πρέπει να διαβάζονται σαν
-   * ένα ενιαίο broadcast module.
+   * Both columns have the same visual height,
+   * but now the scoreboard CONTENT fills that height.
    */
-
   .vc-viewer-page .viewerWrap{
     align-items:stretch !important;
   }
 
+  .vc-viewer-page .viewer-player-panel{
+    height:100% !important;
+  }
 
-  /*
-   * Stretch both cards to exactly the same row height.
-   */
-
-  .vc-viewer-page .viewer-player-panel,
   .vc-viewer-page .vc-scoreboard{
     height:100% !important;
-    min-height:100% !important;
+
+    display:grid !important;
+
+    grid-template-rows:
+      auto
+      36px
+      minmax(128px,1fr)
+      minmax(128px,1fr)
+      auto !important;
+
+    align-content:stretch !important;
+  }
+
+
+  /* ---------- HEADER ---------- */
+
+  .vc-scoreboard-top{
+    padding:20px 18px 17px !important;
+  }
+
+  .vc-scoreboard-top h2{
+    font-size:23px !important;
+  }
+
+
+  /* ---------- COLUMN LABELS ---------- */
+
+  .vc-score-columns{
+    min-height:36px !important;
+
+    grid-template-columns:
+      minmax(0,1fr)
+      72px
+      68px
+      62px !important;
+
+    padding:0 11px !important;
+
+    background:#f4f7f9 !important;
+
+    color:#52677b !important;
+
+    font-size:7.5px !important;
+  }
+
+
+  /* ---------- PLAYER ROWS ---------- */
+
+  .vc-player-score{
+    height:auto !important;
+    min-height:0 !important;
+
+    grid-template-columns:
+      minmax(0,1fr)
+      72px
+      68px
+      62px !important;
+
+    margin:10px 11px 0 !important;
+
+    align-self:stretch !important;
   }
 
 
   /*
-   * Video card remains a flex column so the camera controls
-   * stay correctly attached below the video.
+   * Identity area stays proportional.
+   * It does NOT stretch the avatar.
    */
+  .vc-player-main{
+    align-items:center !important;
 
-  .vc-viewer-page .viewer-player-panel{
-    display:flex !important;
-    flex-direction:column !important;
+    gap:12px !important;
+
+    padding:16px 12px !important;
   }
 
 
-  /*
-   * Scoreboard fills the complete right column instead of
-   * ending halfway down the video.
-   */
+  .vc-player-photo{
+    width:68px !important;
+    height:68px !important;
 
-  .vc-viewer-page .vc-scoreboard{
-    display:flex !important;
-    flex-direction:column !important;
+    flex:0 0 68px !important;
   }
 
-
-  /*
-   * Keep the player area in the visually strongest part
-   * of the scoreboard rather than leaving dead white space.
-   */
-
-  .vc-score-status{
-    margin-top:auto !important;
-  }
-
-
-  /*
-   * Player names are on a dark premium identity area.
-   * Make them unequivocally readable.
-   */
 
   .vc-player-info #nameA,
   .vc-player-info #nameB{
@@ -1168,27 +1213,240 @@ body:has(.vc-viewer-page){
 
     font-size:15px !important;
 
+    line-height:1.2 !important;
+
     font-weight:950 !important;
 
-    letter-spacing:-.01em !important;
-
     text-shadow:
-      0 1px 2px rgba(0,0,0,.28) !important;
+      0 1px 2px rgba(0,0,0,.25) !important;
   }
 
 
-  /*
-   * Give the identity area a deliberate dark treatment
-   * instead of looking like a random inherited background.
-   */
+  /* Player A identity */
 
   .vc-player-score--a .vc-player-main{
     background:
       linear-gradient(
         110deg,
-        #17363c 0%,
-        #263d42 55%,
-        #34464a 100%
+        #12343a 0%,
+        #203d42 60%,
+        #31484c 100%
+      ) !important;
+  }
+
+
+  /* Player B identity */
+
+  .vc-player-score--b .vc-player-main{
+    background:
+      linear-gradient(
+        110deg,
+        #30233e 0%,
+        #3a2d47 60%,
+        #473951 100%
+      ) !important;
+  }
+
+
+  /* =====================================================
+     SCORE CELLS
+     Strong contrast — no more washed-out numbers.
+     ===================================================== */
+
+  .vc-score-number{
+    border-left:1px solid rgba(255,255,255,.20) !important;
+
+    background:#17324a !important;
+
+    color:#ffffff !important;
+  }
+
+
+  /* POINT */
+
+  .vc-score-number--point{
+    background:
+      linear-gradient(
+        180deg,
+        #10abb5,
+        #078f99
+      ) !important;
+
+    color:#ffffff !important;
+  }
+
+
+  /* GAMES */
+
+  .vc-player-score
+  .vc-score-number:nth-child(3){
+    background:
+      linear-gradient(
+        180deg,
+        #183750,
+        #112b41
+      ) !important;
+
+    color:#ffffff !important;
+  }
+
+
+  /* SETS */
+
+  .vc-score-number--set{
+    background:
+      linear-gradient(
+        180deg,
+        #8752b6,
+        #70409d
+      ) !important;
+
+    color:#ffffff !important;
+  }
+
+
+  .vc-score-number strong{
+    color:#ffffff !important;
+
+    font-size:28px !important;
+
+    line-height:1 !important;
+
+    font-weight:950 !important;
+
+    text-shadow:
+      0 1px 1px rgba(0,0,0,.12) !important;
+  }
+
+
+  .vc-score-number--point strong{
+    font-size:34px !important;
+  }
+
+
+  /*
+   * Status is a deliberate bottom strip,
+   * not floating in empty white space.
+   */
+
+  .vc-score-status{
+    align-self:end !important;
+
+    margin:10px 11px 11px !important;
+
+    padding:11px 12px !important;
+
+    border:1px solid #e1e9ed !important;
+
+    color:#607489 !important;
+
+    background:
+      linear-gradient(
+        180deg,
+        #f9fbfc,
+        #f3f7f8
+      ) !important;
+
+    font-size:8px !important;
+  }
+
+}
+
+
+
+/* =========================================================
+   MOBILE — compact again
+   ========================================================= */
+
+@media (max-width:850px){
+
+  /*
+   * Do NOT force equal-height behaviour on phones.
+   */
+
+  .vc-viewer-page .vc-scoreboard{
+    height:auto !important;
+
+    display:block !important;
+  }
+
+
+  .vc-scoreboard-top{
+    padding:15px 14px 13px !important;
+  }
+
+
+  .vc-scoreboard-top h2{
+    font-size:20px !important;
+  }
+
+
+  .vc-score-columns,
+  .vc-player-score{
+    grid-template-columns:
+      minmax(0,1fr)
+      56px
+      51px
+      47px !important;
+  }
+
+
+  .vc-score-columns{
+    min-height:30px !important;
+
+    padding:0 8px !important;
+  }
+
+
+  .vc-player-score{
+    min-height:76px !important;
+
+    margin:7px 8px 0 !important;
+  }
+
+
+  .vc-player-main{
+    gap:8px !important;
+
+    padding:8px 7px !important;
+  }
+
+
+  .vc-player-photo{
+    width:46px !important;
+    height:46px !important;
+
+    flex:0 0 46px !important;
+  }
+
+
+  /*
+   * Full names remain allowed to wrap.
+   * No ellipsis.
+   */
+
+  .vc-player-info #nameA,
+  .vc-player-info #nameB{
+    color:#ffffff !important;
+
+    white-space:normal !important;
+
+    overflow:visible !important;
+
+    text-overflow:clip !important;
+
+    font-size:11px !important;
+
+    line-height:1.15 !important;
+  }
+
+
+  .vc-player-score--a .vc-player-main{
+    background:
+      linear-gradient(
+        110deg,
+        #12343a,
+        #30474b
       ) !important;
   }
 
@@ -1197,43 +1455,89 @@ body:has(.vc-viewer-page){
     background:
       linear-gradient(
         110deg,
-        #30263e 0%,
-        #3a3048 55%,
-        #43384e 100%
+        #30233e,
+        #473951
       ) !important;
   }
 
 
-  /*
-   * Slightly larger photo / identity area on desktop.
-   */
+  /* same strong colors on phone */
 
-  .vc-player-photo{
-    width:68px !important;
-    height:68px !important;
-    flex-basis:68px !important;
+  .vc-score-number{
+    background:#17324a !important;
+
+    color:#fff !important;
   }
 
 
-  /*
-   * Give both players more breathing room.
-   */
+  .vc-score-number--point{
+    background:#099ca6 !important;
 
-  .vc-player-score{
-    min-height:108px !important;
+    color:#fff !important;
   }
 
 
-  /*
-   * Numbers should dominate more clearly than labels.
-   */
+  .vc-player-score
+  .vc-score-number:nth-child(3){
+    background:#17324a !important;
+
+    color:#fff !important;
+  }
+
+
+  .vc-score-number--set{
+    background:#7b48a8 !important;
+
+    color:#fff !important;
+  }
+
 
   .vc-score-number strong{
-    font-size:27px !important;
+    color:#fff !important;
+
+    font-size:19px !important;
   }
 
+
   .vc-score-number--point strong{
-    font-size:33px !important;
+    font-size:23px !important;
+  }
+
+
+  .vc-score-status{
+    margin:8px !important;
+
+    padding:8px 9px !important;
+  }
+
+}
+
+
+/* Very narrow phones */
+
+@media (max-width:390px){
+
+  .vc-score-columns,
+  .vc-player-score{
+    grid-template-columns:
+      minmax(0,1fr)
+      49px
+      45px
+      42px !important;
+  }
+
+
+  .vc-player-photo{
+    width:42px !important;
+    height:42px !important;
+
+    flex-basis:42px !important;
+  }
+
+
+  .vc-player-info #nameA,
+  .vc-player-info #nameB{
+    font-size:10px !important;
   }
 
 }
