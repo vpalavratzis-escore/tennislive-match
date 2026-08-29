@@ -1,501 +1,79 @@
 
 /* =========================================================
-   VOXCOURT LIVE VIEWER — FINAL LAYOUT
-   White VoxCourt theme
-   Reference proportions, NOT reference dark theme
+   VOXCOURT LIVE — REFERENCE PROPORTIONS
    ========================================================= */
 
 
 /* =========================================================
-   DESKTOP — VIDEO ~70% / SCOREBOARD ~30%
+   DESKTOP
    ========================================================= */
 
 @media (min-width:851px){
 
-  /*
-   * IMPORTANT:
-   * No equal-height stretch.
-   * Scoreboard keeps its natural compact height.
-   */
+  /* Video ~ 2/3 — Scoreboard ~ 1/3 */
 
   .vc-viewer-page .viewerWrap{
     display:grid !important;
 
     grid-template-columns:
-      minmax(0, 2.15fr)
-      minmax(370px, .90fr) !important;
+      minmax(0,2fr)
+      minmax(390px,1fr) !important;
 
-    gap:18px !important;
+    gap:14px !important;
 
     align-items:start !important;
   }
 
 
+  /* ---------------------------------
+     VIDEO
+     --------------------------------- */
+
   .vc-viewer-page .viewer-player-panel{
     order:1 !important;
 
+    width:100% !important;
+
     min-width:0 !important;
 
     height:auto !important;
-    min-height:0 !important;
-  }
 
+    padding:10px !important;
 
-  .vc-viewer-page .vc-scoreboard{
-    order:2 !important;
+    background:#fff !important;
 
-    width:100% !important;
-
-    height:auto !important;
-    min-height:0 !important;
-
-    display:block !important;
-
-    align-self:start !important;
-
-    overflow:hidden !important;
-
-    border:1px solid #d8e4e9 !important;
-    border-radius:17px !important;
-
-    background:#ffffff !important;
+    border:1px solid #dbe6eb !important;
+    border-radius:16px !important;
 
     box-shadow:
-      0 12px 32px rgba(21,55,78,.075) !important;
-  }
-
-
-
-  /* =====================================================
-     SCOREBOARD HEADER
-     ===================================================== */
-
-  .vc-scoreboard-top{
-    display:flex !important;
-
-    align-items:center !important;
-    justify-content:space-between !important;
-
-    gap:15px !important;
-
-    padding:17px 17px 14px !important;
-
-    border-bottom:1px solid #e3eaee !important;
-
-    background:#ffffff !important;
-  }
-
-
-  .vc-scoreboard-kicker{
-    margin-bottom:4px !important;
-
-    color:#079ba5 !important;
-
-    font-size:8px !important;
-
-    line-height:1 !important;
-
-    font-weight:950 !important;
-
-    letter-spacing:.14em !important;
-  }
-
-
-  .vc-scoreboard-top h2{
-    margin:0 !important;
-
-    color:#10233a !important;
-
-    font-size:21px !important;
-
-    line-height:1.05 !important;
-
-    font-weight:950 !important;
-
-    letter-spacing:-.035em !important;
-  }
-
-
-  .vc-scoreboard-live{
-    display:flex !important;
-
-    align-items:center !important;
-
-    gap:6px !important;
-
-    padding:6px 9px !important;
-
-    border-radius:999px !important;
-
-    color:#d03d48 !important;
-
-    background:#fff0f1 !important;
-
-    font-size:8px !important;
-
-    font-weight:950 !important;
-
-    letter-spacing:.08em !important;
-  }
-
-
-  .vc-scoreboard-live span{
-    width:6px !important;
-    height:6px !important;
-
-    border-radius:50% !important;
-
-    background:#ef4a55 !important;
-  }
-
-
-
-  /* =====================================================
-     COLUMN LABELS
-     ===================================================== */
-
-  .vc-score-columns{
-    display:grid !important;
-
-    grid-template-columns:
-      minmax(0,1fr)
-      62px
-      58px
-      54px !important;
-
-    align-items:center !important;
-
-    min-height:31px !important;
-
-    padding:0 10px !important;
-
-    color:#586d81 !important;
-
-    background:#f5f8fa !important;
-
-    border-bottom:1px solid #e4ebef !important;
-
-    font-size:7px !important;
-
-    font-weight:900 !important;
-
-    letter-spacing:.09em !important;
-  }
-
-
-  .vc-score-columns span:not(:first-child){
-    text-align:center !important;
-  }
-
-
-
-  /* =====================================================
-     PLAYER ROWS
-     Compact horizontal broadcast layout
-     ===================================================== */
-
-  .vc-player-score{
-    display:grid !important;
-
-    grid-template-columns:
-      minmax(0,1fr)
-      62px
-      58px
-      54px !important;
-
-    align-items:stretch !important;
-
-    min-height:92px !important;
-
-    height:92px !important;
-
-    margin:9px 10px 0 !important;
-
-    overflow:hidden !important;
-
-    border:1px solid #dde6eb !important;
-    border-radius:13px !important;
-
-    background:#ffffff !important;
-  }
-
-
-  .vc-player-score--a{
-    border-left:4px solid #08b1bb !important;
-  }
-
-
-  .vc-player-score--b{
-    border-left:4px solid #8b4bbb !important;
-  }
-
-
-
-  /* =====================================================
-     PLAYER IDENTITY
-     White / clean, NOT dark
-     ===================================================== */
-
-  .vc-player-main,
-  .vc-player-score--a .vc-player-main,
-  .vc-player-score--b .vc-player-main{
-    position:relative !important;
-
-    min-width:0 !important;
-
-    display:flex !important;
-
-    align-items:center !important;
-
-    gap:10px !important;
-
-    padding:10px 10px !important;
-
-    background:#ffffff !important;
-  }
-
-
-  .vc-player-photo{
-    width:56px !important;
-    height:56px !important;
-
-    flex:0 0 56px !important;
-
-    display:flex !important;
-
-    align-items:center !important;
-    justify-content:center !important;
-
-    overflow:hidden !important;
-
-    border-radius:50% !important;
-
-    background:#eef5f6 !important;
-
-    box-shadow:
-      0 3px 10px rgba(15,43,61,.10) !important;
-  }
-
-
-  .vc-player-score--a .vc-player-photo{
-    border:2px solid #7bd3d8 !important;
-  }
-
-
-  .vc-player-score--b .vc-player-photo{
-    border:2px solid #c4a6da !important;
-  }
-
-
-  .vc-player-photo img{
-    display:block !important;
-
-    width:100% !important;
-    height:100% !important;
-
-    object-fit:cover !important;
-
-    object-position:center center !important;
-
-    border-radius:50% !important;
-  }
-
-
-  .vc-player-info{
-    min-width:0 !important;
-
-    flex:1 1 auto !important;
+      0 8px 25px
+      rgba(20,54,76,.055) !important;
   }
 
 
   /*
-   * FULL PLAYER NAME
-   * No ellipsis / no cutting.
+   * We already show LIVE CAMERA inside video.
+   * Remove duplicate tiny text above it.
    */
 
-  .vc-player-info #nameA,
-  .vc-player-info #nameB{
-    display:block !important;
-
-    width:100% !important;
-
-    max-width:none !important;
-
-    margin:0 !important;
-
-    overflow:visible !important;
-
-    white-space:normal !important;
-
-    text-overflow:clip !important;
-
-    word-break:normal !important;
-
-    overflow-wrap:anywhere !important;
-
-    color:#10233a !important;
-
-    font-size:13px !important;
-
-    line-height:1.15 !important;
-
-    font-weight:900 !important;
-
-    letter-spacing:-.015em !important;
-
-    text-shadow:none !important;
-  }
-
-
-
-  /* =====================================================
-     SERVICE INDICATOR
-     ===================================================== */
-
-  .vc-serving-dot{
-    position:absolute !important;
-
-    top:10px !important;
-    right:7px !important;
-
-    width:8px !important;
-    height:8px !important;
-
-    border-radius:50% !important;
-
-    background:#f2c84b !important;
-
-    box-shadow:
-      0 0 0 4px rgba(242,200,75,.16) !important;
-  }
-
-
-
-  /* =====================================================
-     SCORE CELLS
-     STRONG VoxCourt colors — no washed-out pastel
-     ===================================================== */
-
-  .vc-score-number{
-    display:flex !important;
-
-    align-items:center !important;
-    justify-content:center !important;
-
-    min-width:0 !important;
-
-    border-left:1px solid rgba(255,255,255,.20) !important;
-
-    color:#ffffff !important;
-
-    background:#173954 !important;
-  }
-
-
-  /* POINTS */
-
-  .vc-score-number--point{
-    color:#ffffff !important;
-
-    background:#08a8b2 !important;
-  }
-
-
-  /* GAMES */
-
-  .vc-player-score
-  .vc-score-number:nth-child(3){
-    color:#ffffff !important;
-
-    background:#173954 !important;
-  }
-
-
-  /* SETS */
-
-  .vc-score-number--set{
-    color:#ffffff !important;
-
-    background:#7b46aa !important;
-  }
-
-
-  .vc-score-number strong{
-    color:#ffffff !important;
-
-    font-size:23px !important;
-
-    line-height:1 !important;
-
-    font-weight:950 !important;
-
-    font-variant-numeric:tabular-nums !important;
-
-    text-shadow:
-      0 1px 1px rgba(0,0,0,.14) !important;
-  }
-
-
-  .vc-score-number--point strong{
-    font-size:27px !important;
-  }
-
-
-
-  /* =====================================================
-     STATUS
-     Small final strip, no wasted space
-     ===================================================== */
-
-  .vc-score-status{
-    min-height:30px !important;
-
-    margin:9px 10px 10px !important;
-
-    padding:7px 9px !important;
-
-    display:flex !important;
-
-    align-items:center !important;
-
-    border:1px solid #e2e9ed !important;
-    border-radius:8px !important;
-
-    color:#607488 !important;
-
-    background:#f6f9fa !important;
-
-    font-size:7px !important;
-  }
-
-}
-
-
-
-/* =========================================================
-   VIDEO CARD — DESKTOP
-   Keep video visually dominant like reference
-   ========================================================= */
-
-@media (min-width:851px){
-
-  .vc-viewer-page .viewer-player-panel{
-    padding:13px !important;
-
-    border:1px solid #dce6eb !important;
-    border-radius:17px !important;
-
-    background:#ffffff !important;
-
-    box-shadow:
-      0 10px 28px rgba(21,55,78,.055) !important;
+  .vc-viewer-page
+  .viewer-player-panel
+  > .badge,
+
+  .vc-viewer-page
+  #streamSourceLabel{
+    display:none !important;
   }
 
 
   .vc-viewer-page .cam--viewer{
     width:100% !important;
 
+    height:auto !important;
+
     aspect-ratio:16 / 9 !important;
+
+    margin:0 !important;
 
     overflow:hidden !important;
 
@@ -511,71 +89,498 @@
     min-height:42px !important;
   }
 
-}
 
 
+  /* =======================================================
+     SCOREBOARD
 
-/* =========================================================
-   SPONSORS — ONE CLEAN ROW
-   ========================================================= */
+     At 2:1 column ratio:
+     an 8:9 scoreboard has approximately the SAME height
+     as the 16:9 video frame.
+     ======================================================= */
 
-.vc-sponsors{
-  margin-top:16px !important;
+  .vc-viewer-page .vc-scoreboard{
+    order:2 !important;
 
-  padding:12px 14px !important;
+    width:100% !important;
 
-  border:1px solid #dce6eb !important;
-  border-radius:16px !important;
+    min-width:0 !important;
 
-  background:#ffffff !important;
+    height:auto !important;
+    min-height:0 !important;
 
-  box-shadow:
-    0 8px 24px rgba(21,55,78,.045) !important;
-}
+    aspect-ratio:8 / 9 !important;
 
+    display:grid !important;
 
-.vc-sponsor-card{
-  min-height:56px !important;
+    grid-template-rows:
+      62px
+      31px
+      minmax(0,1fr)
+      minmax(0,1fr)
+      35px !important;
 
-  background:#fbfdfe !important;
+    align-self:start !important;
 
-  border:1px solid #e0e8ec !important;
+    overflow:hidden !important;
 
-  border-radius:10px !important;
-}
+    padding:0 !important;
 
+    border:1px solid #d8e3e8 !important;
+    border-radius:16px !important;
 
+    background:#fff !important;
 
-/* =========================================================
-   TABLET
-   ========================================================= */
+    color:#10233a !important;
 
-@media (min-width:851px) and (max-width:1180px){
-
-  .vc-viewer-page .viewerWrap{
-    grid-template-columns:
-      minmax(0,1.7fr)
-      minmax(350px,.82fr) !important;
-
-    gap:14px !important;
+    box-shadow:
+      0 10px 28px
+      rgba(20,54,76,.075) !important;
   }
 
 
-  .vc-score-columns,
-  .vc-player-score{
+
+  /* ---------------------------------
+     SCORE HEADER
+     --------------------------------- */
+
+  .vc-scoreboard-top{
+    height:62px !important;
+
+    display:flex !important;
+
+    align-items:center !important;
+    justify-content:space-between !important;
+
+    gap:12px !important;
+
+    padding:0 16px !important;
+
+    background:#fff !important;
+
+    border-bottom:
+      1px solid #e2e9ed !important;
+  }
+
+
+  .vc-scoreboard-kicker{
+    margin-bottom:4px !important;
+
+    color:#0099a4 !important;
+
+    font-size:8px !important;
+
+    font-weight:950 !important;
+
+    letter-spacing:.13em !important;
+  }
+
+
+  .vc-scoreboard-top h2{
+    margin:0 !important;
+
+    color:#10233a !important;
+
+    font-size:22px !important;
+
+    line-height:1 !important;
+
+    font-weight:950 !important;
+
+    letter-spacing:-.035em !important;
+  }
+
+
+  .vc-scoreboard-live{
+    padding:6px 9px !important;
+
+    color:#ce3b47 !important;
+
+    background:#fff0f1 !important;
+
+    font-size:7px !important;
+  }
+
+
+
+  /* ---------------------------------
+     COLUMNS
+     --------------------------------- */
+
+  .vc-score-columns{
+    height:31px !important;
+    min-height:31px !important;
+
+    display:grid !important;
+
     grid-template-columns:
       minmax(0,1fr)
-      56px
-      52px
-      48px !important;
+      63px
+      58px
+      54px !important;
+
+    align-items:center !important;
+
+    padding:0 9px !important;
+
+    border-bottom:
+      1px solid #e3eaee !important;
+
+    color:#50667b !important;
+
+    background:#f5f8fa !important;
+
+    font-size:7px !important;
+
+    font-weight:900 !important;
+
+    letter-spacing:.085em !important;
+  }
+
+
+  .vc-score-columns span:not(:first-child){
+    text-align:center !important;
+  }
+
+
+
+  /* ---------------------------------
+     TWO PLAYER ROWS
+     --------------------------------- */
+
+  .vc-player-score{
+    display:grid !important;
+
+    grid-template-columns:
+      minmax(0,1fr)
+      63px
+      58px
+      54px !important;
+
+    align-items:stretch !important;
+
+    min-width:0 !important;
+    min-height:0 !important;
+
+    height:auto !important;
+
+    margin:7px 9px 0 !important;
+
+    overflow:hidden !important;
+
+    border:1px solid #dce6ea !important;
+    border-radius:12px !important;
+
+    background:#fff !important;
+  }
+
+
+  .vc-player-score--a{
+    border-left:
+      4px solid #08adb7 !important;
+  }
+
+
+  .vc-player-score--b{
+    border-left:
+      4px solid #8949b8 !important;
+  }
+
+
+
+  /* ---------------------------------
+     PLAYER IDENTITY
+     --------------------------------- */
+
+  .vc-player-main,
+  .vc-player-score--a .vc-player-main,
+  .vc-player-score--b .vc-player-main{
+    position:relative !important;
+
+    min-width:0 !important;
+
+    display:flex !important;
+
+    align-items:center !important;
+
+    gap:11px !important;
+
+    padding:10px !important;
+
+    background:#fff !important;
+  }
+
+
+  .vc-player-score--a .vc-player-main{
+    background:
+      linear-gradient(
+        90deg,
+        #eefafb 0%,
+        #ffffff 68%
+      ) !important;
+  }
+
+
+  .vc-player-score--b .vc-player-main{
+    background:
+      linear-gradient(
+        90deg,
+        #f8f2fb 0%,
+        #ffffff 68%
+      ) !important;
+  }
+
+
+
+  /* ---------------------------------
+     REAL PLAYER PHOTO
+     --------------------------------- */
+
+  .vc-player-photo{
+    width:68px !important;
+    height:68px !important;
+
+    flex:0 0 68px !important;
+
+    overflow:hidden !important;
+
+    border-radius:50% !important;
+
+    background:#edf3f5 !important;
+
+    box-shadow:
+      0 3px 11px
+      rgba(15,44,64,.12) !important;
+  }
+
+
+  .vc-player-score--a .vc-player-photo{
+    border:2px solid #56c5cc !important;
+  }
+
+
+  .vc-player-score--b .vc-player-photo{
+    border:2px solid #b48dce !important;
+  }
+
+
+  .vc-player-photo img{
+    display:block !important;
+
+    width:100% !important;
+    height:100% !important;
+
+    object-fit:cover !important;
+
+    /*
+     * Crop the source into a face/headshot.
+     */
+    object-position:center 28% !important;
+
+    border-radius:50% !important;
+  }
+
+
+  .vc-player-photo > span{
+    display:none !important;
+  }
+
+
+
+  /* ---------------------------------
+     PLAYER NAMES
+     --------------------------------- */
+
+  .vc-player-info{
+    min-width:0 !important;
+
+    flex:1 1 auto !important;
+  }
+
+
+  .vc-player-info #nameA,
+  .vc-player-info #nameB{
+    display:block !important;
+
+    width:100% !important;
+
+    max-width:none !important;
+
+    overflow:visible !important;
+
+    white-space:normal !important;
+
+    text-overflow:clip !important;
+
+    overflow-wrap:anywhere !important;
+
+    color:#10233a !important;
+
+    font-size:14px !important;
+
+    line-height:1.14 !important;
+
+    font-weight:900 !important;
+
+    letter-spacing:-.015em !important;
+
+    text-shadow:none !important;
+  }
+
+
+
+  /* ---------------------------------
+     SERVICE DOT
+     --------------------------------- */
+
+  .vc-serving-dot{
+    position:absolute !important;
+
+    top:10px !important;
+    right:7px !important;
+
+    width:8px !important;
+    height:8px !important;
+
+    border-radius:50% !important;
+
+    background:#efc342 !important;
+
+    box-shadow:
+      0 0 0 4px
+      rgba(239,195,66,.18) !important;
+  }
+
+
+
+  /* ---------------------------------
+     SCORE CELLS
+
+     White VoxCourt design,
+     strong readable numbers,
+     NO giant color bars.
+     --------------------------------- */
+
+  .vc-score-number{
+    min-width:0 !important;
+
+    display:flex !important;
+
+    align-items:center !important;
+    justify-content:center !important;
+
+    border-left:
+      1px solid #dfe7eb !important;
+
+    background:#fff !important;
+
+    color:#173954 !important;
+  }
+
+
+  .vc-score-number strong{
+    color:inherit !important;
+
+    font-size:27px !important;
+
+    line-height:1 !important;
+
+    font-weight:950 !important;
+
+    font-variant-numeric:
+      tabular-nums !important;
+
+    text-shadow:none !important;
+  }
+
+
+
+  /* POINT */
+
+  .vc-score-number--point{
+    background:#e8f8f9 !important;
+
+    color:#008f99 !important;
+  }
+
+
+  .vc-score-number--point strong{
+    color:#008f99 !important;
+
+    font-size:31px !important;
+  }
+
+
+
+  /* GAMES */
+
+  .vc-player-score
+  .vc-score-number:nth-child(3){
+    background:#f2f5f8 !important;
+
+    color:#163a56 !important;
+  }
+
+
+
+  /* SETS */
+
+  .vc-score-number--set{
+    background:#f3edf8 !important;
+
+    color:#773ba5 !important;
+  }
+
+
+
+  /* ---------------------------------
+     SCORE FOOTER
+     --------------------------------- */
+
+  .vc-score-status{
+    height:29px !important;
+    min-height:29px !important;
+
+    margin:4px 9px 6px !important;
+
+    padding:0 8px !important;
+
+    display:flex !important;
+
+    align-items:center !important;
+
+    border:1px solid #e1e8ec !important;
+    border-radius:7px !important;
+
+    color:#607488 !important;
+
+    background:#f6f8fa !important;
+
+    font-size:7px !important;
+  }
+
+}
+
+
+
+/* =========================================================
+   MEDIUM DESKTOP / TABLET
+   ========================================================= */
+
+@media (min-width:851px) and (max-width:1150px){
+
+  .vc-viewer-page .viewerWrap{
+    grid-template-columns:
+      minmax(0,1.8fr)
+      minmax(350px,1fr) !important;
   }
 
 
   .vc-player-photo{
-    width:50px !important;
-    height:50px !important;
+    width:56px !important;
+    height:56px !important;
 
-    flex-basis:50px !important;
+    flex-basis:56px !important;
   }
 
 
@@ -586,12 +591,12 @@
 
 
   .vc-score-number strong{
-    font-size:20px !important;
+    font-size:22px !important;
   }
 
 
   .vc-score-number--point strong{
-    font-size:24px !important;
+    font-size:25px !important;
   }
 
 }
@@ -600,7 +605,6 @@
 
 /* =========================================================
    MOBILE
-   Video -> Scoreboard -> Sponsors
    ========================================================= */
 
 @media (max-width:850px){
@@ -616,6 +620,8 @@
   }
 
 
+  /* VIDEO */
+
   .vc-viewer-page .viewer-player-panel{
     order:1 !important;
 
@@ -626,10 +632,20 @@
     min-height:0 !important;
 
     padding:9px !important;
-
-    border-radius:14px !important;
   }
 
+
+  .vc-viewer-page .cam--viewer{
+    width:100% !important;
+
+    height:auto !important;
+
+    aspect-ratio:16 / 9 !important;
+  }
+
+
+
+  /* SCORE */
 
   .vc-viewer-page .vc-scoreboard{
     order:2 !important;
@@ -640,45 +656,20 @@
 
     min-height:0 !important;
 
+    aspect-ratio:auto !important;
+
     display:block !important;
 
     overflow:hidden !important;
 
-    border:1px solid #d9e4e9 !important;
-    border-radius:15px !important;
-
-    background:#ffffff !important;
+    background:#fff !important;
   }
 
-
-  .vc-viewer-page .cam--viewer{
-    width:100% !important;
-
-    aspect-ratio:16 / 9 !important;
-
-    border-radius:10px !important;
-  }
-
-
-  .vc-viewer-page .live-mode-controls{
-    margin-top:7px !important;
-
-    min-height:41px !important;
-  }
-
-
-
-  /* SCORE HEADER */
 
   .vc-scoreboard-top{
-    padding:14px 13px 12px !important;
+    padding:13px !important;
 
-    background:#ffffff !important;
-  }
-
-
-  .vc-scoreboard-kicker{
-    font-size:7px !important;
+    background:#fff !important;
   }
 
 
@@ -687,50 +678,31 @@
   }
 
 
-  .vc-scoreboard-live{
-    padding:5px 8px !important;
-
-    font-size:7px !important;
-  }
-
-
-
-  /* MOBILE COLUMNS */
-
   .vc-score-columns,
   .vc-player-score{
     grid-template-columns:
       minmax(0,1fr)
-      58px
-      53px
-      49px !important;
+      57px
+      52px
+      48px !important;
   }
 
 
   .vc-score-columns{
+    height:29px !important;
     min-height:29px !important;
 
     padding:0 7px !important;
 
-    color:#5b6f82 !important;
-
     background:#f5f8fa !important;
-
-    font-size:6.5px !important;
   }
 
 
-
-  /* MOBILE PLAYER ROW */
-
   .vc-player-score{
-    min-height:76px !important;
-
-    height:76px !important;
+    height:78px !important;
+    min-height:78px !important;
 
     margin:7px 7px 0 !important;
-
-    border-radius:11px !important;
   }
 
 
@@ -741,76 +713,87 @@
 
     padding:7px !important;
 
-    background:#ffffff !important;
+    background:#fff !important;
+  }
+
+
+  .vc-player-score--a .vc-player-main{
+    background:
+      linear-gradient(
+        90deg,
+        #eefafb,
+        #fff
+      ) !important;
+  }
+
+
+  .vc-player-score--b .vc-player-main{
+    background:
+      linear-gradient(
+        90deg,
+        #f8f2fb,
+        #fff
+      ) !important;
   }
 
 
   .vc-player-photo{
-    width:46px !important;
-    height:46px !important;
+    width:48px !important;
+    height:48px !important;
 
-    flex:0 0 46px !important;
+    flex:0 0 48px !important;
   }
 
 
   .vc-player-info #nameA,
   .vc-player-info #nameB{
-    display:block !important;
-
-    overflow:visible !important;
-
-    white-space:normal !important;
-
-    text-overflow:clip !important;
-
-    overflow-wrap:anywhere !important;
-
     color:#10233a !important;
 
     font-size:11px !important;
 
-    line-height:1.12 !important;
+    line-height:1.1 !important;
 
-    font-weight:900 !important;
+    white-space:normal !important;
+
+    overflow:visible !important;
+
+    text-overflow:clip !important;
 
     text-shadow:none !important;
   }
 
 
-
-  /* STRONG MOBILE SCORE COLORS */
-
   .vc-score-number{
-    color:#ffffff !important;
+    background:#fff !important;
 
-    background:#173954 !important;
+    color:#173954 !important;
   }
 
 
   .vc-score-number--point{
-    color:#ffffff !important;
+    background:#e8f8f9 !important;
 
-    background:#08a8b2 !important;
+    color:#008f99 !important;
   }
 
 
   .vc-player-score
   .vc-score-number:nth-child(3){
-    color:#ffffff !important;
+    background:#f2f5f8 !important;
 
-    background:#173954 !important;
+    color:#163a56 !important;
   }
 
 
   .vc-score-number--set{
-    color:#ffffff !important;
+    background:#f3edf8 !important;
 
-    background:#7b46aa !important;
+    color:#773ba5 !important;
   }
 
 
   .vc-score-number strong{
-    color:#ffffff !important;
+    color:inherit !important;
 
     font-size:19px !important;
   }
@@ -822,63 +805,9 @@
 
 
   .vc-score-status{
-    min-height:27px !important;
-
     margin:7px !important;
 
-    padding:6px 8px !important;
-
-    font-size:6.5px !important;
-  }
-
-
-
-  /* SPONSORS MOBILE */
-
-  .vc-sponsors{
-    display:block !important;
-
-    padding:11px !important;
-  }
-
-
-  .vc-sponsors-heading{
-    padding:0 0 9px !important;
-
-    border-right:0 !important;
-
-    border-bottom:1px solid #e1e9ed !important;
-  }
-
-
-  .vc-sponsor-grid{
-    display:flex !important;
-
-    gap:7px !important;
-
-    margin-top:9px !important;
-
-    overflow-x:auto !important;
-
-    scrollbar-width:none !important;
-
-    scroll-snap-type:x proximity !important;
-  }
-
-
-  .vc-sponsor-grid::-webkit-scrollbar{
-    display:none !important;
-  }
-
-
-  .vc-sponsor-card{
-    flex:0 0 140px !important;
-
-    min-width:140px !important;
-
-    min-height:52px !important;
-
-    scroll-snap-align:start !important;
+    min-height:27px !important;
   }
 
 }
@@ -886,7 +815,7 @@
 
 
 /* =========================================================
-   SMALL PHONES
+   SMALL PHONE
    ========================================================= */
 
 @media (max-width:430px){
@@ -895,24 +824,17 @@
   .vc-player-score{
     grid-template-columns:
       minmax(0,1fr)
-      49px
-      45px
-      42px !important;
-  }
-
-
-  .vc-player-score{
-    min-height:72px !important;
-
-    height:72px !important;
+      48px
+      44px
+      41px !important;
   }
 
 
   .vc-player-photo{
-    width:42px !important;
-    height:42px !important;
+    width:43px !important;
+    height:43px !important;
 
-    flex-basis:42px !important;
+    flex-basis:43px !important;
   }
 
 

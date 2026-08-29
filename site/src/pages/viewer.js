@@ -32,10 +32,10 @@ function clampText(s, max = 28) {
 }
 
 const PLAYER_DEFAULT_PHOTO_A =
-  `${import.meta.env.BASE_URL || "/"}players/default-a.svg`;
+  `${import.meta.env.BASE_URL || "/"}players/default-a.jpg`;
 
 const PLAYER_DEFAULT_PHOTO_B =
-  `${import.meta.env.BASE_URL || "/"}players/default-b.svg`;
+  `${import.meta.env.BASE_URL || "/"}players/default-b.jpg`;
 
 function setPhoto(img, ph, url) {
   if (!img) return;
