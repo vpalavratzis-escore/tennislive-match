@@ -3715,8 +3715,55 @@ ${safeUrl}`
     }
 
     function setReplayStudioVisible(visible) {
+      const viewerWrap =
+        app.querySelector(".viewerWrap");
+
+      const scoreboard =
+        app.querySelector(".vc-scoreboard");
+
+      /*
+       * REPLAY SCOREBOARD HEIGHT LOCK
+       *
+       * Desktop viewer normally stretches both grid columns
+       * to the same height.
+       *
+       * Replay Studio makes the LEFT column much taller.
+       * Before opening it, remember the normal LIVE scoreboard
+       * height and lock the scoreboard to that exact height.
+       */
+      if (visible) {
+        if (scoreboard) {
+          const liveHeight =
+            Math.round(
+              scoreboard.getBoundingClientRect().height
+            );
+
+          if (liveHeight > 0) {
+            scoreboard.style.setProperty(
+              "--vc-scoreboard-live-height",
+              `${liveHeight}px`
+            );
+          }
+        }
+
+        viewerWrap?.classList.add(
+          "viewerWrap--replay-open"
+        );
+      }
+
       if (replayStudio) {
-        replayStudio.style.display = visible ? "grid" : "none";
+        replayStudio.style.display =
+          visible ? "grid" : "none";
+      }
+
+      if (!visible) {
+        viewerWrap?.classList.remove(
+          "viewerWrap--replay-open"
+        );
+
+        scoreboard?.style.removeProperty(
+          "--vc-scoreboard-live-height"
+        );
       }
 
       cameraButtons?.classList.toggle(

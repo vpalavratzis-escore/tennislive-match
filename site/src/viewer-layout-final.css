@@ -1907,3 +1907,39 @@ and (max-width:1180px){
 
 
 /* ===== VC TIMELINE WHITE V3 END ===== */
+
+/* ===== VC REPLAY SCOREBOARD HEIGHT LOCK START ===== */
+
+/*
+ * Replay Studio belongs only to the LEFT column.
+ *
+ * Do not allow its additional height to stretch
+ * the Match Score card on desktop.
+ */
+
+@media (min-width:851px){
+
+  .vc-viewer-page
+  .viewerWrap.viewerWrap--replay-open{
+    align-items:start !important;
+  }
+
+
+  .vc-viewer-page
+  .viewerWrap.viewerWrap--replay-open
+  .vc-scoreboard{
+
+    align-self:start !important;
+
+    height:
+      var(
+        --vc-scoreboard-live-height,
+        auto
+      ) !important;
+
+    min-height:0 !important;
+  }
+
+}
+
+/* ===== VC REPLAY SCOREBOARD HEIGHT LOCK END ===== */
