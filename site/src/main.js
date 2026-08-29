@@ -2,7 +2,6 @@ import "./style.css";
 import "./home-production.css";
 import "./find-courts-production.css";
 import "./viewer-production.css";
-import "./viewer-layout-final.css";
 
 // ====== App root ======
 const app = document.getElementById("app");
@@ -17,6 +16,7 @@ if (!app) {
 import { renderHome } from "./pages/home.js";
 import { renderLive } from "./pages/live.js";
 import { renderViewer } from "./pages/viewer.js";
+import "./viewer-layout-final.css";
 
 // ====== Router ======
 function route() {
