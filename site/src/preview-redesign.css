@@ -1,0 +1,337 @@
+/* VoxCourt isolated preview redesign */
+
+:root{
+  --vc-bg:#f4f8fa;
+  --vc-surface:#fff;
+  --vc-soft:#f8fbfc;
+  --vc-text:#10233a;
+  --vc-muted:#6b7b8f;
+  --vc-line:#dfe9ee;
+  --vc-accent:#12b8c1;
+  --vc-purple:#8c4cd6;
+  --vc-shadow:0 18px 50px rgba(20,54,77,.10);
+}
+
+html,body{
+  background:#f4f8fa !important;
+  color:var(--vc-text) !important;
+}
+
+body{
+  background-image:linear-gradient(180deg,#fff 0%,#f4f8fa 45%,#eef5f7 100%) !important;
+}
+
+.wrap{
+  max-width:1420px !important;
+}
+
+/* NAV */
+.nav,.premium-nav{
+  min-height:76px !important;
+  padding:14px 22px !important;
+  border:1px solid var(--vc-line) !important;
+  background:rgba(255,255,255,.96) !important;
+  box-shadow:0 8px 26px rgba(20,54,77,.05) !important;
+}
+
+.navlinks a{
+  color:#36495e !important;
+}
+
+.cta,.btn.primary,.live-mode-button--active{
+  color:#fff !important;
+  background:linear-gradient(135deg,#12c5cc,#079ba6) !important;
+  border-color:transparent !important;
+}
+
+/* FIND COURTS — remove marketing clutter */
+.court-hero{
+  display:block !important;
+  min-height:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+}
+
+.court-hero::after,
+.court-hero-copy,
+.court-value-grid,
+.court-trust-strip{
+  display:none !important;
+}
+
+.court-selector-card{
+  max-width:900px !important;
+  margin:28px auto 0 !important;
+  padding:30px !important;
+  border:1px solid var(--vc-line) !important;
+  border-radius:24px !important;
+  background:#fff !important;
+  color:var(--vc-text) !important;
+  box-shadow:var(--vc-shadow) !important;
+}
+
+.court-selector-top h2{
+  color:var(--vc-text) !important;
+}
+
+.court-selector-top p,
+.court-help,
+.court-field label{
+  color:var(--vc-muted) !important;
+}
+
+.court-field select{
+  min-height:54px !important;
+  border:1px solid var(--vc-line) !important;
+  background:#fff !important;
+  color:var(--vc-text) !important;
+}
+
+.court-field option{
+  background:#fff !important;
+  color:var(--vc-text) !important;
+}
+
+/* VIEWER */
+.viewerWrap{
+  grid-template-columns:minmax(0,1.55fr) minmax(340px,.75fr) !important;
+  gap:18px !important;
+  align-items:start !important;
+}
+
+.viewer-player-panel{
+  order:1 !important;
+}
+
+.viewer-score-panel{
+  order:2 !important;
+}
+
+.viewer-player-panel,
+.viewer-score-panel{
+  padding:18px !important;
+  border:1px solid var(--vc-line) !important;
+  border-radius:22px !important;
+  background:#fff !important;
+  color:var(--vc-text) !important;
+  box-shadow:var(--vc-shadow) !important;
+}
+
+.viewer-player-panel .badge,
+.viewer-score-panel .badge{
+  color:#42566c !important;
+}
+
+.viewer-player-panel .hint,
+.viewer-score-panel .hint{
+  color:var(--vc-muted) !important;
+}
+
+/* hide technical spectator noise */
+#streamSourceLabel,
+#status,
+#photostatus,
+#replayStatus{
+  display:none !important;
+}
+
+/* video stays dark */
+.cam--viewer{
+  border-radius:18px !important;
+  background:#050708 !important;
+}
+
+/* camera / replay segmented control */
+.live-mode-controls{
+  margin-top:12px !important;
+  padding:4px !important;
+  gap:4px !important;
+  border:1px solid var(--vc-line) !important;
+  border-radius:15px !important;
+  background:#f8fbfc !important;
+}
+
+.live-mode-button{
+  min-height:44px !important;
+  border:0 !important;
+  color:#40546a !important;
+  background:transparent !important;
+}
+
+.live-mode-button--active{
+  color:#fff !important;
+}
+
+/* player cards — bigger portraits */
+.viewer-score-panel > div:nth-of-type(2){
+  gap:10px !important;
+  margin:12px 0 16px !important;
+}
+
+.viewer-score-panel > div:nth-of-type(2) > div{
+  height:112px !important;
+  padding:12px !important;
+  border:1px solid var(--vc-line) !important;
+  border-radius:18px !important;
+  background:#f8fbfc !important;
+}
+
+.viewer-score-panel > div:nth-of-type(2) > div:first-child{
+  border-top:3px solid var(--vc-accent) !important;
+}
+
+.viewer-score-panel > div:nth-of-type(2) > div:last-child{
+  border-top:3px solid var(--vc-purple) !important;
+}
+
+.viewer-score-panel > div:nth-of-type(2) > div > div:first-child{
+  width:78px !important;
+  height:78px !important;
+  border:2px solid #fff !important;
+  background:#e9f4f5 !important;
+  box-shadow:0 0 0 2px rgba(18,184,193,.35) !important;
+}
+
+.viewer-score-panel > div:nth-of-type(2) > div:last-child > div:first-child{
+  box-shadow:0 0 0 2px rgba(140,76,214,.30) !important;
+}
+
+#photoATitle,#photoBTitle{
+  color:var(--vc-text) !important;
+  font-size:14px !important;
+}
+
+/* SCORE TABLE */
+.viewer-score-panel .table{
+  overflow:hidden !important;
+  border:1px solid var(--vc-line) !important;
+  border-radius:16px !important;
+  background:#fff !important;
+}
+
+.viewer-score-panel .table th{
+  color:var(--vc-muted) !important;
+  background:#f6fafb !important;
+  border-color:var(--vc-line) !important;
+}
+
+.viewer-score-panel .table td{
+  color:var(--vc-text) !important;
+  background:#fff !important;
+  border-color:var(--vc-line) !important;
+}
+
+.viewer-score-panel .table td:nth-child(2),
+.viewer-score-panel .table td:nth-child(3),
+.viewer-score-panel .table td:nth-child(4){
+  font-size:26px !important;
+  font-weight:900 !important;
+}
+
+.viewer-score-panel .table tbody tr:first-child td:first-child{
+  border-left:4px solid var(--vc-accent) !important;
+}
+
+.viewer-score-panel .table tbody tr:last-child td:first-child{
+  border-left:4px solid var(--vc-purple) !important;
+}
+
+/* match header / timeline / highlights */
+#matchHero,
+.match-end-summary,
+.highlights-panel,
+.panel.section{
+  border-color:var(--vc-line) !important;
+}
+
+#matchHero{
+  background:#fff !important;
+  color:var(--vc-text) !important;
+  box-shadow:var(--vc-shadow) !important;
+}
+
+.timeline-filter,
+.timeline-toolbar-button,
+.highlights-filter,
+.match-action-button{
+  border-color:var(--vc-line) !important;
+}
+
+/* HOME — reduce the wall of marketing */
+.home-feature-row,
+.home-trust,
+.home-stats-bar,
+.value-strip,
+.promo-section,
+.voice-section,
+.how-section,
+.contact-section{
+  display:none !important;
+}
+
+.system-section{
+  margin-top:28px !important;
+}
+
+@media(max-width:980px){
+  .viewerWrap{
+    grid-template-columns:1fr !important;
+  }
+
+  .viewer-player-panel{order:1 !important;}
+  .viewer-score-panel{order:2 !important;}
+
+  .navlinks{
+    display:none !important;
+  }
+}
+
+@media(max-width:760px){
+  .wrap{
+    padding-left:12px !important;
+    padding-right:12px !important;
+  }
+
+  .viewer-player-panel,
+  .viewer-score-panel{
+    padding:12px !important;
+    border-radius:18px !important;
+  }
+
+  .viewer-score-panel > div:nth-of-type(2){
+    display:grid !important;
+    grid-template-columns:1fr 1fr !important;
+  }
+
+  .viewer-score-panel > div:nth-of-type(2) > div{
+    height:98px !important;
+    padding:10px !important;
+  }
+
+  .viewer-score-panel > div:nth-of-type(2) > div > div:first-child{
+    width:60px !important;
+    height:60px !important;
+  }
+
+  .viewer-score-panel .table td:nth-child(2),
+  .viewer-score-panel .table td:nth-child(3),
+  .viewer-score-panel .table td:nth-child(4){
+    font-size:22px !important;
+  }
+
+  .live-mode-controls{
+    display:grid !important;
+    grid-template-columns:repeat(3,1fr) !important;
+  }
+
+  .court-selector-card{
+    margin-top:14px !important;
+    padding:20px !important;
+  }
+
+  .court-select-grid{
+    grid-template-columns:1fr !important;
+  }
+}

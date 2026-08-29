@@ -1,4 +1,5 @@
 import "./style.css";
+import "./preview-redesign.css";
 
 // ====== App root ======
 const app = document.getElementById("app");
