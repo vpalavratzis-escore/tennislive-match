@@ -1236,3 +1236,412 @@ and (max-width:1180px){
 
 }
 
+/* ===== VC MATCH END WHITE COMPACT START ===== */
+
+/*
+ * Match End — white compact VoxCourt treatment.
+ * Visual override only.
+ * No match-result / replay / share / API logic changed.
+ */
+
+.vc-viewer-page .match-end-summary{
+  grid-template-columns:
+    minmax(190px,.72fr)
+    minmax(0,1.28fr) !important;
+
+  grid-template-areas:
+    "top score"
+    "meta actions" !important;
+
+  align-items:center !important;
+
+  gap:10px 16px !important;
+
+  padding:14px 16px !important;
+
+  overflow:hidden !important;
+
+  border:
+    1px solid #dbe5ea !important;
+
+  border-radius:
+    16px !important;
+
+  background:
+    #ffffff !important;
+
+  box-shadow:
+    0 8px 24px
+    rgba(20,54,76,.055) !important;
+
+  color:#10233a !important;
+}
+
+
+/* ---------- TITLE ---------- */
+
+.vc-viewer-page
+.match-end-summary__top{
+  grid-area:top !important;
+
+  display:block !important;
+
+  min-width:0 !important;
+}
+
+
+.vc-viewer-page
+.match-end-summary__eyebrow{
+  margin:0 !important;
+
+  color:#c88313 !important;
+
+  font-size:9px !important;
+
+  line-height:1 !important;
+
+  font-weight:950 !important;
+
+  letter-spacing:.12em !important;
+}
+
+
+.vc-viewer-page
+.match-end-summary__title{
+  margin:5px 0 0 !important;
+
+  color:#10233a !important;
+
+  font-size:
+    clamp(18px,1.8vw,23px) !important;
+
+  line-height:1.05 !important;
+
+  font-weight:950 !important;
+
+  letter-spacing:-.025em !important;
+}
+
+
+.vc-viewer-page
+.match-end-summary__subtitle{
+  margin-top:4px !important;
+
+  color:#6f8294 !important;
+
+  font-size:10px !important;
+
+  font-weight:700 !important;
+}
+
+
+/* Remove old trophy decoration */
+
+.vc-viewer-page
+.match-end-summary__trophy{
+  display:none !important;
+}
+
+
+/* ---------- RESULT ---------- */
+
+.vc-viewer-page
+.match-end-summary__score{
+  grid-area:score !important;
+
+  display:grid !important;
+
+  gap:6px !important;
+
+  min-width:0 !important;
+
+  padding:0 !important;
+
+  border:0 !important;
+
+  border-radius:0 !important;
+
+  background:transparent !important;
+}
+
+
+.vc-viewer-page
+.match-end-result-row{
+  min-height:40px !important;
+
+  gap:10px !important;
+
+  padding:6px 8px 6px 12px !important;
+
+  border:
+    1px solid #e2e9ed !important;
+
+  border-radius:
+    10px !important;
+
+  color:#243b52 !important;
+
+  background:
+    #f8fafb !important;
+}
+
+
+.vc-viewer-page
+.match-end-result-row--winner{
+  color:#10233a !important;
+
+  border-color:
+    #b8e2e4 !important;
+
+  background:
+    linear-gradient(
+      90deg,
+      #eefafa 0%,
+      #f9fcfc 100%
+    ) !important;
+
+  box-shadow:
+    inset 3px 0 0
+    #0aadb6 !important;
+}
+
+
+.vc-viewer-page
+.match-end-result-row > span{
+  color:inherit !important;
+
+  font-size:12px !important;
+
+  line-height:1.15 !important;
+
+  font-weight:900 !important;
+}
+
+
+.vc-viewer-page
+.match-end-result-values{
+  gap:5px !important;
+}
+
+
+.vc-viewer-page
+.match-end-result-values strong,
+.vc-viewer-page
+.match-end-result-values span{
+  min-width:42px !important;
+
+  min-height:28px !important;
+
+  padding:4px 7px !important;
+
+  border-radius:8px !important;
+
+  font-size:11px !important;
+
+  line-height:1 !important;
+
+  font-weight:950 !important;
+}
+
+
+.vc-viewer-page
+.match-end-result-values strong{
+  color:#087e86 !important;
+
+  border:
+    1px solid #bae2e4 !important;
+
+  background:
+    #eaf8f8 !important;
+}
+
+
+.vc-viewer-page
+.match-end-result-values span{
+  color:#415a70 !important;
+
+  border:
+    1px solid #dce5ea !important;
+
+  background:
+    #f3f6f8 !important;
+}
+
+
+/* ---------- META ---------- */
+
+.vc-viewer-page
+.match-end-summary__meta{
+  grid-area:meta !important;
+
+  display:grid !important;
+
+  grid-template-columns:
+    repeat(2,minmax(0,1fr)) !important;
+
+  gap:6px !important;
+}
+
+
+.vc-viewer-page
+.match-end-summary__meta > div{
+  gap:2px !important;
+
+  padding:7px 9px !important;
+
+  border:
+    1px solid #e3eaee !important;
+
+  border-radius:
+    9px !important;
+
+  background:
+    #f8fafb !important;
+}
+
+
+.vc-viewer-page
+.match-end-summary__meta span{
+  color:#7a8c9d !important;
+
+  font-size:7px !important;
+
+  line-height:1 !important;
+
+  font-weight:900 !important;
+
+  letter-spacing:.08em !important;
+}
+
+
+.vc-viewer-page
+.match-end-summary__meta strong{
+  color:#183149 !important;
+
+  font-size:10px !important;
+
+  line-height:1.15 !important;
+
+  font-weight:900 !important;
+}
+
+
+/* ---------- ACTIONS ---------- */
+
+.vc-viewer-page
+.match-end-summary__actions{
+  grid-area:actions !important;
+
+  display:flex !important;
+
+  align-items:center !important;
+
+  justify-content:flex-start !important;
+
+  gap:6px !important;
+
+  flex-wrap:wrap !important;
+}
+
+
+.vc-viewer-page
+.match-end-summary__actions
+.match-action-button{
+  width:auto !important;
+
+  min-height:32px !important;
+
+  padding:7px 10px !important;
+
+  border:
+    1px solid #d7e2e7 !important;
+
+  border-radius:
+    8px !important;
+
+  color:#29445b !important;
+
+  background:#ffffff !important;
+
+  box-shadow:none !important;
+
+  font-size:9px !important;
+
+  font-weight:850 !important;
+}
+
+
+.vc-viewer-page
+.match-end-summary__actions
+.match-action-button--accent{
+  color:#ffffff !important;
+
+  border-color:#0aaab3 !important;
+
+  background:
+    linear-gradient(
+      135deg,
+      #12b8c0,
+      #07949d
+    ) !important;
+}
+
+
+/* ---------- MOBILE ---------- */
+
+@media (max-width:700px){
+
+  .vc-viewer-page
+  .match-end-summary{
+    grid-template-columns:1fr !important;
+
+    grid-template-areas:
+      "top"
+      "score"
+      "meta"
+      "actions" !important;
+
+    gap:9px !important;
+
+    padding:12px !important;
+  }
+
+
+  .vc-viewer-page
+  .match-end-summary__title{
+    font-size:19px !important;
+  }
+
+
+  .vc-viewer-page
+  .match-end-summary__meta{
+    grid-template-columns:
+      repeat(2,minmax(0,1fr)) !important;
+  }
+
+
+  .vc-viewer-page
+  .match-end-summary__actions{
+    display:grid !important;
+
+    grid-template-columns:
+      repeat(3,minmax(0,1fr)) !important;
+
+    gap:5px !important;
+  }
+
+
+  .vc-viewer-page
+  .match-end-summary__actions
+  .match-action-button{
+    width:100% !important;
+
+    min-width:0 !important;
+
+    padding:7px 5px !important;
+
+    font-size:8px !important;
+  }
+}
+
+/* ===== VC MATCH END WHITE COMPACT END ===== */
