@@ -2,6 +2,7 @@ import "./style.css";
 import "./home-production.css";
 import "./find-courts-production.css";
 import "./viewer-production.css";
+import "./viewer-layout-final.css";
 
 // ====== App root ======
 const app = document.getElementById("app");
