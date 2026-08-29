@@ -1,0 +1,918 @@
+
+/* =====================================================
+   VOXCOURT HOME — PRODUCTION
+   ===================================================== */
+
+html:has(.vc-home-prod),
+body:has(.vc-home-prod){
+  background:#f5f8fa !important;
+}
+
+body:has(.vc-home-prod){
+  color:#10233a !important;
+}
+
+.vc-home-prod{
+  max-width:1500px !important;
+  color:#10233a;
+}
+
+.vc-home-prod *{
+  box-sizing:border-box;
+}
+
+
+/* NAVIGATION */
+
+.vc-home-nav{
+  min-height:78px;
+
+  display:grid;
+  grid-template-columns:240px 1fr 190px;
+
+  align-items:center;
+  gap:20px;
+
+  padding:10px 18px;
+
+  border:1px solid #dce7ec;
+  border-radius:18px;
+
+  background:#fff;
+
+  box-shadow:
+    0 8px 30px rgba(27,61,82,.06);
+}
+
+.vc-home-brand{
+  width:max-content;
+
+  display:flex;
+  align-items:center;
+
+  padding:7px 11px;
+
+  border-radius:11px;
+
+  background:#071a27;
+}
+
+.vc-home-brand img{
+  display:block;
+
+  width:auto;
+  max-width:190px;
+  max-height:48px;
+}
+
+.vc-home-links{
+  display:flex;
+
+  justify-content:center;
+  align-items:center;
+
+  gap:42px;
+}
+
+.vc-home-links a{
+  position:relative;
+
+  padding:12px 0;
+
+  color:#294057 !important;
+
+  font-size:13px;
+  font-weight:800;
+
+  text-decoration:none;
+}
+
+.vc-home-links a:hover,
+.vc-home-links a.active{
+  color:#079ba6 !important;
+}
+
+.vc-home-links a.active::after{
+  content:"";
+
+  position:absolute;
+
+  left:0;
+  right:0;
+  bottom:4px;
+
+  height:2px;
+
+  border-radius:10px;
+
+  background:#0aabb5;
+}
+
+.vc-home-open{
+  justify-self:end;
+
+  min-height:46px;
+
+  display:inline-flex;
+
+  align-items:center;
+  justify-content:center;
+
+  gap:10px;
+
+  padding:0 20px;
+
+  border-radius:12px;
+
+  color:#fff !important;
+
+  background:
+    linear-gradient(
+      135deg,
+      #12bdc6,
+      #078f9a
+    );
+
+  font-size:13px;
+  font-weight:850;
+
+  text-decoration:none;
+
+  box-shadow:
+    0 10px 25px rgba(8,157,167,.20);
+}
+
+
+/* MAIN */
+
+.vc-home-content{
+  display:flex;
+
+  flex-direction:column;
+
+  gap:17px;
+
+  margin-top:17px;
+}
+
+
+/* HERO */
+
+.vc-home-hero{
+  position:relative;
+
+  min-height:620px;
+
+  overflow:hidden;
+
+  border:
+    1px solid #dbe6eb;
+
+  border-radius:26px;
+
+  background:#fff;
+
+  box-shadow:
+    0 24px 68px rgba(24,61,82,.10);
+}
+
+
+/*
+   PHOTO:
+   not a hard rectangle.
+   It fades naturally into the white page.
+*/
+
+.vc-home-hero__art{
+  position:absolute;
+
+  inset:0;
+
+  overflow:hidden;
+
+  pointer-events:none;
+}
+
+.vc-home-hero__art img{
+  position:absolute;
+
+  inset:-3% -2% -4% 22%;
+
+  width:82%;
+  height:108%;
+
+  max-width:none !important;
+
+  object-fit:cover;
+
+  object-position:center center;
+
+  opacity:.98;
+
+  /*
+     SOFT FADE ON ALL OUTER EDGES
+  */
+
+  -webkit-mask-image:
+    radial-gradient(
+      ellipse 82% 92% at 58% 50%,
+      #000 52%,
+      rgba(0,0,0,.98) 66%,
+      rgba(0,0,0,.65) 78%,
+      transparent 100%
+    );
+
+  mask-image:
+    radial-gradient(
+      ellipse 82% 92% at 58% 50%,
+      #000 52%,
+      rgba(0,0,0,.98) 66%,
+      rgba(0,0,0,.65) 78%,
+      transparent 100%
+    );
+}
+
+
+/*
+   Extra white gradient so the photograph
+   melts into the text instead of starting abruptly.
+*/
+
+.vc-home-hero__art::after{
+  content:"";
+
+  position:absolute;
+  inset:0;
+
+  background:
+    linear-gradient(
+      90deg,
+      #ffffff 0%,
+      rgba(255,255,255,.99) 22%,
+      rgba(255,255,255,.87) 31%,
+      rgba(255,255,255,.43) 42%,
+      rgba(255,255,255,.10) 54%,
+      transparent 68%
+    );
+}
+
+
+/* subtle finishing vignette */
+
+.vc-home-hero::after{
+  content:"";
+
+  position:absolute;
+
+  inset:0;
+
+  pointer-events:none;
+
+  border-radius:inherit;
+
+  box-shadow:
+    inset 0 0 52px rgba(255,255,255,.55);
+}
+
+
+/* HERO TEXT */
+
+.vc-home-hero__copy{
+  position:relative;
+
+  z-index:4;
+
+  width:48%;
+
+  min-height:620px;
+
+  display:flex;
+
+  flex-direction:column;
+
+  justify-content:center;
+
+  padding:
+    55px 20px
+    55px 54px;
+}
+
+.vc-home-kicker{
+  margin-bottom:18px;
+
+  color:#079aa4;
+
+  font-size:10px;
+  line-height:1.2;
+
+  font-weight:900;
+
+  letter-spacing:.14em;
+}
+
+.vc-home-hero h1{
+  max-width:590px;
+
+  margin:0;
+
+  color:#10233a !important;
+
+  font-size:
+    clamp(48px,4.6vw,72px);
+
+  line-height:.99;
+
+  letter-spacing:-.055em;
+
+  font-weight:950;
+}
+
+.vc-home-hero h1 span{
+  display:block;
+
+  color:#099fa9 !important;
+}
+
+.vc-home-hero__copy > p{
+  max-width:500px;
+
+  margin:25px 0 0;
+
+  color:#64768a !important;
+
+  font-size:16px;
+
+  line-height:1.65;
+}
+
+.vc-home-actions{
+  display:flex;
+
+  gap:12px;
+
+  margin-top:29px;
+}
+
+.vc-home-primary,
+.vc-home-secondary{
+  min-height:50px;
+
+  display:inline-flex;
+
+  align-items:center;
+  justify-content:center;
+
+  gap:9px;
+
+  padding:0 20px;
+
+  border-radius:12px;
+
+  font-size:13px;
+
+  font-weight:850;
+
+  text-decoration:none !important;
+}
+
+.vc-home-primary{
+  color:#fff !important;
+
+  background:
+    linear-gradient(
+      135deg,
+      #12bdc6,
+      #078f9a
+    );
+
+  box-shadow:
+    0 10px 24px
+    rgba(8,158,168,.20);
+}
+
+.vc-home-secondary{
+  color:#17324a !important;
+
+  border:
+    1px solid #d8e4e9;
+
+  background:
+    rgba(255,255,255,.92);
+
+  backdrop-filter:
+    blur(10px);
+}
+
+.vc-home-play{
+  color:#099fa9 !important;
+
+  font-size:10px;
+}
+
+
+/* small useful facts */
+
+.vc-home-mini{
+  display:flex;
+
+  flex-wrap:wrap;
+
+  gap:17px;
+
+  margin-top:30px;
+}
+
+.vc-home-mini span{
+  display:flex;
+
+  align-items:center;
+
+  gap:7px;
+
+  color:#687b8e !important;
+
+  font-size:10px;
+
+  font-weight:750;
+}
+
+.vc-home-mini i{
+  width:6px;
+  height:6px;
+
+  border-radius:50%;
+
+  background:#0aabb5;
+}
+
+
+/* sport names sit over image */
+
+.vc-home-sport-labels{
+  position:absolute;
+
+  z-index:5;
+
+  right:35px;
+  bottom:28px;
+
+  width:54%;
+
+  display:flex;
+
+  justify-content:space-around;
+
+  pointer-events:none;
+}
+
+.vc-home-sport-labels span{
+  padding:7px 12px;
+
+  border:
+    1px solid rgba(255,255,255,.42);
+
+  border-radius:999px;
+
+  color:#fff !important;
+
+  background:
+    rgba(7,24,36,.58);
+
+  backdrop-filter:
+    blur(9px);
+
+  font-size:8px;
+
+  font-weight:900;
+
+  letter-spacing:.08em;
+}
+
+
+/* FEATURES */
+
+.vc-home-features{
+  display:grid;
+
+  grid-template-columns:
+    repeat(4,minmax(0,1fr));
+
+  gap:11px;
+}
+
+.vc-home-features article{
+  min-height:195px;
+
+  padding:24px;
+
+  border:
+    1px solid #dfe8ed;
+
+  border-radius:17px;
+
+  background:#fff;
+
+  box-shadow:
+    0 8px 25px rgba(26,61,82,.04);
+}
+
+.vc-home-feature-icon{
+  width:42px;
+  height:42px;
+
+  display:grid;
+
+  place-items:center;
+
+  margin-bottom:26px;
+
+  border-radius:11px;
+
+  color:#079da7;
+
+  background:#eaf8f9;
+}
+
+.vc-home-feature-icon svg{
+  width:21px;
+  height:21px;
+
+  fill:none;
+
+  stroke:currentColor;
+
+  stroke-width:1.7;
+
+  stroke-linecap:round;
+
+  stroke-linejoin:round;
+}
+
+.vc-home-features h2{
+  margin:0;
+
+  color:#10233a !important;
+
+  font-size:17px;
+}
+
+.vc-home-features p{
+  margin:9px 0 0;
+
+  color:#718397 !important;
+
+  font-size:12px;
+
+  line-height:1.6;
+}
+
+
+/* CLUB FLOW */
+
+.vc-home-simple{
+  display:grid;
+
+  grid-template-columns:
+    .85fr 1.15fr;
+
+  gap:55px;
+
+  align-items:center;
+
+  padding:38px 42px;
+
+  border:
+    1px solid #dfe8ed;
+
+  border-radius:20px;
+
+  background:#fff;
+}
+
+.vc-home-simple > div:first-child > span{
+  color:#079ba5 !important;
+
+  font-size:9px;
+
+  font-weight:900;
+
+  letter-spacing:.14em;
+}
+
+.vc-home-simple h2{
+  max-width:510px;
+
+  margin:8px 0 0;
+
+  color:#10233a !important;
+
+  font-size:30px;
+
+  line-height:1.08;
+
+  letter-spacing:-.04em;
+}
+
+.vc-home-steps{
+  display:grid;
+
+  grid-template-columns:
+    repeat(3,1fr);
+}
+
+.vc-home-steps > div{
+  min-height:68px;
+
+  display:flex;
+
+  flex-direction:column;
+
+  justify-content:center;
+
+  padding-left:24px;
+
+  border-left:
+    1px solid #dce6ea;
+}
+
+.vc-home-steps strong{
+  margin-bottom:6px;
+
+  color:#08a5af !important;
+
+  font-size:9px;
+}
+
+.vc-home-steps span{
+  color:#31475c !important;
+
+  font-size:12px;
+
+  font-weight:800;
+}
+
+
+/* FINAL CTA */
+
+.vc-home-cta{
+  display:flex;
+
+  align-items:center;
+
+  justify-content:space-between;
+
+  gap:30px;
+
+  padding:35px 42px;
+
+  border-radius:20px;
+
+  background:#102839;
+}
+
+.vc-home-cta > div > span{
+  color:#55d4da !important;
+
+  font-size:9px;
+
+  font-weight:900;
+
+  letter-spacing:.14em;
+}
+
+.vc-home-cta h2{
+  margin:7px 0 0;
+
+  color:#fff !important;
+
+  font-size:29px;
+}
+
+.vc-home-cta > a{
+  min-height:48px;
+
+  display:inline-flex;
+
+  align-items:center;
+
+  gap:10px;
+
+  padding:0 20px;
+
+  border-radius:12px;
+
+  color:#fff !important;
+
+  background:
+    linear-gradient(
+      135deg,
+      #11bbc4,
+      #078d98
+    );
+
+  font-size:13px;
+
+  font-weight:850;
+
+  text-decoration:none;
+}
+
+
+/* FOOTER */
+
+.vc-home-footer{
+  display:flex;
+
+  justify-content:space-between;
+
+  padding:22px 5px 30px;
+
+  color:#8795a3;
+
+  font-size:10px;
+}
+
+
+/* TABLET */
+
+@media(max-width:1050px){
+
+  .vc-home-hero__copy{
+    width:58%;
+  }
+
+  .vc-home-hero__art img{
+    left:25%;
+    width:90%;
+  }
+
+  .vc-home-features{
+    grid-template-columns:
+      repeat(2,1fr);
+  }
+
+}
+
+
+/* MOBILE */
+
+@media(max-width:720px){
+
+  .vc-home-nav{
+    grid-template-columns:1fr auto;
+
+    min-height:66px;
+
+    padding:9px 10px;
+  }
+
+  .vc-home-links{
+    display:none;
+  }
+
+  .vc-home-brand img{
+    max-width:145px;
+  }
+
+  .vc-home-open{
+    min-height:42px;
+
+    padding:0 13px;
+
+    font-size:11px;
+  }
+
+  .vc-home-content{
+    gap:10px;
+
+    margin-top:10px;
+  }
+
+  .vc-home-hero{
+    min-height:690px;
+
+    border-radius:19px;
+  }
+
+  .vc-home-hero__copy{
+    width:100%;
+
+    min-height:0;
+
+    padding:
+      30px 20px 0;
+  }
+
+  .vc-home-hero h1{
+    max-width:430px;
+
+    font-size:42px;
+  }
+
+  .vc-home-hero__copy > p{
+    max-width:390px;
+
+    font-size:13px;
+  }
+
+  .vc-home-actions{
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+  }
+
+  .vc-home-primary,
+  .vc-home-secondary{
+    padding:0 11px;
+
+    font-size:11px;
+  }
+
+  .vc-home-mini{
+    gap:9px 13px;
+  }
+
+  .vc-home-hero__art img{
+    inset:auto -22% -4% 0;
+
+    width:130%;
+    height:390px;
+
+    object-position:center;
+  }
+
+  .vc-home-hero__art::after{
+    background:
+      linear-gradient(
+        180deg,
+        #fff 0%,
+        #fff 36%,
+        rgba(255,255,255,.72) 49%,
+        rgba(255,255,255,.05) 70%,
+        transparent 100%
+      );
+  }
+
+  .vc-home-sport-labels{
+    right:12px;
+    bottom:15px;
+
+    width:95%;
+  }
+
+  .vc-home-sport-labels span{
+    padding:6px 8px;
+
+    font-size:7px;
+  }
+
+  .vc-home-features{
+    grid-template-columns:1fr;
+  }
+
+  .vc-home-features article{
+    min-height:0;
+  }
+
+  .vc-home-simple{
+    grid-template-columns:1fr;
+
+    gap:27px;
+
+    padding:27px 20px;
+  }
+
+  .vc-home-simple h2{
+    font-size:26px;
+  }
+
+  .vc-home-steps > div{
+    padding-left:11px;
+  }
+
+  .vc-home-steps span{
+    font-size:10px;
+  }
+
+  .vc-home-cta{
+    display:block;
+
+    padding:27px 20px;
+  }
+
+  .vc-home-cta > a{
+    width:100%;
+
+    justify-content:center;
+
+    margin-top:22px;
+  }
+
+  .vc-home-footer{
+    flex-direction:column;
+
+    gap:5px;
+  }
+
+}
+

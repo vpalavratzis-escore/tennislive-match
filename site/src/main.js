@@ -1,4 +1,5 @@
 import "./style.css";
+import "./home-production.css";
 
 // ====== App root ======
 const app = document.getElementById("app");
