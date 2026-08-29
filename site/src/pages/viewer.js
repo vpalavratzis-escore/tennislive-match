@@ -1207,155 +1207,166 @@ export async function renderViewer(path) {
 
     <div class="viewerWrap" style="grid-template-columns: 1fr 1fr; gap:16px; align-items:stretch;">
 
-      <div class="panel section viewer-score-panel" style="display:flex; flex-direction:column;">
-        <div class="badge"><i></i> Live score</div>
+      <div class="panel section viewer-score-panel vc-scoreboard">
 
-        <div style="display:flex; gap:16px; margin: 10px 0 12px 0;">
-          <div style="
-              position:relative;
-              flex:1 1 0;
-              min-width:0;
-              height:82px;
-              display:flex;
-              align-items:center;
-              gap:12px;
-              padding:12px;
-              border-radius:14px;
-              background: rgba(255,255,255,.04);
-              border: 1px solid rgba(255,255,255,.10);
-            ">
-            <div style="
-                width:56px; height:56px;
-                border-radius:999px;
-                background: rgba(255,255,255,.08);
-                border: 1px solid rgba(255,255,255,.15);
-                overflow:hidden;
-                display:flex; align-items:center; justify-content:center;
-                flex:0 0 auto;
-              ">
-              <img id="photoA" alt="A"
-                   style="width:100%;height:100%;object-fit:cover;display:none;" />
-              <span id="photoAph" style="opacity:.65; font-weight:900; letter-spacing:.5px;">A</span>
-            </div>
+        <header class="vc-scoreboard__header">
+          <div>
+            <span class="vc-scoreboard__eyebrow">
+              LIVE SCORE
+            </span>
 
-            <div style="min-width:0; flex:1 1 auto; padding-right:54px;">
-              <div id="photoATitle" style="
-                  font-weight:900;
-                  font-size:10px;
-                  line-height:1.15;
-                  display:-webkit-box;
-                  -webkit-line-clamp:2;
-                  -webkit-box-orient:vertical;
-                  overflow:hidden;
-                  word-break:break-word;
-                ">Player A</div>
-              <div class="hint" style="margin:3px 0 0 0;">Photo</div>
-            </div>
-
-            <span id="serveAIcon" style="
-                display:none;
-                position:absolute;
-                right:14px;
-                top:50%;
-                transform:translateY(-50%);
-                width:16px;
-                height:16px;
-                border-radius:999px;
-                background:#ffd34d;
-                box-shadow:
-                  0 0 0 4px rgba(255,211,77,.16),
-                  0 0 14px rgba(255,211,77,.55);
-              "></span>
+            <h2>Match score</h2>
           </div>
 
-          <div style="
-              position:relative;
-              flex:1 1 0;
-              min-width:0;
-              height:82px;
-              display:flex;
-              align-items:center;
-              gap:12px;
-              padding:12px;
-              border-radius:14px;
-              background: rgba(255,255,255,.04);
-              border: 1px solid rgba(255,255,255,.10);
-            ">
-            <div style="
-                width:56px; height:56px;
-                border-radius:999px;
-                background: rgba(255,255,255,.08);
-                border: 1px solid rgba(255,255,255,.15);
-                overflow:hidden;
-                display:flex; align-items:center; justify-content:center;
-                flex:0 0 auto;
-              ">
-              <img id="photoB" alt="B"
-                   style="width:100%;height:100%;object-fit:cover;display:none;" />
-              <span id="photoBph" style="opacity:.65; font-weight:900; letter-spacing:.5px;">B</span>
-            </div>
+          <span class="vc-scoreboard__live">
+            <i></i>
+            LIVE
+          </span>
+        </header>
 
-            <div style="min-width:0; flex:1 1 auto; padding-right:54px;">
-              <div id="photoBTitle" style="
-                  font-weight:900;
-                  font-size:10px;
-                  line-height:1.15;
-                  display:-webkit-box;
-                  -webkit-line-clamp:2;
-                  -webkit-box-orient:vertical;
-                  overflow:hidden;
-                  word-break:break-word;
-                ">Player B</div>
-              <div class="hint" style="margin:3px 0 0 0;">Photo</div>
-            </div>
 
-            <span id="serveBIcon" style="
-                display:none;
-                position:absolute;
-                right:14px;
-                top:50%;
-                transform:translateY(-50%);
-                width:16px;
-                height:16px;
-                border-radius:999px;
-                background:#ffd34d;
-                box-shadow:
-                  0 0 0 4px rgba(255,211,77,.16),
-                  0 0 14px rgba(255,211,77,.55);
-              "></span>
-          </div>
+        <div class="vc-scoreboard__labels">
+          <span>Player</span>
+          <span>Points</span>
+          <span>Games</span>
+          <span>Sets</span>
         </div>
 
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Point</th>
-              <th>Games</th>
-              <th>Sets</th>
-            </tr>
-          </thead>
 
-          <tbody>
-            <tr>
-              <td id="nameA" style="font-weight:900; font-size:15px;">—</td>
-              <td id="pointA">—</td>
-              <td id="gamesA">—</td>
-              <td id="setsA">—</td>
-            </tr>
+        <!-- PLAYER A -->
+        <div class="vc-score-row vc-score-row--a">
 
-            <tr>
-              <td id="nameB" style="font-weight:900; font-size:15px;">—</td>
-              <td id="pointB">—</td>
-              <td id="gamesB">—</td>
-              <td id="setsB">—</td>
-            </tr>
-          </tbody>
-        </table>
+          <div class="vc-score-player">
 
-        <div class="hint" id="status">Waiting for data…</div>
-        <div class="hint" id="photostatus" style="margin-top:6px;">PHOTOS / —</div>
-        <div style="flex:1 1 auto;"></div>
+            <div class="vc-score-avatar">
+              <img
+                id="photoA"
+                alt="Player A"
+                style="display:none;"
+              />
+
+              <span id="photoAph">A</span>
+            </div>
+
+            <div class="vc-score-player__name">
+              <strong id="nameA">Player A</strong>
+
+              <!-- Kept for existing JS -->
+              <span
+                id="photoATitle"
+                class="vc-score-player__js-name"
+                aria-hidden="true"
+              >
+                Player A
+              </span>
+            </div>
+
+            <span
+              id="serveAIcon"
+              class="vc-score-serve"
+              style="display:none;"
+              title="Serving"
+            ></span>
+
+          </div>
+
+          <strong
+            id="pointA"
+            class="vc-score-value vc-score-value--point"
+          >
+            —
+          </strong>
+
+          <strong
+            id="gamesA"
+            class="vc-score-value"
+          >
+            —
+          </strong>
+
+          <strong
+            id="setsA"
+            class="vc-score-value vc-score-value--sets"
+          >
+            —
+          </strong>
+
+        </div>
+
+
+        <!-- PLAYER B -->
+        <div class="vc-score-row vc-score-row--b">
+
+          <div class="vc-score-player">
+
+            <div class="vc-score-avatar">
+              <img
+                id="photoB"
+                alt="Player B"
+                style="display:none;"
+              />
+
+              <span id="photoBph">B</span>
+            </div>
+
+            <div class="vc-score-player__name">
+              <strong id="nameB">Player B</strong>
+
+              <!-- Kept for existing JS -->
+              <span
+                id="photoBTitle"
+                class="vc-score-player__js-name"
+                aria-hidden="true"
+              >
+                Player B
+              </span>
+            </div>
+
+            <span
+              id="serveBIcon"
+              class="vc-score-serve"
+              style="display:none;"
+              title="Serving"
+            ></span>
+
+          </div>
+
+          <strong
+            id="pointB"
+            class="vc-score-value vc-score-value--point"
+          >
+            —
+          </strong>
+
+          <strong
+            id="gamesB"
+            class="vc-score-value"
+          >
+            —
+          </strong>
+
+          <strong
+            id="setsB"
+            class="vc-score-value vc-score-value--sets"
+          >
+            —
+          </strong>
+
+        </div>
+
+
+        <div
+          id="status"
+          class="vc-scoreboard__status"
+        >
+          Waiting for match data…
+        </div>
+
+        <div
+          id="photostatus"
+          style="display:none;"
+        ></div>
+
       </div>
 
       <div class="panel section viewer-player-panel" style="display:flex; flex-direction:column;">
@@ -1809,7 +1820,24 @@ export async function renderViewer(path) {
 
     </div>
 
-    <div
+    
+    <section
+      id="clubSponsors"
+      class="vc-sponsors"
+      aria-label="Club sponsors"
+    >
+      <div class="vc-sponsors__intro">
+        <span>CLUB PARTNERS</span>
+        <strong>Sponsors</strong>
+      </div>
+
+      <div
+        id="clubSponsorsList"
+        class="vc-sponsors__list"
+      ></div>
+    </section>
+
+<div
       class="panel section"
       style="
         margin-top:18px;
@@ -2580,6 +2608,86 @@ export async function renderViewer(path) {
     const photosCourt = String(courtObj.photosCourt || courtId || "court-1").trim() || "court-1";
     const apiBase = isAbsUrl(stateUrl) ? new URL(stateUrl).origin : window.location.origin;
 
+    /*
+     * CLUB SPONSORS
+     *
+     * Supported in clubs.json:
+     *
+     * "sponsors": [
+     *   {
+     *     "name": "Company",
+     *     "logo": "/media/sponsors/company.png",
+     *     "url": "https://company.com"
+     *   }
+     * ]
+     */
+
+    const VC_DEFAULT_SPONSORS = [
+      { name: "AQUACORE" },
+      { name: "PROSERVE" },
+      { name: "NETWAVE" },
+      { name: "COURTFUEL" },
+      { name: "PADELIX" }
+    ];
+
+    const configuredSponsors =
+      Array.isArray(courtObj.sponsors) &&
+      courtObj.sponsors.length
+        ? courtObj.sponsors
+        : (
+            Array.isArray(clubObj.sponsors) &&
+            clubObj.sponsors.length
+              ? clubObj.sponsors
+              : VC_DEFAULT_SPONSORS
+          );
+
+    const sponsorsList =
+      app.querySelector("#clubSponsorsList");
+
+    if (sponsorsList) {
+
+      sponsorsList.replaceChildren();
+
+      configuredSponsors
+        .slice(0, 6)
+        .forEach((sponsor) => {
+
+          const item = document.createElement(
+            sponsor.url ? "a" : "div"
+          );
+
+          item.className = "vc-sponsor";
+
+          if (sponsor.url) {
+            item.href = sponsor.url;
+            item.target = "_blank";
+            item.rel = "noopener noreferrer";
+          }
+
+          if (sponsor.logo) {
+
+            const img = document.createElement("img");
+
+            img.src = resolveUrl(sponsor.logo);
+            img.alt = sponsor.name || "Sponsor";
+
+            item.appendChild(img);
+
+          } else {
+
+            const name = document.createElement("span");
+
+            name.textContent =
+              sponsor.name || "Sponsor";
+
+            item.appendChild(name);
+          }
+
+          sponsorsList.appendChild(item);
+        });
+    }
+
+
     const liveQualityStreamKeys = {
       "1080": {
         cam1: "court1-1080",
@@ -3045,8 +3153,8 @@ ${window.location.href}`
       setPlayerFullscreen();
     });
 
-    miTitle.textContent = `🎾 ${clubObj.name} – ${courtObj.name}`;
-    miLine2.textContent = `📍 ${cityObj.name}, ${countryObj.name}  •  🔴 LIVE`;
+    miTitle.textContent = `${clubObj.name} – ${courtObj.name}`;
+    miLine2.textContent = `${cityObj.name}, ${countryObj.name}  •  LIVE`;
 
     let replayObjectUrl = "";
     let selectedReplayCam = "cam1";

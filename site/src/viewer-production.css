@@ -816,3 +816,695 @@ body:has(.vc-viewer-page){
 
 }
 
+
+
+/* =========================================================
+   LIVE VIEWER V2 — SCOREBOARD + SPONSORS
+   ========================================================= */
+
+
+/* Main balance */
+
+.vc-viewer-page .viewerWrap{
+  grid-template-columns:
+    minmax(0, 1.72fr)
+    minmax(390px, .68fr) !important;
+
+  gap:20px !important;
+}
+
+
+/* =========================================================
+   NEW SCOREBOARD
+   ========================================================= */
+
+.vc-viewer-page .vc-scoreboard{
+  padding:0 !important;
+
+  overflow:hidden !important;
+
+  border:1px solid #d9e4e9 !important;
+  border-radius:20px !important;
+
+  background:#fff !important;
+
+  color:#10233a !important;
+
+  box-shadow:
+    0 14px 40px rgba(29,65,87,.08) !important;
+}
+
+
+/* header */
+
+.vc-scoreboard__header{
+  display:flex;
+
+  align-items:center;
+  justify-content:space-between;
+
+  gap:20px;
+
+  padding:22px 22px 18px;
+
+  border-bottom:1px solid #e3ebef;
+
+  background:
+    linear-gradient(
+      180deg,
+      #ffffff,
+      #fbfdfe
+    );
+}
+
+.vc-scoreboard__eyebrow{
+  display:block;
+
+  margin-bottom:5px;
+
+  color:#089da7 !important;
+
+  font-size:9px;
+
+  font-weight:950;
+
+  letter-spacing:.14em;
+}
+
+.vc-scoreboard__header h2{
+  margin:0;
+
+  color:#10233a !important;
+
+  font-size:23px;
+
+  line-height:1;
+
+  font-weight:950;
+
+  letter-spacing:-.035em;
+}
+
+.vc-scoreboard__live{
+  display:inline-flex;
+
+  align-items:center;
+
+  gap:6px;
+
+  padding:7px 10px;
+
+  border-radius:999px;
+
+  color:#c43e47 !important;
+
+  background:#fff0f1;
+
+  font-size:9px;
+
+  font-weight:950;
+
+  letter-spacing:.08em;
+}
+
+.vc-scoreboard__live i{
+  width:7px;
+  height:7px;
+
+  border-radius:50%;
+
+  background:#eb4c57;
+
+  box-shadow:
+    0 0 0 4px rgba(235,76,87,.10);
+}
+
+
+/* labels */
+
+.vc-scoreboard__labels{
+  display:grid;
+
+  grid-template-columns:
+    minmax(0,1fr)
+    74px
+    68px
+    62px;
+
+  align-items:center;
+
+  min-height:34px;
+
+  padding:0 13px;
+
+  color:#74869a !important;
+
+  font-size:8px;
+
+  font-weight:900;
+
+  letter-spacing:.10em;
+
+  text-transform:uppercase;
+}
+
+.vc-scoreboard__labels span:not(:first-child){
+  text-align:center;
+}
+
+
+/* player rows */
+
+.vc-score-row{
+  display:grid;
+
+  grid-template-columns:
+    minmax(0,1fr)
+    74px
+    68px
+    62px;
+
+  align-items:stretch;
+
+  min-height:104px;
+
+  margin:0 13px 9px;
+
+  overflow:hidden;
+
+  border:1px solid #dde7ec;
+  border-radius:15px;
+
+  background:#fff;
+}
+
+.vc-score-row--a{
+  border-left:
+    4px solid #08b4bd;
+}
+
+.vc-score-row--b{
+  border-left:
+    4px solid #9250ca;
+}
+
+
+/* player identity */
+
+.vc-score-player{
+  position:relative;
+
+  min-width:0;
+
+  display:flex;
+
+  align-items:center;
+
+  gap:13px;
+
+  padding:14px 12px;
+}
+
+.vc-score-avatar{
+  width:70px;
+  height:70px;
+
+  flex:0 0 70px;
+
+  display:flex;
+
+  align-items:center;
+  justify-content:center;
+
+  overflow:hidden;
+
+  border:2px solid #d9e8eb;
+  border-radius:50%;
+
+  color:#087f88 !important;
+
+  background:
+    linear-gradient(
+      145deg,
+      #effafb,
+      #dceff1
+    );
+
+  font-size:22px;
+
+  font-weight:950;
+}
+
+.vc-score-row--b .vc-score-avatar{
+  color:#7540a3 !important;
+
+  background:
+    linear-gradient(
+      145deg,
+      #faf5fd,
+      #e9dcf3
+    );
+}
+
+.vc-score-avatar img{
+  width:100%;
+  height:100%;
+
+  object-fit:cover;
+}
+
+.vc-score-player__name{
+  min-width:0;
+
+  flex:1;
+}
+
+.vc-score-player__name #nameA,
+.vc-score-player__name #nameB{
+  display:block !important;
+
+  width:auto !important;
+
+  overflow:visible !important;
+
+  white-space:normal !important;
+
+  text-overflow:clip !important;
+
+  overflow-wrap:anywhere !important;
+
+  color:#10233a !important;
+
+  font-size:15px !important;
+
+  line-height:1.18 !important;
+
+  font-weight:950 !important;
+}
+
+
+/*
+ * Existing JS still updates these elements,
+ * but we don't need duplicate names visually.
+ */
+
+.vc-score-player__js-name{
+  position:absolute !important;
+
+  width:1px !important;
+  height:1px !important;
+
+  overflow:hidden !important;
+
+  clip:rect(0 0 0 0) !important;
+}
+
+
+/* serve indicator */
+
+.vc-score-serve{
+  position:absolute !important;
+
+  right:8px !important;
+  top:10px !important;
+
+  width:10px !important;
+  height:10px !important;
+
+  border-radius:50% !important;
+
+  background:#f2c94c !important;
+
+  box-shadow:
+    0 0 0 4px rgba(242,201,76,.16),
+    0 0 14px rgba(242,201,76,.40) !important;
+}
+
+
+/* numbers */
+
+.vc-score-value{
+  display:flex;
+
+  align-items:center;
+  justify-content:center;
+
+  min-width:0;
+
+  border-left:1px solid #e1e9ed;
+
+  color:#10233a !important;
+
+  background:#fafcfd !important;
+
+  font-size:26px !important;
+
+  font-weight:950 !important;
+
+  font-variant-numeric:tabular-nums;
+}
+
+.vc-score-value--point{
+  color:#078f99 !important;
+
+  background:#edf9f9 !important;
+
+  font-size:32px !important;
+}
+
+.vc-score-value--sets{
+  color:#7d43ac !important;
+
+  background:#f6f0fa !important;
+}
+
+
+/* status */
+
+.vc-scoreboard__status{
+  margin:14px 13px 15px;
+
+  padding:10px 12px;
+
+  border-radius:10px;
+
+  color:#6e8094 !important;
+
+  background:#f5f9fa !important;
+
+  font-size:9px;
+}
+
+
+/* kill old table if any stale CSS/markup remains */
+
+.vc-scoreboard > .table{
+  display:none !important;
+}
+
+
+/* =========================================================
+   VIDEO CARD FINISHING
+   ========================================================= */
+
+.vc-viewer-page .viewer-player-panel{
+  padding:16px !important;
+
+  border-radius:20px !important;
+}
+
+.vc-viewer-page .cam--viewer{
+  border-radius:15px !important;
+
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.05),
+    0 10px 32px rgba(5,16,23,.15) !important;
+}
+
+.vc-viewer-page .live-mode-controls{
+  margin-top:11px !important;
+}
+
+
+/* =========================================================
+   SPONSORS
+   ========================================================= */
+
+.vc-sponsors{
+  display:grid;
+
+  grid-template-columns:
+    170px minmax(0,1fr);
+
+  align-items:center;
+
+  gap:22px;
+
+  margin-top:18px;
+
+  padding:16px 18px;
+
+  border:1px solid #dce7ec;
+  border-radius:18px;
+
+  background:#fff;
+
+  box-shadow:
+    0 8px 28px rgba(25,60,82,.05);
+}
+
+.vc-sponsors__intro{
+  padding-right:18px;
+
+  border-right:1px solid #e1e9ed;
+}
+
+.vc-sponsors__intro span{
+  display:block;
+
+  margin-bottom:4px;
+
+  color:#079ca6 !important;
+
+  font-size:8px;
+
+  font-weight:950;
+
+  letter-spacing:.13em;
+}
+
+.vc-sponsors__intro strong{
+  color:#10233a !important;
+
+  font-size:16px;
+
+  font-weight:950;
+}
+
+.vc-sponsors__list{
+  display:grid;
+
+  grid-template-columns:
+    repeat(5,minmax(0,1fr));
+
+  gap:9px;
+}
+
+.vc-sponsor{
+  min-width:0;
+  min-height:64px;
+
+  display:flex;
+
+  align-items:center;
+  justify-content:center;
+
+  padding:10px 13px;
+
+  overflow:hidden;
+
+  border:1px solid #e0e8ec;
+  border-radius:12px;
+
+  color:#294158 !important;
+
+  background:#fbfdfe;
+
+  text-decoration:none !important;
+
+  transition:
+    transform .16s ease,
+    border-color .16s ease,
+    box-shadow .16s ease;
+}
+
+a.vc-sponsor:hover{
+  transform:translateY(-2px);
+
+  border-color:#b9dadd;
+
+  box-shadow:
+    0 7px 18px rgba(23,62,83,.08);
+}
+
+.vc-sponsor img{
+  display:block;
+
+  width:auto;
+  height:auto;
+
+  max-width:100%;
+  max-height:38px;
+
+  object-fit:contain;
+}
+
+.vc-sponsor span{
+  overflow:hidden;
+
+  color:#294158 !important;
+
+  font-size:11px;
+
+  font-weight:950;
+
+  letter-spacing:.02em;
+
+  text-overflow:ellipsis;
+
+  white-space:nowrap;
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media(max-width:1050px){
+
+  .vc-viewer-page .viewerWrap{
+    grid-template-columns:
+      minmax(0,1.4fr)
+      minmax(350px,.75fr) !important;
+  }
+
+  .vc-scoreboard__labels,
+  .vc-score-row{
+    grid-template-columns:
+      minmax(0,1fr)
+      66px
+      58px
+      54px;
+  }
+
+  .vc-score-avatar{
+    width:58px;
+    height:58px;
+
+    flex-basis:58px;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media(max-width:800px){
+
+  .vc-viewer-page .viewerWrap{
+    grid-template-columns:1fr !important;
+  }
+
+  .vc-viewer-page .viewer-player-panel{
+    order:1 !important;
+  }
+
+  .vc-viewer-page .vc-scoreboard{
+    order:2 !important;
+  }
+
+
+  /* Scoreboard fits the full phone width */
+
+  .vc-scoreboard__header{
+    padding:18px 16px 15px;
+  }
+
+  .vc-scoreboard__header h2{
+    font-size:21px;
+  }
+
+  .vc-scoreboard__labels,
+  .vc-score-row{
+    grid-template-columns:
+      minmax(0,1fr)
+      58px
+      52px
+      48px;
+  }
+
+  .vc-scoreboard__labels{
+    padding:0 8px;
+  }
+
+  .vc-score-row{
+    min-height:88px;
+
+    margin:
+      0 8px 8px;
+  }
+
+  .vc-score-player{
+    gap:9px;
+
+    padding:10px 8px;
+  }
+
+  .vc-score-avatar{
+    width:52px;
+    height:52px;
+
+    flex:0 0 52px;
+
+    font-size:17px;
+  }
+
+  .vc-score-player__name #nameA,
+  .vc-score-player__name #nameB{
+    font-size:12px !important;
+  }
+
+  .vc-score-value{
+    font-size:20px !important;
+  }
+
+  .vc-score-value--point{
+    font-size:25px !important;
+  }
+
+
+  /* Sponsors horizontal scroll on phones */
+
+  .vc-sponsors{
+    display:block;
+
+    padding:15px 13px;
+  }
+
+  .vc-sponsors__intro{
+    padding:0 0 11px;
+
+    border-right:0;
+    border-bottom:1px solid #e1e9ed;
+  }
+
+  .vc-sponsors__list{
+    display:flex;
+
+    gap:8px;
+
+    margin-top:11px;
+
+    overflow-x:auto;
+
+    scroll-snap-type:x proximity;
+
+    scrollbar-width:none;
+  }
+
+  .vc-sponsors__list::-webkit-scrollbar{
+    display:none;
+  }
+
+  .vc-sponsor{
+    min-width:135px;
+
+    flex:0 0 135px;
+
+    scroll-snap-align:start;
+  }
+
+}
+
