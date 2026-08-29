@@ -1197,90 +1197,155 @@ export async function renderViewer(path) {
 
     <div class="viewerWrap" style="grid-template-columns: 1fr 1fr; gap:16px; align-items:stretch;">
 
-      
-      <div class="panel section viewer-score-panel vc-scoreboard">
-        <div class="vc-scoreboard__header">
-          <div>
-            <span class="vc-scoreboard__eyebrow">LIVE SCORE</span>
-            <h2>Match score</h2>
+      <div class="panel section viewer-score-panel" style="display:flex; flex-direction:column;">
+        <div class="badge"><i></i> Live score</div>
+
+        <div style="display:flex; gap:16px; margin: 10px 0 12px 0;">
+          <div style="
+              position:relative;
+              flex:1 1 0;
+              min-width:0;
+              height:82px;
+              display:flex;
+              align-items:center;
+              gap:12px;
+              padding:12px;
+              border-radius:14px;
+              background: rgba(255,255,255,.04);
+              border: 1px solid rgba(255,255,255,.10);
+            ">
+            <div style="
+                width:56px; height:56px;
+                border-radius:999px;
+                background: rgba(255,255,255,.08);
+                border: 1px solid rgba(255,255,255,.15);
+                overflow:hidden;
+                display:flex; align-items:center; justify-content:center;
+                flex:0 0 auto;
+              ">
+              <img id="photoA" alt="A"
+                   style="width:100%;height:100%;object-fit:cover;display:none;" />
+              <span id="photoAph" style="opacity:.65; font-weight:900; letter-spacing:.5px;">A</span>
+            </div>
+
+            <div style="min-width:0; flex:1 1 auto; padding-right:54px;">
+              <div id="photoATitle" style="
+                  font-weight:900;
+                  font-size:10px;
+                  line-height:1.15;
+                  display:-webkit-box;
+                  -webkit-line-clamp:2;
+                  -webkit-box-orient:vertical;
+                  overflow:hidden;
+                  word-break:break-word;
+                ">Player A</div>
+              <div class="hint" style="margin:3px 0 0 0;">Photo</div>
+            </div>
+
+            <span id="serveAIcon" style="
+                display:none;
+                position:absolute;
+                right:14px;
+                top:50%;
+                transform:translateY(-50%);
+                width:16px;
+                height:16px;
+                border-radius:999px;
+                background:#ffd34d;
+                box-shadow:
+                  0 0 0 4px rgba(255,211,77,.16),
+                  0 0 14px rgba(255,211,77,.55);
+              "></span>
           </div>
 
-          <span class="vc-scoreboard__live">
-            <span></span>
-            LIVE
-          </span>
-        </div>
-
-        <div class="vc-scoreboard__columns" aria-hidden="true">
-          <span>PLAYER</span>
-          <span>POINTS</span>
-          <span>GAMES</span>
-          <span>SETS</span>
-        </div>
-
-        <div class="vc-score-player vc-score-player--a">
-          <div class="vc-score-player__identity">
-            <div class="vc-score-player__photo">
-              <img
-                id="photoA"
-                alt="Player A"
-                style="display:none;"
-              />
-              <span id="photoAph">A</span>
+          <div style="
+              position:relative;
+              flex:1 1 0;
+              min-width:0;
+              height:82px;
+              display:flex;
+              align-items:center;
+              gap:12px;
+              padding:12px;
+              border-radius:14px;
+              background: rgba(255,255,255,.04);
+              border: 1px solid rgba(255,255,255,.10);
+            ">
+            <div style="
+                width:56px; height:56px;
+                border-radius:999px;
+                background: rgba(255,255,255,.08);
+                border: 1px solid rgba(255,255,255,.15);
+                overflow:hidden;
+                display:flex; align-items:center; justify-content:center;
+                flex:0 0 auto;
+              ">
+              <img id="photoB" alt="B"
+                   style="width:100%;height:100%;object-fit:cover;display:none;" />
+              <span id="photoBph" style="opacity:.65; font-weight:900; letter-spacing:.5px;">B</span>
             </div>
 
-            <div class="vc-score-player__name">
-              <strong id="photoATitle">Player A</strong>
-              <span id="nameA">—</span>
+            <div style="min-width:0; flex:1 1 auto; padding-right:54px;">
+              <div id="photoBTitle" style="
+                  font-weight:900;
+                  font-size:10px;
+                  line-height:1.15;
+                  display:-webkit-box;
+                  -webkit-line-clamp:2;
+                  -webkit-box-orient:vertical;
+                  overflow:hidden;
+                  word-break:break-word;
+                ">Player B</div>
+              <div class="hint" style="margin:3px 0 0 0;">Photo</div>
             </div>
 
-            <span
-              id="serveAIcon"
-              class="vc-score-player__serve"
-              style="display:none;"
-              aria-label="Serving"
-              title="Serving"
-            ></span>
+            <span id="serveBIcon" style="
+                display:none;
+                position:absolute;
+                right:14px;
+                top:50%;
+                transform:translateY(-50%);
+                width:16px;
+                height:16px;
+                border-radius:999px;
+                background:#ffd34d;
+                box-shadow:
+                  0 0 0 4px rgba(255,211,77,.16),
+                  0 0 14px rgba(255,211,77,.55);
+              "></span>
           </div>
-
-          <strong id="pointA" class="vc-score-value vc-score-value--point">—</strong>
-          <strong id="gamesA" class="vc-score-value">—</strong>
-          <strong id="setsA" class="vc-score-value">—</strong>
         </div>
 
-        <div class="vc-score-player vc-score-player--b">
-          <div class="vc-score-player__identity">
-            <div class="vc-score-player__photo">
-              <img
-                id="photoB"
-                alt="Player B"
-                style="display:none;"
-              />
-              <span id="photoBph">B</span>
-            </div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Point</th>
+              <th>Games</th>
+              <th>Sets</th>
+            </tr>
+          </thead>
 
-            <div class="vc-score-player__name">
-              <strong id="photoBTitle">Player B</strong>
-              <span id="nameB">—</span>
-            </div>
+          <tbody>
+            <tr>
+              <td id="nameA" style="font-weight:900; font-size:15px;">—</td>
+              <td id="pointA">—</td>
+              <td id="gamesA">—</td>
+              <td id="setsA">—</td>
+            </tr>
 
-            <span
-              id="serveBIcon"
-              class="vc-score-player__serve"
-              style="display:none;"
-              aria-label="Serving"
-              title="Serving"
-            ></span>
-          </div>
+            <tr>
+              <td id="nameB" style="font-weight:900; font-size:15px;">—</td>
+              <td id="pointB">—</td>
+              <td id="gamesB">—</td>
+              <td id="setsB">—</td>
+            </tr>
+          </tbody>
+        </table>
 
-          <strong id="pointB" class="vc-score-value vc-score-value--point">—</strong>
-          <strong id="gamesB" class="vc-score-value">—</strong>
-          <strong id="setsB" class="vc-score-value">—</strong>
-        </div>
-
-        <!-- IDs retained for existing application logic -->
-        <div id="status" class="hint" style="display:none;">Waiting for data…</div>
-        <div id="photostatus" class="hint" style="display:none;">PHOTOS / —</div>
+        <div class="hint" id="status">Waiting for data…</div>
+        <div class="hint" id="photostatus" style="margin-top:6px;">PHOTOS / —</div>
+        <div style="flex:1 1 auto;"></div>
       </div>
 
       <div class="panel section viewer-player-panel" style="display:flex; flex-direction:column;">
