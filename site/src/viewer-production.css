@@ -1095,3 +1095,146 @@ body:has(.vc-viewer-page){
 
 }
 
+
+
+/* =========================================================
+   DESKTOP LIVE VIEWER FINISHING
+   Equal-height columns + player-name contrast
+   ========================================================= */
+
+@media (min-width:851px){
+
+  /*
+   * Video + scoreboard πρέπει να διαβάζονται σαν
+   * ένα ενιαίο broadcast module.
+   */
+
+  .vc-viewer-page .viewerWrap{
+    align-items:stretch !important;
+  }
+
+
+  /*
+   * Stretch both cards to exactly the same row height.
+   */
+
+  .vc-viewer-page .viewer-player-panel,
+  .vc-viewer-page .vc-scoreboard{
+    height:100% !important;
+    min-height:100% !important;
+  }
+
+
+  /*
+   * Video card remains a flex column so the camera controls
+   * stay correctly attached below the video.
+   */
+
+  .vc-viewer-page .viewer-player-panel{
+    display:flex !important;
+    flex-direction:column !important;
+  }
+
+
+  /*
+   * Scoreboard fills the complete right column instead of
+   * ending halfway down the video.
+   */
+
+  .vc-viewer-page .vc-scoreboard{
+    display:flex !important;
+    flex-direction:column !important;
+  }
+
+
+  /*
+   * Keep the player area in the visually strongest part
+   * of the scoreboard rather than leaving dead white space.
+   */
+
+  .vc-score-status{
+    margin-top:auto !important;
+  }
+
+
+  /*
+   * Player names are on a dark premium identity area.
+   * Make them unequivocally readable.
+   */
+
+  .vc-player-info #nameA,
+  .vc-player-info #nameB{
+    color:#ffffff !important;
+
+    font-size:15px !important;
+
+    font-weight:950 !important;
+
+    letter-spacing:-.01em !important;
+
+    text-shadow:
+      0 1px 2px rgba(0,0,0,.28) !important;
+  }
+
+
+  /*
+   * Give the identity area a deliberate dark treatment
+   * instead of looking like a random inherited background.
+   */
+
+  .vc-player-score--a .vc-player-main{
+    background:
+      linear-gradient(
+        110deg,
+        #17363c 0%,
+        #263d42 55%,
+        #34464a 100%
+      ) !important;
+  }
+
+
+  .vc-player-score--b .vc-player-main{
+    background:
+      linear-gradient(
+        110deg,
+        #30263e 0%,
+        #3a3048 55%,
+        #43384e 100%
+      ) !important;
+  }
+
+
+  /*
+   * Slightly larger photo / identity area on desktop.
+   */
+
+  .vc-player-photo{
+    width:68px !important;
+    height:68px !important;
+    flex-basis:68px !important;
+  }
+
+
+  /*
+   * Give both players more breathing room.
+   */
+
+  .vc-player-score{
+    min-height:108px !important;
+  }
+
+
+  /*
+   * Numbers should dominate more clearly than labels.
+   */
+
+  .vc-score-number strong{
+    font-size:27px !important;
+  }
+
+  .vc-score-number--point strong{
+    font-size:33px !important;
+  }
+
+}
+
