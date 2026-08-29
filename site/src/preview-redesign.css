@@ -593,3 +593,240 @@ body{
   }
 }
 
+
+/* =========================================================
+   PREVIEW FIX 3 — STRONGER CONTRAST + REMOVE GIMMICKS
+   ========================================================= */
+
+/* ---------- GLOBAL TEXT CONTRAST ---------- */
+body,
+.wrap,
+.panel,
+.section,
+.home-page,
+.court-page,
+.viewer-page,
+.matches-page {
+  color: #10233a !important;
+}
+
+h1, h2, h3, h4, h5, h6,
+strong,
+label,
+th,
+td,
+p,
+span,
+a,
+button {
+  opacity: 1 !important;
+}
+
+/* ---------- REMOVE SMALL DECORATIVE ICON NOISE ---------- */
+.badge i,
+.section-heading i,
+.home-feature-icon,
+.system-card-icon,
+.value-card-icon,
+.contact-card-icon {
+  display: none !important;
+}
+
+/* ---------- HOME DARK SECTIONS: MAKE TEXT READABLE ---------- */
+.home-hero-title,
+.home-hero-description,
+.system-section .section-heading h2,
+.system-section .section-heading p,
+.system-card h3,
+.system-card p,
+.final-cta-section h2,
+.final-cta-section p {
+  opacity: 1 !important;
+}
+
+.system-section .section-heading h2,
+.system-card h3,
+.final-cta-section h2 {
+  color: #ffffff !important;
+}
+
+.home-hero-description,
+.system-section .section-heading p,
+.system-card p,
+.final-cta-section p {
+  color: rgba(255,255,255,.86) !important;
+}
+
+/* if dark cards remain, force readability */
+.system-card,
+.final-cta-section,
+.matches-hero,
+.matches-panel,
+.archive-panel {
+  color: #ffffff !important;
+}
+
+.system-card *:not(.cta):not(.btn),
+.final-cta-section *:not(.cta):not(.btn),
+.matches-hero *:not(.cta):not(.btn),
+.matches-panel *:not(.cta):not(.btn),
+.archive-panel *:not(.cta):not(.btn) {
+  opacity: 1 !important;
+}
+
+/* ---------- LIVE PAGE ---------- */
+#matchHero,
+.viewer-player-panel,
+.viewer-score-panel,
+.highlights-panel,
+.match-end-summary,
+.panel.section {
+  color: #10233a !important;
+}
+
+/* Match info */
+#miTitle,
+#miLine2,
+#matchStatusText,
+#matchStartedAt,
+#matchFormat {
+  opacity: 1 !important;
+}
+
+#miTitle {
+  color: #10233a !important;
+}
+
+#miLine2,
+#matchStartedAt,
+#matchFormat {
+  color: #6b7b8f !important;
+}
+
+/* score panel titles / labels */
+.viewer-score-panel .badge,
+.viewer-player-panel .badge,
+.highlights-panel .badge {
+  color: #36495e !important;
+}
+
+.viewer-score-panel .hint,
+.viewer-player-panel .hint,
+.highlights-panel .hint {
+  color: #6b7b8f !important;
+}
+
+/* table contrast */
+.viewer-score-panel th {
+  color: #6b7b8f !important;
+  background: #f4f8fa !important;
+}
+
+.viewer-score-panel td {
+  color: #10233a !important;
+}
+
+/* timeline / highlights buttons */
+.timeline-filter,
+.highlights-filter,
+.timeline-toolbar-button,
+.match-action-button {
+  color: #30465d !important;
+  background: #ffffff !important;
+  border-color: #d7e4ea !important;
+  opacity: 1 !important;
+}
+
+.timeline-filter--active,
+.highlights-filter--active,
+.timeline-toolbar-button--accent,
+.match-action-button--accent {
+  color: #ffffff !important;
+  background: linear-gradient(135deg,#12c5cc,#079ba6) !important;
+  border-color: transparent !important;
+}
+
+/* timeline / highlights readable */
+.timeline-scroll-wrapper,
+#timelineStatus,
+#highlightsStatus,
+.highlights-panel__title,
+.highlights-panel__status {
+  color: #10233a !important;
+  opacity: 1 !important;
+}
+
+/* ---------- FIND COURTS ---------- */
+.court-selector-card h1,
+.court-selector-card h2,
+.court-selector-card h3,
+.court-selector-top h2 {
+  color: #10233a !important;
+  opacity: 1 !important;
+}
+
+.court-selector-card p,
+.court-selector-card label,
+.court-selector-card .badge,
+.court-help,
+.court-status {
+  opacity: 1 !important;
+}
+
+.court-selector-card p,
+.court-selector-card label,
+.court-help {
+  color: #6b7b8f !important;
+}
+
+.court-selector-card .badge {
+  color: #42566c !important;
+}
+
+.court-field select,
+.court-field option {
+  color: #10233a !important;
+}
+
+/* ---------- MATCH RESULTS / ARCHIVE ---------- */
+.matches-hero h1,
+.matches-hero h2,
+.archive-panel h1,
+.archive-panel h2,
+.matches-page h1,
+.matches-page h2,
+.matches-page h3 {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+.matches-hero p,
+.archive-panel p,
+.matches-page .hint,
+.matches-page label,
+.matches-page th,
+.matches-page td {
+  color: rgba(255,255,255,.84) !important;
+  opacity: 1 !important;
+}
+
+/* inputs on archive page */
+.matches-page input,
+.matches-page select {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+.matches-page input::placeholder {
+  color: rgba(255,255,255,.68) !important;
+}
+
+/* ---------- MOBILE ---------- */
+@media (max-width: 760px) {
+  .home-hero-title,
+  .system-section .section-heading h2,
+  .final-cta-section h2 {
+    line-height: 1.05 !important;
+  }
+}
+
