@@ -1207,38 +1207,41 @@ export async function renderViewer(path) {
 
     <div class="viewerWrap" style="grid-template-columns: 1fr 1fr; gap:16px; align-items:stretch;">
 
-      <div class="panel section viewer-score-panel vc-scoreboard">
+      
+      <aside class="viewer-score-panel vc-scoreboard">
 
-        <header class="vc-scoreboard__header">
+        <div class="vc-scoreboard-top">
+
           <div>
-            <span class="vc-scoreboard__eyebrow">
+            <div class="vc-scoreboard-kicker">
               LIVE SCORE
-            </span>
+            </div>
 
             <h2>Match score</h2>
           </div>
 
-          <span class="vc-scoreboard__live">
-            <i></i>
+          <div class="vc-scoreboard-live">
+            <span></span>
             LIVE
-          </span>
-        </header>
+          </div>
+
+        </div>
 
 
-        <div class="vc-scoreboard__labels">
-          <span>Player</span>
-          <span>Points</span>
-          <span>Games</span>
-          <span>Sets</span>
+        <div class="vc-score-columns">
+          <span>PLAYER</span>
+          <span>POINT</span>
+          <span>GAMES</span>
+          <span>SETS</span>
         </div>
 
 
         <!-- PLAYER A -->
-        <div class="vc-score-row vc-score-row--a">
+        <div class="vc-player-score vc-player-score--a">
 
-          <div class="vc-score-player">
+          <div class="vc-player-main">
 
-            <div class="vc-score-avatar">
+            <div class="vc-player-photo">
               <img
                 id="photoA"
                 alt="Player A"
@@ -1248,13 +1251,14 @@ export async function renderViewer(path) {
               <span id="photoAph">A</span>
             </div>
 
-            <div class="vc-score-player__name">
-              <strong id="nameA">Player A</strong>
+            <div class="vc-player-info">
+              <strong id="nameA">
+                Player A
+              </strong>
 
-              <!-- Kept for existing JS -->
               <span
                 id="photoATitle"
-                class="vc-score-player__js-name"
+                class="vc-hidden-js-name"
                 aria-hidden="true"
               >
                 Player A
@@ -1263,43 +1267,34 @@ export async function renderViewer(path) {
 
             <span
               id="serveAIcon"
-              class="vc-score-serve"
+              class="vc-serving-dot"
               style="display:none;"
               title="Serving"
             ></span>
 
           </div>
 
-          <strong
-            id="pointA"
-            class="vc-score-value vc-score-value--point"
-          >
-            —
-          </strong>
+          <div class="vc-score-number vc-score-number--point">
+            <strong id="pointA">—</strong>
+          </div>
 
-          <strong
-            id="gamesA"
-            class="vc-score-value"
-          >
-            —
-          </strong>
+          <div class="vc-score-number">
+            <strong id="gamesA">—</strong>
+          </div>
 
-          <strong
-            id="setsA"
-            class="vc-score-value vc-score-value--sets"
-          >
-            —
-          </strong>
+          <div class="vc-score-number vc-score-number--set">
+            <strong id="setsA">—</strong>
+          </div>
 
         </div>
 
 
         <!-- PLAYER B -->
-        <div class="vc-score-row vc-score-row--b">
+        <div class="vc-player-score vc-player-score--b">
 
-          <div class="vc-score-player">
+          <div class="vc-player-main">
 
-            <div class="vc-score-avatar">
+            <div class="vc-player-photo">
               <img
                 id="photoB"
                 alt="Player B"
@@ -1309,13 +1304,14 @@ export async function renderViewer(path) {
               <span id="photoBph">B</span>
             </div>
 
-            <div class="vc-score-player__name">
-              <strong id="nameB">Player B</strong>
+            <div class="vc-player-info">
+              <strong id="nameB">
+                Player B
+              </strong>
 
-              <!-- Kept for existing JS -->
               <span
                 id="photoBTitle"
-                class="vc-score-player__js-name"
+                class="vc-hidden-js-name"
                 aria-hidden="true"
               >
                 Player B
@@ -1324,40 +1320,31 @@ export async function renderViewer(path) {
 
             <span
               id="serveBIcon"
-              class="vc-score-serve"
+              class="vc-serving-dot"
               style="display:none;"
               title="Serving"
             ></span>
 
           </div>
 
-          <strong
-            id="pointB"
-            class="vc-score-value vc-score-value--point"
-          >
-            —
-          </strong>
+          <div class="vc-score-number vc-score-number--point">
+            <strong id="pointB">—</strong>
+          </div>
 
-          <strong
-            id="gamesB"
-            class="vc-score-value"
-          >
-            —
-          </strong>
+          <div class="vc-score-number">
+            <strong id="gamesB">—</strong>
+          </div>
 
-          <strong
-            id="setsB"
-            class="vc-score-value vc-score-value--sets"
-          >
-            —
-          </strong>
+          <div class="vc-score-number vc-score-number--set">
+            <strong id="setsB">—</strong>
+          </div>
 
         </div>
 
 
         <div
           id="status"
-          class="vc-scoreboard__status"
+          class="vc-score-status"
         >
           Waiting for match data…
         </div>
@@ -1367,7 +1354,7 @@ export async function renderViewer(path) {
           style="display:none;"
         ></div>
 
-      </div>
+      </aside>
 
       <div class="panel section viewer-player-panel" style="display:flex; flex-direction:column;">
         <div class="badge"><i></i> Camera / Stream</div>
@@ -1821,21 +1808,139 @@ export async function renderViewer(path) {
     </div>
 
     
+    
     <section
-      id="clubSponsors"
       class="vc-sponsors"
-      aria-label="Club sponsors"
+      aria-label="Club partners"
     >
-      <div class="vc-sponsors__intro">
+
+      <div class="vc-sponsors-heading">
         <span>CLUB PARTNERS</span>
         <strong>Sponsors</strong>
       </div>
 
-      <div
-        id="clubSponsorsList"
-        class="vc-sponsors__list"
-      ></div>
+
+      <div class="vc-sponsor-grid">
+
+        <div class="vc-sponsor-card">
+
+          <svg
+            class="vc-sponsor-logo"
+            viewBox="0 0 190 44"
+            aria-label="AquaCore"
+          >
+            <path
+              d="M22 5C22 5 10 20 10 28a12 12 0 0 0 24 0C34 20 22 5 22 5Z"
+              fill="#10b6c3"
+            />
+            <path
+              d="M22 17c-4 6-6 9-6 12a6 6 0 0 0 12 0c0-3-2-6-6-12Z"
+              fill="#ffffff"
+              opacity=".72"
+            />
+            <text
+              x="46"
+              y="29"
+              font-size="18"
+              font-family="Arial,sans-serif"
+              font-weight="800"
+              fill="#15314a"
+            >
+              AQUACORE
+            </text>
+          </svg>
+
+        </div>
+
+
+        <div class="vc-sponsor-card">
+
+          <svg
+            class="vc-sponsor-logo"
+            viewBox="0 0 190 44"
+            aria-label="ProServe"
+          >
+            <path
+              d="M8 31 24 9h27c12 0 13 15 2 18H31l-4 6Z"
+              fill="#1877d2"
+            />
+            <path
+              d="M30 16h18c4 0 4 5 0 5H26Z"
+              fill="#ffffff"
+            />
+            <text
+              x="66"
+              y="29"
+              font-size="17"
+              font-family="Arial,sans-serif"
+              font-weight="800"
+              fill="#15314a"
+            >
+              PROSERVE
+            </text>
+          </svg>
+
+        </div>
+
+
+        <div class="vc-sponsor-card">
+
+          <svg
+            class="vc-sponsor-logo"
+            viewBox="0 0 190 44"
+            aria-label="Netwave"
+          >
+            <path
+              d="M8 25c7-14 14 14 21 0s14 14 21 0 14 14 21 0"
+              fill="none"
+              stroke="#18b88c"
+              stroke-width="7"
+              stroke-linecap="round"
+            />
+            <text
+              x="84"
+              y="29"
+              font-size="17"
+              font-family="Arial,sans-serif"
+              font-weight="800"
+              fill="#15314a"
+            >
+              NETWAVE
+            </text>
+          </svg>
+
+        </div>
+
+
+        <div class="vc-sponsor-card">
+
+          <svg
+            class="vc-sponsor-logo"
+            viewBox="0 0 190 44"
+            aria-label="CourtFuel"
+          >
+            <path
+              d="M28 3 10 25h13l-3 16 22-26H29Z"
+              fill="#0abf7a"
+            />
+            <text
+              x="54"
+              y="29"
+              font-size="17"
+              font-family="Arial,sans-serif"
+              font-weight="800"
+              fill="#15314a"
+            >
+              COURTFUEL
+            </text>
+          </svg>
+
+        </div>
+
+      </div>
+
     </section>
+
 
 <div
       class="panel section"

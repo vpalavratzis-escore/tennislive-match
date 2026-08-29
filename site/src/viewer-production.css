@@ -1,19 +1,16 @@
 
 /* =========================================================
-   VOXCOURT LIVE MATCH — PRODUCTION
+   VOXCOURT LIVE VIEWER — CLEAN V3
    ========================================================= */
 
-html:has(.vc-viewer-page),
 body:has(.vc-viewer-page){
-  background:#f5f8fa !important;
-}
-
-body:has(.vc-viewer-page){
+  background:#f4f7f9 !important;
   color:#10233a !important;
 }
 
 .vc-viewer-page{
-  max-width:1500px !important;
+  max-width:1460px !important;
+  color:#10233a !important;
 }
 
 .vc-viewer-page *{
@@ -26,17 +23,17 @@ body:has(.vc-viewer-page){
    ========================================================= */
 
 .vc-viewer-page #matchHero{
-  margin-top:17px !important;
+  margin-top:16px !important;
 
-  padding:23px 28px !important;
+  padding:22px 26px !important;
 
-  border:1px solid #dce7ec !important;
+  border:1px solid #dce6eb !important;
   border-radius:18px !important;
 
   background:#fff !important;
 
   box-shadow:
-    0 8px 28px rgba(25,60,82,.055) !important;
+    0 8px 26px rgba(24,58,80,.05) !important;
 }
 
 .vc-viewer-page .compact-match-header{
@@ -45,23 +42,7 @@ body:has(.vc-viewer-page){
   align-items:center !important;
   justify-content:space-between !important;
 
-  gap:30px !important;
-}
-
-.vc-viewer-page .compact-match-header__badge,
-.vc-viewer-page .badge{
-  color:#617589 !important;
-
-  font-size:9px !important;
-
-  font-weight:850 !important;
-
-  letter-spacing:.04em !important;
-}
-
-.vc-viewer-page .compact-match-header__badge i,
-.vc-viewer-page .badge i{
-  background:#0aabb5 !important;
+  gap:25px !important;
 }
 
 .vc-viewer-page .compact-match-header__main{
@@ -69,17 +50,17 @@ body:has(.vc-viewer-page){
 
   align-items:center !important;
 
-  gap:18px !important;
+  gap:15px !important;
 }
 
 .vc-viewer-page #miTitle{
-  margin-top:7px !important;
+  margin:6px 0 0 !important;
 
   color:#10233a !important;
 
-  font-size:27px !important;
+  font-size:26px !important;
 
-  line-height:1.15 !important;
+  line-height:1.12 !important;
 
   letter-spacing:-.035em !important;
 
@@ -87,25 +68,37 @@ body:has(.vc-viewer-page){
 }
 
 .vc-viewer-page #miLine2{
-  margin-top:6px !important;
+  margin-top:5px !important;
 
-  color:#65788d !important;
+  color:#738499 !important;
 
   font-size:11px !important;
+}
+
+.vc-viewer-page .compact-match-header__badge{
+  color:#617386 !important;
+
+  font-size:9px !important;
+
+  font-weight:850 !important;
+}
+
+.vc-viewer-page .compact-match-header__badge i{
+  background:#0babb5 !important;
 }
 
 .vc-viewer-page .match-status{
   border:0 !important;
 
-  color:#087b83 !important;
+  color:#087c84 !important;
 
-  background:#e7f5f5 !important;
+  background:#e8f6f6 !important;
 }
 
 .vc-viewer-page .compact-match-header__actions{
   display:flex !important;
 
-  gap:9px !important;
+  gap:8px !important;
 }
 
 .vc-viewer-page .match-action-button{
@@ -113,10 +106,10 @@ body:has(.vc-viewer-page){
 
   padding:0 15px !important;
 
-  border:1px solid #d7e3e8 !important;
+  border:1px solid #d8e3e8 !important;
   border-radius:10px !important;
 
-  color:#17324b !important;
+  color:#173149 !important;
 
   background:#fff !important;
 
@@ -133,22 +126,22 @@ body:has(.vc-viewer-page){
   background:
     linear-gradient(
       135deg,
-      #12bdc6,
-      #078f9a
+      #13bbc4,
+      #078f99
     ) !important;
 }
 
 
 /* =========================================================
-   VIDEO + SCORE MASTER LAYOUT
+   MAIN LIVE AREA
    ========================================================= */
 
 .vc-viewer-page .viewerWrap{
   display:grid !important;
 
   grid-template-columns:
-    minmax(0,1.62fr)
-    minmax(370px,.68fr) !important;
+    minmax(0, 1.65fr)
+    minmax(420px, .72fr) !important;
 
   gap:18px !important;
 
@@ -156,91 +149,64 @@ body:has(.vc-viewer-page){
 }
 
 
-/*
- * Video LEFT
- * Score RIGHT
- */
+/* VIDEO FIRST */
 
 .vc-viewer-page .viewer-player-panel{
   order:1 !important;
 
   min-width:0 !important;
 
-  padding:18px !important;
+  padding:15px !important;
 
-  border:1px solid #dce7ec !important;
+  border:1px solid #dce6eb !important;
   border-radius:18px !important;
-
-  background:#fff !important;
-
-  box-shadow:
-    0 10px 32px rgba(25,60,82,.065) !important;
-}
-
-.vc-viewer-page .viewer-score-panel{
-  order:2 !important;
-
-  min-width:0 !important;
-
-  padding:0 !important;
-
-  overflow:hidden !important;
-
-  border:1px solid #dce7ec !important;
-  border-radius:18px !important;
-
-  background:#fff !important;
 
   color:#10233a !important;
 
+  background:#fff !important;
+
   box-shadow:
-    0 10px 32px rgba(25,60,82,.065) !important;
+    0 10px 30px rgba(25,60,82,.055) !important;
 }
 
+.vc-viewer-page
+.viewer-player-panel
+> .badge{
+  margin-bottom:6px !important;
 
-/* =========================================================
-   VIDEO
-   ========================================================= */
+  color:#50667a !important;
 
-.vc-viewer-page .viewer-player-panel > .badge{
-  margin-bottom:7px !important;
+  font-size:9px !important;
 }
 
 .vc-viewer-page #streamSourceLabel{
-  margin:0 0 10px !important;
+  margin:
+    0 0 10px !important;
 
-  color:#8392a1 !important;
+  color:#81909f !important;
 
   font-size:9px !important;
 }
 
 .vc-viewer-page .cam--viewer{
-  position:relative !important;
-
   width:100% !important;
+
   height:auto !important;
 
   aspect-ratio:16 / 9 !important;
 
-  margin-top:0 !important;
+  margin:0 !important;
 
   overflow:hidden !important;
 
-  border:0 !important;
-  border-radius:14px !important;
+  border-radius:13px !important;
 
-  background:#080b0d !important;
-
-  box-shadow:
-    inset 0 0 0 1px rgba(255,255,255,.045) !important;
+  background:#07090a !important;
 }
 
 .vc-viewer-page .cam--viewer video{
-  border-radius:14px !important;
+  border-radius:13px !important;
 }
-
-
-/* Camera / Replay buttons */
 
 .vc-viewer-page .live-mode-controls{
   display:grid !important;
@@ -248,166 +214,337 @@ body:has(.vc-viewer-page){
   grid-template-columns:
     repeat(3,minmax(0,1fr)) !important;
 
-  gap:7px !important;
+  gap:5px !important;
 
-  margin-top:10px !important;
+  margin-top:9px !important;
 
   padding:4px !important;
 
-  border:1px solid #dce7ec !important;
-  border-radius:12px !important;
+  border:1px solid #dde7eb !important;
+  border-radius:11px !important;
 
-  background:#f6f9fa !important;
+  background:#f5f8fa !important;
 }
 
 .vc-viewer-page .live-mode-button{
-  min-height:43px !important;
+  min-height:42px !important;
 
   border:0 !important;
-  border-radius:9px !important;
+  border-radius:8px !important;
 
-  color:#40566c !important;
+  color:#42586e !important;
 
   background:transparent !important;
 
-  font-size:11px !important;
+  font-size:10px !important;
 
   font-weight:850 !important;
 }
 
-.vc-viewer-page .live-mode-button--active{
+.vc-viewer-page
+.live-mode-button--active{
   color:#fff !important;
 
   background:
     linear-gradient(
       135deg,
-      #13bec7,
-      #078f9a
+      #13bdc6,
+      #07909a
     ) !important;
 
   box-shadow:
-    0 7px 18px rgba(8,158,168,.20) !important;
+    0 6px 17px
+    rgba(8,157,167,.18) !important;
 }
 
 .vc-viewer-page #replayStatus{
-  color:#8997a5 !important;
+  margin:7px 1px 0 !important;
 
-  font-size:9px !important;
+  color:#8b98a5 !important;
+
+  font-size:8px !important;
 }
 
 
 /* =========================================================
-   PROFESSIONAL SCOREBOARD
+   SCOREBOARD
    ========================================================= */
 
-/* Header */
+.vc-viewer-page .vc-scoreboard{
+  order:2 !important;
 
-.vc-viewer-page .viewer-score-panel > .badge{
-  margin:0 !important;
+  width:100% !important;
 
-  padding:20px 20px 4px !important;
+  min-width:0 !important;
 
-  color:#079ba6 !important;
+  padding:0 !important;
 
-  font-size:9px !important;
+  overflow:hidden !important;
 
-  text-transform:uppercase !important;
+  border:
+    1px solid #d8e3e8 !important;
 
-  letter-spacing:.12em !important;
-}
+  border-radius:18px !important;
 
-
-/*
- * Player identity cards.
- * Existing JS / IDs stay untouched.
- */
-
-.vc-viewer-page
-.viewer-score-panel
-> div:nth-of-type(2){
-  display:flex !important;
-
-  flex-direction:column !important;
-
-  gap:8px !important;
-
-  margin:8px 14px 12px !important;
-}
-
-
-.vc-viewer-page
-.viewer-score-panel
-> div:nth-of-type(2)
-> div{
-  height:auto !important;
-
-  min-height:86px !important;
-
-  padding:11px 13px !important;
-
-  gap:12px !important;
-
-  border:1px solid #e1e9ed !important;
-  border-radius:13px !important;
-
-  background:#fbfdfe !important;
+  background:#fff !important;
 
   color:#10233a !important;
+
+  box-shadow:
+    0 14px 36px
+    rgba(24,59,81,.075) !important;
 }
 
 
-.vc-viewer-page
-.viewer-score-panel
-> div:nth-of-type(2)
-> div:first-child{
+/* HEADER */
+
+.vc-scoreboard-top{
+  display:flex !important;
+
+  align-items:center !important;
+  justify-content:space-between !important;
+
+  gap:15px !important;
+
+  padding:20px 19px 17px !important;
+
+  border-bottom:
+    1px solid #e2e9ed !important;
+
+  background:
+    linear-gradient(
+      180deg,
+      #fff,
+      #fbfdfe
+    ) !important;
+}
+
+.vc-scoreboard-kicker{
+  margin-bottom:4px !important;
+
+  color:#079ca6 !important;
+
+  font-size:8px !important;
+
+  font-weight:950 !important;
+
+  letter-spacing:.15em !important;
+}
+
+.vc-scoreboard-top h2{
+  margin:0 !important;
+
+  color:#10233a !important;
+
+  font-size:22px !important;
+
+  line-height:1 !important;
+
+  font-weight:950 !important;
+
+  letter-spacing:-.035em !important;
+}
+
+.vc-scoreboard-live{
+  display:flex !important;
+
+  align-items:center !important;
+
+  gap:6px !important;
+
+  padding:7px 9px !important;
+
+  border-radius:999px !important;
+
+  color:#ca3b46 !important;
+
+  background:#fff0f1 !important;
+
+  font-size:8px !important;
+
+  font-weight:950 !important;
+
+  letter-spacing:.08em !important;
+}
+
+.vc-scoreboard-live span{
+  width:7px !important;
+  height:7px !important;
+
+  border-radius:50% !important;
+
+  background:#ec4d58 !important;
+}
+
+
+/* COLUMN HEADER */
+
+.vc-score-columns{
+  display:grid !important;
+
+  grid-template-columns:
+    minmax(0,1fr)
+    70px
+    64px
+    58px !important;
+
+  min-height:33px !important;
+
+  align-items:center !important;
+
+  padding:0 11px !important;
+
+  color:#77899c !important;
+
+  background:#f8fafb !important;
+
+  font-size:7px !important;
+
+  font-weight:900 !important;
+
+  letter-spacing:.11em !important;
+}
+
+.vc-score-columns span:not(:first-child){
+  text-align:center !important;
+}
+
+
+/* ROW */
+
+.vc-player-score{
+  display:grid !important;
+
+  grid-template-columns:
+    minmax(0,1fr)
+    70px
+    64px
+    58px !important;
+
+  min-height:98px !important;
+
+  align-items:stretch !important;
+
+  margin:10px 11px 0 !important;
+
+  overflow:hidden !important;
+
+  border:
+    1px solid #dce6eb !important;
+
+  border-radius:13px !important;
+
+  background:#fff !important;
+}
+
+.vc-player-score--a{
   border-left:
-    4px solid #0ab1ba !important;
+    4px solid #0bb4bd !important;
 }
 
-
-.vc-viewer-page
-.viewer-score-panel
-> div:nth-of-type(2)
-> div:nth-child(2){
+.vc-player-score--b{
   border-left:
-    4px solid #9150cb !important;
+    4px solid #9552cc !important;
 }
 
 
-/* player photos */
+/* PLAYER AREA */
 
-.vc-viewer-page
-.viewer-score-panel
-> div:nth-of-type(2)
-> div
-> div:first-child{
+.vc-player-main{
+  position:relative !important;
+
+  min-width:0 !important;
+
+  display:flex !important;
+
+  align-items:center !important;
+
+  gap:11px !important;
+
+  padding:12px 10px !important;
+
+  background:#fff !important;
+}
+
+.vc-player-photo{
   width:62px !important;
   height:62px !important;
 
-  flex:0 0 62px !important;
+  flex:
+    0 0 62px !important;
 
-  border:2px solid #dce7eb !important;
+  display:flex !important;
 
-  background:#edf6f7 !important;
+  align-items:center !important;
+  justify-content:center !important;
 
-  color:#087f88 !important;
+  overflow:hidden !important;
+
+  border:
+    2px solid #d5e8ea !important;
+
+  border-radius:50% !important;
+
+  color:#0a858e !important;
+
+  background:
+    linear-gradient(
+      145deg,
+      #f2fbfc,
+      #dceff1
+    ) !important;
+
+  font-size:20px !important;
+
+  font-weight:950 !important;
+}
+
+.vc-player-score--b
+.vc-player-photo{
+  border-color:#e5d9ee !important;
+
+  color:#7541a2 !important;
+
+  background:
+    linear-gradient(
+      145deg,
+      #fbf7fd,
+      #e9ddf2
+    ) !important;
+}
+
+.vc-player-photo img{
+  width:100% !important;
+  height:100% !important;
+
+  object-fit:cover !important;
+}
+
+.vc-player-info{
+  min-width:0 !important;
+
+  flex:1 1 auto !important;
 }
 
 
-/* Full player names — NO truncation */
+/* DO NOT CUT PLAYER NAMES */
 
-.vc-viewer-page #photoATitle,
-.vc-viewer-page #photoBTitle{
+.vc-player-info #nameA,
+.vc-player-info #nameB{
   display:block !important;
+
+  width:auto !important;
+
+  max-width:none !important;
 
   overflow:visible !important;
 
-  -webkit-line-clamp:unset !important;
-  -webkit-box-orient:initial !important;
+  white-space:normal !important;
 
-  max-height:none !important;
+  text-overflow:clip !important;
 
   word-break:normal !important;
+
   overflow-wrap:anywhere !important;
 
   color:#10233a !important;
@@ -416,240 +553,274 @@ body:has(.vc-viewer-page){
 
   line-height:1.18 !important;
 
-  font-weight:900 !important;
+  font-weight:950 !important;
 }
 
 
-/* Remove useless "Photo" text */
+/*
+ * JS still updates photoATitle/BTitle.
+ * Keep IDs, don't show duplicate name.
+ */
 
-.vc-viewer-page #photoATitle + .hint,
-.vc-viewer-page #photoBTitle + .hint{
-  display:none !important;
-}
+.vc-hidden-js-name{
+  position:absolute !important;
 
-
-/* SCORE TABLE */
-
-.vc-viewer-page .viewer-score-panel .table{
-  width:calc(100% - 28px) !important;
-
-  margin:0 14px 14px !important;
+  width:1px !important;
+  height:1px !important;
 
   overflow:hidden !important;
 
-  border:1px solid #dce7ec !important;
-  border-radius:13px !important;
+  clip-path:inset(50%) !important;
 
-  border-collapse:separate !important;
-  border-spacing:0 !important;
-
-  background:#fff !important;
+  white-space:nowrap !important;
 }
 
-.vc-viewer-page
-.viewer-score-panel
-.table th{
-  height:34px !important;
 
-  padding:0 8px !important;
+/* SERVE */
 
-  border-bottom:
-    1px solid #dfe8ec !important;
+.vc-serving-dot{
+  position:absolute !important;
 
-  color:#708196 !important;
+  top:12px !important;
+  right:8px !important;
 
-  background:#f6f9fa !important;
+  width:9px !important;
+  height:9px !important;
 
-  font-size:8px !important;
+  border-radius:50% !important;
 
-  font-weight:900 !important;
+  background:#f4ca4f !important;
 
-  letter-spacing:.08em !important;
-
-  text-transform:uppercase !important;
+  box-shadow:
+    0 0 0 4px
+      rgba(244,202,79,.16) !important;
 }
 
-.vc-viewer-page
-.viewer-score-panel
-.table td{
-  height:62px !important;
 
-  padding:7px 8px !important;
+/* VALUES */
 
-  border-top:
-    1px solid #e4ebef !important;
+.vc-score-number{
+  min-width:0 !important;
+
+  display:flex !important;
+
+  align-items:center !important;
+  justify-content:center !important;
+
+  border-left:
+    1px solid #e0e8ec !important;
 
   color:#10233a !important;
 
-  background:#fff !important;
-
-  font-size:20px !important;
-
-  font-weight:900 !important;
-
-  text-align:center !important;
+  background:#fbfcfd !important;
 }
 
+.vc-score-number strong{
+  color:inherit !important;
 
-/* Player names */
+  font-size:25px !important;
 
-.vc-viewer-page #nameA,
-.vc-viewer-page #nameB{
-  width:45% !important;
+  line-height:1 !important;
 
-  white-space:normal !important;
+  font-weight:950 !important;
 
-  overflow:visible !important;
-
-  text-overflow:clip !important;
-
-  word-break:normal !important;
-  overflow-wrap:anywhere !important;
-
-  text-align:left !important;
-
-  color:#10233a !important;
-
-  font-size:12px !important;
-
-  line-height:1.15 !important;
+  font-variant-numeric:
+    tabular-nums !important;
 }
 
-
-/* Point column */
-
-.vc-viewer-page
-.viewer-score-panel
-.table td:nth-child(2){
-  color:#078f99 !important;
+.vc-score-number--point{
+  color:#058c96 !important;
 
   background:#edf8f8 !important;
-
-  font-size:24px !important;
 }
 
-
-/* Games */
-
-.vc-viewer-page
-.viewer-score-panel
-.table td:nth-child(3){
-  background:#f7fafb !important;
+.vc-score-number--point strong{
+  font-size:30px !important;
 }
 
-
-/* Sets */
-
-.vc-viewer-page
-.viewer-score-panel
-.table td:nth-child(4){
+.vc-score-number--set{
   color:#7940a7 !important;
 
-  background:#f6f0fa !important;
+  background:#f7f1fa !important;
 }
 
 
-/* state messages */
+/* STATUS */
 
-.vc-viewer-page #status{
-  margin:0 15px 12px !important;
+.vc-score-status{
+  margin:11px !important;
 
   padding:9px 11px !important;
 
   border-radius:9px !important;
 
-  color:#738599 !important;
+  color:#718296 !important;
 
-  background:#f7fafb !important;
+  background:#f5f8fa !important;
 
-  font-size:9px !important;
-}
-
-.vc-viewer-page #photostatus{
-  display:none !important;
+  font-size:8px !important;
 }
 
 
 /* =========================================================
-   TIMELINE + HIGHLIGHTS
+   SPONSORS
    ========================================================= */
 
-.vc-viewer-page > .panel.section,
-.vc-viewer-page #highlightsPanel{
-  border:1px solid #dce7ec !important;
+.vc-sponsors{
+  display:grid !important;
 
-  border-radius:18px !important;
+  grid-template-columns:
+    160px minmax(0,1fr) !important;
+
+  align-items:center !important;
+
+  gap:16px !important;
+
+  margin-top:17px !important;
+
+  padding:14px 16px !important;
+
+  border:
+    1px solid #dce6eb !important;
+
+  border-radius:17px !important;
+
+  background:#fff !important;
+
+  box-shadow:
+    0 8px 26px
+    rgba(24,59,81,.05) !important;
+}
+
+.vc-sponsors-heading{
+  padding-right:16px !important;
+
+  border-right:
+    1px solid #e1e9ed !important;
+}
+
+.vc-sponsors-heading span{
+  display:block !important;
+
+  margin-bottom:4px !important;
+
+  color:#079ba6 !important;
+
+  font-size:7px !important;
+
+  font-weight:950 !important;
+
+  letter-spacing:.14em !important;
+}
+
+.vc-sponsors-heading strong{
+  color:#10233a !important;
+
+  font-size:15px !important;
+
+  font-weight:950 !important;
+}
+
+.vc-sponsor-grid{
+  display:grid !important;
+
+  grid-template-columns:
+    repeat(4,minmax(0,1fr)) !important;
+
+  gap:8px !important;
+}
+
+.vc-sponsor-card{
+  min-width:0 !important;
+
+  min-height:62px !important;
+
+  display:flex !important;
+
+  align-items:center !important;
+  justify-content:center !important;
+
+  padding:8px 13px !important;
+
+  border:
+    1px solid #e0e8ec !important;
+
+  border-radius:11px !important;
+
+  background:#fbfdfe !important;
+}
+
+.vc-sponsor-logo{
+  display:block !important;
+
+  width:100% !important;
+
+  max-width:165px !important;
+
+  height:38px !important;
+}
+
+
+/* =========================================================
+   TIMELINE / HIGHLIGHTS
+   ========================================================= */
+
+.vc-viewer-page
+> .panel.section,
+.vc-viewer-page
+#highlightsPanel{
+  border:
+    1px solid #dce6eb !important;
+
+  border-radius:17px !important;
 
   background:#fff !important;
 
   color:#10233a !important;
 
   box-shadow:
-    0 8px 28px rgba(25,60,82,.05) !important;
+    0 7px 24px
+    rgba(24,59,81,.045) !important;
 }
 
-.vc-viewer-page #highlightsPanel{
-  margin-top:18px !important;
+.vc-viewer-page
+#highlightsPanel{
+  margin-top:17px !important;
 
-  padding:23px !important;
+  padding:20px !important;
 }
 
-.vc-viewer-page .highlights-panel__title{
+.vc-viewer-page
+.highlights-panel__title{
   color:#10233a !important;
-
-  font-size:26px !important;
-
-  letter-spacing:-.035em !important;
 }
 
+.vc-viewer-page
+.timeline-filter,
+.vc-viewer-page
+.highlights-filter,
+.vc-viewer-page
+.timeline-toolbar-button{
+  border:
+    1px solid #d9e3e8 !important;
 
-/* cleaner pill controls */
-
-.vc-viewer-page .timeline-filter,
-.vc-viewer-page .highlights-filter,
-.vc-viewer-page .timeline-toolbar-button{
-  border:1px solid #d8e4e9 !important;
-
-  color:#40566c !important;
+  color:#3d5368 !important;
 
   background:#fff !important;
-
-  font-size:10px !important;
-
-  font-weight:800 !important;
 }
 
-.vc-viewer-page .timeline-filter--active,
-.vc-viewer-page .highlights-filter--active,
-.vc-viewer-page .timeline-toolbar-button--accent{
-  border-color:transparent !important;
+.vc-viewer-page
+.timeline-filter--active,
+.vc-viewer-page
+.highlights-filter--active,
+.vc-viewer-page
+.timeline-toolbar-button--accent{
+  border-color:
+    transparent !important;
 
   color:#fff !important;
 
-  background:#0aa8b2 !important;
-}
-
-
-/* =========================================================
-   MATCH END SUMMARY
-   ========================================================= */
-
-.vc-viewer-page .match-end-summary{
-  border:1px solid #dce7ec !important;
-
-  border-radius:18px !important;
-
-  background:#fff !important;
-
-  color:#10233a !important;
-}
-
-.vc-viewer-page .match-end-summary__title{
-  color:#10233a !important;
-}
-
-.vc-viewer-page .match-end-summary__trophy{
-  display:none !important;
+  background:#0aa6b0 !important;
 }
 
 
@@ -657,12 +828,12 @@ body:has(.vc-viewer-page){
    TABLET
    ========================================================= */
 
-@media(max-width:1050px){
+@media(max-width:1100px){
 
   .vc-viewer-page .viewerWrap{
     grid-template-columns:
-      minmax(0,1.45fr)
-      minmax(330px,.75fr) !important;
+      minmax(0,1.35fr)
+      minmax(375px,.75fr) !important;
   }
 
 }
@@ -672,7 +843,7 @@ body:has(.vc-viewer-page){
    MOBILE
    ========================================================= */
 
-@media(max-width:800px){
+@media(max-width:850px){
 
   .vc-viewer-page{
     width:100% !important;
@@ -682,21 +853,23 @@ body:has(.vc-viewer-page){
   .vc-viewer-page #matchHero{
     margin-top:10px !important;
 
-    padding:18px !important;
+    padding:17px !important;
   }
 
 
-  .vc-viewer-page .compact-match-header{
+  .vc-viewer-page
+  .compact-match-header{
     display:block !important;
   }
 
 
-  .vc-viewer-page .compact-match-header__main{
-    align-items:flex-start !important;
-
+  .vc-viewer-page
+  .compact-match-header__main{
     flex-direction:column !important;
 
-    gap:10px !important;
+    align-items:flex-start !important;
+
+    gap:9px !important;
   }
 
 
@@ -705,805 +878,219 @@ body:has(.vc-viewer-page){
   }
 
 
-  .vc-viewer-page .compact-match-header__actions{
+  .vc-viewer-page
+  .compact-match-header__actions{
     width:100% !important;
 
-    margin-top:15px !important;
+    margin-top:13px !important;
   }
 
 
-  .vc-viewer-page .compact-match-header__actions button{
+  .vc-viewer-page
+  .compact-match-header__actions
+  button{
     flex:1 !important;
   }
 
 
-  /* Video first, scoreboard second */
+  /* video then score */
 
   .vc-viewer-page .viewerWrap{
-    grid-template-columns:1fr !important;
+    grid-template-columns:
+      minmax(0,1fr) !important;
 
     gap:10px !important;
   }
 
 
-  .vc-viewer-page .viewer-player-panel{
+  .vc-viewer-page
+  .viewer-player-panel{
     order:1 !important;
 
     padding:10px !important;
   }
 
 
-  .vc-viewer-page .viewer-score-panel{
+  .vc-viewer-page
+  .vc-scoreboard{
     order:2 !important;
   }
 
 
-  .vc-viewer-page .cam--viewer{
-    aspect-ratio:16 / 9 !important;
-
-    border-radius:11px !important;
-  }
-
-
-  .vc-viewer-page .live-mode-controls{
-    gap:4px !important;
-  }
-
-
-  .vc-viewer-page .live-mode-button{
-    min-height:42px !important;
-
-    font-size:10px !important;
-  }
-
-
   .vc-viewer-page
-  .viewer-score-panel
-  > div:nth-of-type(2)
-  > div{
-    min-height:78px !important;
+  .cam--viewer{
+    aspect-ratio:
+      16 / 9 !important;
   }
 
 
-  .vc-viewer-page
-  .viewer-score-panel
-  > div:nth-of-type(2)
-  > div
-  > div:first-child{
-    width:56px !important;
-    height:56px !important;
+  /* scoreboard */
 
-    flex-basis:56px !important;
+  .vc-score-columns,
+  .vc-player-score{
+    grid-template-columns:
+      minmax(0,1fr)
+      60px
+      54px
+      50px !important;
   }
 
 
-  .vc-viewer-page #photoATitle,
-  .vc-viewer-page #photoBTitle{
-    font-size:13px !important;
+  .vc-player-score{
+    min-height:84px !important;
+
+    margin:
+      8px 8px 0 !important;
   }
 
 
-  .vc-viewer-page
-  .viewer-score-panel
-  .table td{
-    height:57px !important;
-
-    font-size:18px !important;
+  .vc-score-columns{
+    padding:
+      0 8px !important;
   }
 
 
-  .vc-viewer-page
-  .viewer-score-panel
-  .table td:nth-child(2){
-    font-size:22px !important;
+  .vc-player-main{
+    gap:8px !important;
+
+    padding:
+      9px 7px !important;
   }
 
 
-  .vc-viewer-page #nameA,
-  .vc-viewer-page #nameB{
+  .vc-player-photo{
+    width:52px !important;
+    height:52px !important;
+
+    flex-basis:
+      52px !important;
+
+    font-size:17px !important;
+  }
+
+
+  .vc-player-info #nameA,
+  .vc-player-info #nameB{
+    font-size:12px !important;
+  }
+
+
+  .vc-score-number strong{
+    font-size:20px !important;
+  }
+
+
+  .vc-score-number--point strong{
+    font-size:24px !important;
+  }
+
+
+  /* sponsors */
+
+  .vc-sponsors{
+    display:block !important;
+
+    padding:13px !important;
+  }
+
+
+  .vc-sponsors-heading{
+    padding:
+      0 0 10px !important;
+
+    border-right:0 !important;
+
+    border-bottom:
+      1px solid #e1e9ed !important;
+  }
+
+
+  .vc-sponsor-grid{
+    display:flex !important;
+
+    gap:8px !important;
+
+    margin-top:10px !important;
+
+    overflow-x:auto !important;
+
+    padding-bottom:2px !important;
+
+    scrollbar-width:none !important;
+
+    scroll-snap-type:
+      x proximity !important;
+  }
+
+
+  .vc-sponsor-grid::-webkit-scrollbar{
+    display:none !important;
+  }
+
+
+  .vc-sponsor-card{
+    flex:
+      0 0 150px !important;
+
+    min-width:
+      150px !important;
+
+    scroll-snap-align:
+      start !important;
+  }
+
+}
+
+
+/* =========================================================
+   SMALL PHONES
+   ========================================================= */
+
+@media(max-width:430px){
+
+  .vc-score-columns,
+  .vc-player-score{
+    grid-template-columns:
+      minmax(0,1fr)
+      52px
+      48px
+      44px !important;
+  }
+
+
+  .vc-player-photo{
+    width:46px !important;
+    height:46px !important;
+
+    flex-basis:
+      46px !important;
+  }
+
+
+  .vc-player-info #nameA,
+  .vc-player-info #nameB{
     font-size:11px !important;
   }
 
 
-  .vc-viewer-page #highlightsPanel{
-    padding:17px !important;
+  .vc-score-number strong{
+    font-size:18px !important;
   }
 
 
-  .vc-viewer-page .highlights-panel__title{
+  .vc-score-number--point strong{
     font-size:22px !important;
   }
 
-}
 
-
-
-/* =========================================================
-   LIVE VIEWER V2 — SCOREBOARD + SPONSORS
-   ========================================================= */
-
-
-/* Main balance */
-
-.vc-viewer-page .viewerWrap{
-  grid-template-columns:
-    minmax(0, 1.72fr)
-    minmax(390px, .68fr) !important;
-
-  gap:20px !important;
-}
-
-
-/* =========================================================
-   NEW SCOREBOARD
-   ========================================================= */
-
-.vc-viewer-page .vc-scoreboard{
-  padding:0 !important;
-
-  overflow:hidden !important;
-
-  border:1px solid #d9e4e9 !important;
-  border-radius:20px !important;
-
-  background:#fff !important;
-
-  color:#10233a !important;
-
-  box-shadow:
-    0 14px 40px rgba(29,65,87,.08) !important;
-}
-
-
-/* header */
-
-.vc-scoreboard__header{
-  display:flex;
-
-  align-items:center;
-  justify-content:space-between;
-
-  gap:20px;
-
-  padding:22px 22px 18px;
-
-  border-bottom:1px solid #e3ebef;
-
-  background:
-    linear-gradient(
-      180deg,
-      #ffffff,
-      #fbfdfe
-    );
-}
-
-.vc-scoreboard__eyebrow{
-  display:block;
-
-  margin-bottom:5px;
-
-  color:#089da7 !important;
-
-  font-size:9px;
-
-  font-weight:950;
-
-  letter-spacing:.14em;
-}
-
-.vc-scoreboard__header h2{
-  margin:0;
-
-  color:#10233a !important;
-
-  font-size:23px;
-
-  line-height:1;
-
-  font-weight:950;
-
-  letter-spacing:-.035em;
-}
-
-.vc-scoreboard__live{
-  display:inline-flex;
-
-  align-items:center;
-
-  gap:6px;
-
-  padding:7px 10px;
-
-  border-radius:999px;
-
-  color:#c43e47 !important;
-
-  background:#fff0f1;
-
-  font-size:9px;
-
-  font-weight:950;
-
-  letter-spacing:.08em;
-}
-
-.vc-scoreboard__live i{
-  width:7px;
-  height:7px;
-
-  border-radius:50%;
-
-  background:#eb4c57;
-
-  box-shadow:
-    0 0 0 4px rgba(235,76,87,.10);
-}
-
-
-/* labels */
-
-.vc-scoreboard__labels{
-  display:grid;
-
-  grid-template-columns:
-    minmax(0,1fr)
-    74px
-    68px
-    62px;
-
-  align-items:center;
-
-  min-height:34px;
-
-  padding:0 13px;
-
-  color:#74869a !important;
-
-  font-size:8px;
-
-  font-weight:900;
-
-  letter-spacing:.10em;
-
-  text-transform:uppercase;
-}
-
-.vc-scoreboard__labels span:not(:first-child){
-  text-align:center;
-}
-
-
-/* player rows */
-
-.vc-score-row{
-  display:grid;
-
-  grid-template-columns:
-    minmax(0,1fr)
-    74px
-    68px
-    62px;
-
-  align-items:stretch;
-
-  min-height:104px;
-
-  margin:0 13px 9px;
-
-  overflow:hidden;
-
-  border:1px solid #dde7ec;
-  border-radius:15px;
-
-  background:#fff;
-}
-
-.vc-score-row--a{
-  border-left:
-    4px solid #08b4bd;
-}
-
-.vc-score-row--b{
-  border-left:
-    4px solid #9250ca;
-}
-
-
-/* player identity */
-
-.vc-score-player{
-  position:relative;
-
-  min-width:0;
-
-  display:flex;
-
-  align-items:center;
-
-  gap:13px;
-
-  padding:14px 12px;
-}
-
-.vc-score-avatar{
-  width:70px;
-  height:70px;
-
-  flex:0 0 70px;
-
-  display:flex;
-
-  align-items:center;
-  justify-content:center;
-
-  overflow:hidden;
-
-  border:2px solid #d9e8eb;
-  border-radius:50%;
-
-  color:#087f88 !important;
-
-  background:
-    linear-gradient(
-      145deg,
-      #effafb,
-      #dceff1
-    );
-
-  font-size:22px;
-
-  font-weight:950;
-}
-
-.vc-score-row--b .vc-score-avatar{
-  color:#7540a3 !important;
-
-  background:
-    linear-gradient(
-      145deg,
-      #faf5fd,
-      #e9dcf3
-    );
-}
-
-.vc-score-avatar img{
-  width:100%;
-  height:100%;
-
-  object-fit:cover;
-}
-
-.vc-score-player__name{
-  min-width:0;
-
-  flex:1;
-}
-
-.vc-score-player__name #nameA,
-.vc-score-player__name #nameB{
-  display:block !important;
-
-  width:auto !important;
-
-  overflow:visible !important;
-
-  white-space:normal !important;
-
-  text-overflow:clip !important;
-
-  overflow-wrap:anywhere !important;
-
-  color:#10233a !important;
-
-  font-size:15px !important;
-
-  line-height:1.18 !important;
-
-  font-weight:950 !important;
-}
-
-
-/*
- * Existing JS still updates these elements,
- * but we don't need duplicate names visually.
- */
-
-.vc-score-player__js-name{
-  position:absolute !important;
-
-  width:1px !important;
-  height:1px !important;
-
-  overflow:hidden !important;
-
-  clip:rect(0 0 0 0) !important;
-}
-
-
-/* serve indicator */
-
-.vc-score-serve{
-  position:absolute !important;
-
-  right:8px !important;
-  top:10px !important;
-
-  width:10px !important;
-  height:10px !important;
-
-  border-radius:50% !important;
-
-  background:#f2c94c !important;
-
-  box-shadow:
-    0 0 0 4px rgba(242,201,76,.16),
-    0 0 14px rgba(242,201,76,.40) !important;
-}
-
-
-/* numbers */
-
-.vc-score-value{
-  display:flex;
-
-  align-items:center;
-  justify-content:center;
-
-  min-width:0;
-
-  border-left:1px solid #e1e9ed;
-
-  color:#10233a !important;
-
-  background:#fafcfd !important;
-
-  font-size:26px !important;
-
-  font-weight:950 !important;
-
-  font-variant-numeric:tabular-nums;
-}
-
-.vc-score-value--point{
-  color:#078f99 !important;
-
-  background:#edf9f9 !important;
-
-  font-size:32px !important;
-}
-
-.vc-score-value--sets{
-  color:#7d43ac !important;
-
-  background:#f6f0fa !important;
-}
-
-
-/* status */
-
-.vc-scoreboard__status{
-  margin:14px 13px 15px;
-
-  padding:10px 12px;
-
-  border-radius:10px;
-
-  color:#6e8094 !important;
-
-  background:#f5f9fa !important;
-
-  font-size:9px;
-}
-
-
-/* kill old table if any stale CSS/markup remains */
-
-.vc-scoreboard > .table{
-  display:none !important;
-}
-
-
-/* =========================================================
-   VIDEO CARD FINISHING
-   ========================================================= */
-
-.vc-viewer-page .viewer-player-panel{
-  padding:16px !important;
-
-  border-radius:20px !important;
-}
-
-.vc-viewer-page .cam--viewer{
-  border-radius:15px !important;
-
-  box-shadow:
-    0 1px 0 rgba(255,255,255,.05),
-    0 10px 32px rgba(5,16,23,.15) !important;
-}
-
-.vc-viewer-page .live-mode-controls{
-  margin-top:11px !important;
-}
-
-
-/* =========================================================
-   SPONSORS
-   ========================================================= */
-
-.vc-sponsors{
-  display:grid;
-
-  grid-template-columns:
-    170px minmax(0,1fr);
-
-  align-items:center;
-
-  gap:22px;
-
-  margin-top:18px;
-
-  padding:16px 18px;
-
-  border:1px solid #dce7ec;
-  border-radius:18px;
-
-  background:#fff;
-
-  box-shadow:
-    0 8px 28px rgba(25,60,82,.05);
-}
-
-.vc-sponsors__intro{
-  padding-right:18px;
-
-  border-right:1px solid #e1e9ed;
-}
-
-.vc-sponsors__intro span{
-  display:block;
-
-  margin-bottom:4px;
-
-  color:#079ca6 !important;
-
-  font-size:8px;
-
-  font-weight:950;
-
-  letter-spacing:.13em;
-}
-
-.vc-sponsors__intro strong{
-  color:#10233a !important;
-
-  font-size:16px;
-
-  font-weight:950;
-}
-
-.vc-sponsors__list{
-  display:grid;
-
-  grid-template-columns:
-    repeat(5,minmax(0,1fr));
-
-  gap:9px;
-}
-
-.vc-sponsor{
-  min-width:0;
-  min-height:64px;
-
-  display:flex;
-
-  align-items:center;
-  justify-content:center;
-
-  padding:10px 13px;
-
-  overflow:hidden;
-
-  border:1px solid #e0e8ec;
-  border-radius:12px;
-
-  color:#294158 !important;
-
-  background:#fbfdfe;
-
-  text-decoration:none !important;
-
-  transition:
-    transform .16s ease,
-    border-color .16s ease,
-    box-shadow .16s ease;
-}
-
-a.vc-sponsor:hover{
-  transform:translateY(-2px);
-
-  border-color:#b9dadd;
-
-  box-shadow:
-    0 7px 18px rgba(23,62,83,.08);
-}
-
-.vc-sponsor img{
-  display:block;
-
-  width:auto;
-  height:auto;
-
-  max-width:100%;
-  max-height:38px;
-
-  object-fit:contain;
-}
-
-.vc-sponsor span{
-  overflow:hidden;
-
-  color:#294158 !important;
-
-  font-size:11px;
-
-  font-weight:950;
-
-  letter-spacing:.02em;
-
-  text-overflow:ellipsis;
-
-  white-space:nowrap;
-}
-
-
-/* =========================================================
-   TABLET
-   ========================================================= */
-
-@media(max-width:1050px){
-
-  .vc-viewer-page .viewerWrap{
-    grid-template-columns:
-      minmax(0,1.4fr)
-      minmax(350px,.75fr) !important;
-  }
-
-  .vc-scoreboard__labels,
-  .vc-score-row{
-    grid-template-columns:
-      minmax(0,1fr)
-      66px
-      58px
-      54px;
-  }
-
-  .vc-score-avatar{
-    width:58px;
-    height:58px;
-
-    flex-basis:58px;
-  }
-
-}
-
-
-/* =========================================================
-   MOBILE
-   ========================================================= */
-
-@media(max-width:800px){
-
-  .vc-viewer-page .viewerWrap{
-    grid-template-columns:1fr !important;
-  }
-
-  .vc-viewer-page .viewer-player-panel{
-    order:1 !important;
-  }
-
-  .vc-viewer-page .vc-scoreboard{
-    order:2 !important;
+  .vc-scoreboard-top{
+    padding:
+      17px 14px 14px !important;
   }
 
 
-  /* Scoreboard fits the full phone width */
-
-  .vc-scoreboard__header{
-    padding:18px 16px 15px;
-  }
-
-  .vc-scoreboard__header h2{
-    font-size:21px;
-  }
-
-  .vc-scoreboard__labels,
-  .vc-score-row{
-    grid-template-columns:
-      minmax(0,1fr)
-      58px
-      52px
-      48px;
-  }
-
-  .vc-scoreboard__labels{
-    padding:0 8px;
-  }
-
-  .vc-score-row{
-    min-height:88px;
-
-    margin:
-      0 8px 8px;
-  }
-
-  .vc-score-player{
-    gap:9px;
-
-    padding:10px 8px;
-  }
-
-  .vc-score-avatar{
-    width:52px;
-    height:52px;
-
-    flex:0 0 52px;
-
-    font-size:17px;
-  }
-
-  .vc-score-player__name #nameA,
-  .vc-score-player__name #nameB{
-    font-size:12px !important;
-  }
-
-  .vc-score-value{
+  .vc-scoreboard-top h2{
     font-size:20px !important;
-  }
-
-  .vc-score-value--point{
-    font-size:25px !important;
-  }
-
-
-  /* Sponsors horizontal scroll on phones */
-
-  .vc-sponsors{
-    display:block;
-
-    padding:15px 13px;
-  }
-
-  .vc-sponsors__intro{
-    padding:0 0 11px;
-
-    border-right:0;
-    border-bottom:1px solid #e1e9ed;
-  }
-
-  .vc-sponsors__list{
-    display:flex;
-
-    gap:8px;
-
-    margin-top:11px;
-
-    overflow-x:auto;
-
-    scroll-snap-type:x proximity;
-
-    scrollbar-width:none;
-  }
-
-  .vc-sponsors__list::-webkit-scrollbar{
-    display:none;
-  }
-
-  .vc-sponsor{
-    min-width:135px;
-
-    flex:0 0 135px;
-
-    scroll-snap-align:start;
   }
 
 }

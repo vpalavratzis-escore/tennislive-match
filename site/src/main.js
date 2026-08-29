@@ -24,9 +24,31 @@ function route() {
 
   // ?p=... έχει προτεραιότητα (viewer deep link)
   const p = url.searchParams.get("p");
+
   if (p) {
     const decoded = decodeURIComponent(p);
-    return renderViewer(decoded);
+    const viewerParts = decoded
+      .split("/")
+      .filter(Boolean);
+
+    /*
+     * A real viewer URL needs country/city/club/court.
+     * Do NOT interpret ?p=/live as a court.
+     */
+    if (
+      viewerParts.length >= 4 &&
+      viewerParts[0] !== "live"
+    ) {
+      return renderViewer(decoded);
+    }
+
+    url.searchParams.delete("p");
+
+    history.replaceState(
+      {},
+      "",
+      url.pathname
+    );
   }
 
   // normal pages (home/live) με base prefix
