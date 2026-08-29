@@ -818,27 +818,37 @@ export async function renderViewer(path) {
   const courtId = parts[i + 3] || "";
 
   app.innerHTML = `
-  <div class="wrap">
-    <header class="nav premium-nav">
+  <div class="wrap vc-viewer-page">
+
+    <header class="vc-home-nav">
+
       <a
-        class="brand brand-image"
         href="/"
         data-nav
-        aria-label="Go to VoxCourt home"
+        class="vc-home-brand"
+        aria-label="VoxCourt home"
       >
         <img
           src="${base}logoText.png"
           alt="VoxCourt"
-          class="brand-logo-image"
         />
       </a>
 
-      <nav class="navlinks" aria-label="Main navigation">
+      <nav class="vc-home-links" aria-label="Main navigation">
         <a href="/" data-nav>Home</a>
         <a href="/live" data-nav>Find courts</a>
+        <a href="https://voxcourt.com/matches/">Match Results</a>
       </nav>
 
-      <a class="cta" href="/live" data-nav>Change court</a>
+      <a
+        href="/live"
+        data-nav
+        class="vc-home-open"
+      >
+        Change court
+        <span>›</span>
+      </a>
+
     </header>
 
     <section
@@ -915,7 +925,7 @@ export async function renderViewer(path) {
       <div class="match-end-summary__top">
         <div>
           <div class="match-end-summary__eyebrow">
-            🏆 MATCH FINISHED
+            MATCH FINISHED
           </div>
 
           <h2 class="match-end-summary__title">
@@ -1828,7 +1838,7 @@ export async function renderViewer(path) {
           class="timeline-filter"
           data-timeline-filter="points"
         >
-          🎾 Points
+          Points
         </button>
 
         <button
@@ -1836,7 +1846,7 @@ export async function renderViewer(path) {
           class="timeline-filter"
           data-timeline-filter="games"
         >
-          🏆 Games & Sets
+          Games & Sets
         </button>
 
         <button
@@ -1945,7 +1955,7 @@ export async function renderViewer(path) {
           class="highlights-filter"
           data-highlight-filter="point"
         >
-          🎾 Points
+          Points
         </button>
 
         <button
@@ -1953,7 +1963,7 @@ export async function renderViewer(path) {
           class="highlights-filter"
           data-highlight-filter="game"
         >
-          🏆 Games
+          Games
         </button>
 
         <button
@@ -1961,7 +1971,7 @@ export async function renderViewer(path) {
           class="highlights-filter"
           data-highlight-filter="set"
         >
-          👑 Sets
+          Sets
         </button>
       </div>
 
@@ -4669,9 +4679,9 @@ ${safeUrl}`
 
       const labels = {
         all: "All",
-        point: "🎾 Points",
-        game: "🏆 Games",
-        set: "👑 Sets"
+        point: "Points",
+        game: "Games",
+        set: "Sets"
       };
 
       highlightsFilters
@@ -5247,8 +5257,8 @@ ${safeUrl}`
 
       const labels = {
         all: "All",
-        points: "🎾 Points",
-        games: "🏆 Games & Sets",
+        points: "Points",
+        games: "Games & Sets",
         replays: "▶ Replays"
       };
 

@@ -1,0 +1,818 @@
+
+/* =========================================================
+   VOXCOURT LIVE MATCH — PRODUCTION
+   ========================================================= */
+
+html:has(.vc-viewer-page),
+body:has(.vc-viewer-page){
+  background:#f5f8fa !important;
+}
+
+body:has(.vc-viewer-page){
+  color:#10233a !important;
+}
+
+.vc-viewer-page{
+  max-width:1500px !important;
+}
+
+.vc-viewer-page *{
+  box-sizing:border-box;
+}
+
+
+/* =========================================================
+   MATCH HEADER
+   ========================================================= */
+
+.vc-viewer-page #matchHero{
+  margin-top:17px !important;
+
+  padding:23px 28px !important;
+
+  border:1px solid #dce7ec !important;
+  border-radius:18px !important;
+
+  background:#fff !important;
+
+  box-shadow:
+    0 8px 28px rgba(25,60,82,.055) !important;
+}
+
+.vc-viewer-page .compact-match-header{
+  display:flex !important;
+
+  align-items:center !important;
+  justify-content:space-between !important;
+
+  gap:30px !important;
+}
+
+.vc-viewer-page .compact-match-header__badge,
+.vc-viewer-page .badge{
+  color:#617589 !important;
+
+  font-size:9px !important;
+
+  font-weight:850 !important;
+
+  letter-spacing:.04em !important;
+}
+
+.vc-viewer-page .compact-match-header__badge i,
+.vc-viewer-page .badge i{
+  background:#0aabb5 !important;
+}
+
+.vc-viewer-page .compact-match-header__main{
+  display:flex !important;
+
+  align-items:center !important;
+
+  gap:18px !important;
+}
+
+.vc-viewer-page #miTitle{
+  margin-top:7px !important;
+
+  color:#10233a !important;
+
+  font-size:27px !important;
+
+  line-height:1.15 !important;
+
+  letter-spacing:-.035em !important;
+
+  font-weight:900 !important;
+}
+
+.vc-viewer-page #miLine2{
+  margin-top:6px !important;
+
+  color:#65788d !important;
+
+  font-size:11px !important;
+}
+
+.vc-viewer-page .match-status{
+  border:0 !important;
+
+  color:#087b83 !important;
+
+  background:#e7f5f5 !important;
+}
+
+.vc-viewer-page .compact-match-header__actions{
+  display:flex !important;
+
+  gap:9px !important;
+}
+
+.vc-viewer-page .match-action-button{
+  min-height:42px !important;
+
+  padding:0 15px !important;
+
+  border:1px solid #d7e3e8 !important;
+  border-radius:10px !important;
+
+  color:#17324b !important;
+
+  background:#fff !important;
+
+  font-size:11px !important;
+
+  font-weight:800 !important;
+}
+
+.vc-viewer-page .match-action-button--accent{
+  border-color:transparent !important;
+
+  color:#fff !important;
+
+  background:
+    linear-gradient(
+      135deg,
+      #12bdc6,
+      #078f9a
+    ) !important;
+}
+
+
+/* =========================================================
+   VIDEO + SCORE MASTER LAYOUT
+   ========================================================= */
+
+.vc-viewer-page .viewerWrap{
+  display:grid !important;
+
+  grid-template-columns:
+    minmax(0,1.62fr)
+    minmax(370px,.68fr) !important;
+
+  gap:18px !important;
+
+  align-items:start !important;
+}
+
+
+/*
+ * Video LEFT
+ * Score RIGHT
+ */
+
+.vc-viewer-page .viewer-player-panel{
+  order:1 !important;
+
+  min-width:0 !important;
+
+  padding:18px !important;
+
+  border:1px solid #dce7ec !important;
+  border-radius:18px !important;
+
+  background:#fff !important;
+
+  box-shadow:
+    0 10px 32px rgba(25,60,82,.065) !important;
+}
+
+.vc-viewer-page .viewer-score-panel{
+  order:2 !important;
+
+  min-width:0 !important;
+
+  padding:0 !important;
+
+  overflow:hidden !important;
+
+  border:1px solid #dce7ec !important;
+  border-radius:18px !important;
+
+  background:#fff !important;
+
+  color:#10233a !important;
+
+  box-shadow:
+    0 10px 32px rgba(25,60,82,.065) !important;
+}
+
+
+/* =========================================================
+   VIDEO
+   ========================================================= */
+
+.vc-viewer-page .viewer-player-panel > .badge{
+  margin-bottom:7px !important;
+}
+
+.vc-viewer-page #streamSourceLabel{
+  margin:0 0 10px !important;
+
+  color:#8392a1 !important;
+
+  font-size:9px !important;
+}
+
+.vc-viewer-page .cam--viewer{
+  position:relative !important;
+
+  width:100% !important;
+  height:auto !important;
+
+  aspect-ratio:16 / 9 !important;
+
+  margin-top:0 !important;
+
+  overflow:hidden !important;
+
+  border:0 !important;
+  border-radius:14px !important;
+
+  background:#080b0d !important;
+
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.045) !important;
+}
+
+.vc-viewer-page .cam--viewer video{
+  border-radius:14px !important;
+}
+
+
+/* Camera / Replay buttons */
+
+.vc-viewer-page .live-mode-controls{
+  display:grid !important;
+
+  grid-template-columns:
+    repeat(3,minmax(0,1fr)) !important;
+
+  gap:7px !important;
+
+  margin-top:10px !important;
+
+  padding:4px !important;
+
+  border:1px solid #dce7ec !important;
+  border-radius:12px !important;
+
+  background:#f6f9fa !important;
+}
+
+.vc-viewer-page .live-mode-button{
+  min-height:43px !important;
+
+  border:0 !important;
+  border-radius:9px !important;
+
+  color:#40566c !important;
+
+  background:transparent !important;
+
+  font-size:11px !important;
+
+  font-weight:850 !important;
+}
+
+.vc-viewer-page .live-mode-button--active{
+  color:#fff !important;
+
+  background:
+    linear-gradient(
+      135deg,
+      #13bec7,
+      #078f9a
+    ) !important;
+
+  box-shadow:
+    0 7px 18px rgba(8,158,168,.20) !important;
+}
+
+.vc-viewer-page #replayStatus{
+  color:#8997a5 !important;
+
+  font-size:9px !important;
+}
+
+
+/* =========================================================
+   PROFESSIONAL SCOREBOARD
+   ========================================================= */
+
+/* Header */
+
+.vc-viewer-page .viewer-score-panel > .badge{
+  margin:0 !important;
+
+  padding:20px 20px 4px !important;
+
+  color:#079ba6 !important;
+
+  font-size:9px !important;
+
+  text-transform:uppercase !important;
+
+  letter-spacing:.12em !important;
+}
+
+
+/*
+ * Player identity cards.
+ * Existing JS / IDs stay untouched.
+ */
+
+.vc-viewer-page
+.viewer-score-panel
+> div:nth-of-type(2){
+  display:flex !important;
+
+  flex-direction:column !important;
+
+  gap:8px !important;
+
+  margin:8px 14px 12px !important;
+}
+
+
+.vc-viewer-page
+.viewer-score-panel
+> div:nth-of-type(2)
+> div{
+  height:auto !important;
+
+  min-height:86px !important;
+
+  padding:11px 13px !important;
+
+  gap:12px !important;
+
+  border:1px solid #e1e9ed !important;
+  border-radius:13px !important;
+
+  background:#fbfdfe !important;
+
+  color:#10233a !important;
+}
+
+
+.vc-viewer-page
+.viewer-score-panel
+> div:nth-of-type(2)
+> div:first-child{
+  border-left:
+    4px solid #0ab1ba !important;
+}
+
+
+.vc-viewer-page
+.viewer-score-panel
+> div:nth-of-type(2)
+> div:nth-child(2){
+  border-left:
+    4px solid #9150cb !important;
+}
+
+
+/* player photos */
+
+.vc-viewer-page
+.viewer-score-panel
+> div:nth-of-type(2)
+> div
+> div:first-child{
+  width:62px !important;
+  height:62px !important;
+
+  flex:0 0 62px !important;
+
+  border:2px solid #dce7eb !important;
+
+  background:#edf6f7 !important;
+
+  color:#087f88 !important;
+}
+
+
+/* Full player names — NO truncation */
+
+.vc-viewer-page #photoATitle,
+.vc-viewer-page #photoBTitle{
+  display:block !important;
+
+  overflow:visible !important;
+
+  -webkit-line-clamp:unset !important;
+  -webkit-box-orient:initial !important;
+
+  max-height:none !important;
+
+  word-break:normal !important;
+  overflow-wrap:anywhere !important;
+
+  color:#10233a !important;
+
+  font-size:14px !important;
+
+  line-height:1.18 !important;
+
+  font-weight:900 !important;
+}
+
+
+/* Remove useless "Photo" text */
+
+.vc-viewer-page #photoATitle + .hint,
+.vc-viewer-page #photoBTitle + .hint{
+  display:none !important;
+}
+
+
+/* SCORE TABLE */
+
+.vc-viewer-page .viewer-score-panel .table{
+  width:calc(100% - 28px) !important;
+
+  margin:0 14px 14px !important;
+
+  overflow:hidden !important;
+
+  border:1px solid #dce7ec !important;
+  border-radius:13px !important;
+
+  border-collapse:separate !important;
+  border-spacing:0 !important;
+
+  background:#fff !important;
+}
+
+.vc-viewer-page
+.viewer-score-panel
+.table th{
+  height:34px !important;
+
+  padding:0 8px !important;
+
+  border-bottom:
+    1px solid #dfe8ec !important;
+
+  color:#708196 !important;
+
+  background:#f6f9fa !important;
+
+  font-size:8px !important;
+
+  font-weight:900 !important;
+
+  letter-spacing:.08em !important;
+
+  text-transform:uppercase !important;
+}
+
+.vc-viewer-page
+.viewer-score-panel
+.table td{
+  height:62px !important;
+
+  padding:7px 8px !important;
+
+  border-top:
+    1px solid #e4ebef !important;
+
+  color:#10233a !important;
+
+  background:#fff !important;
+
+  font-size:20px !important;
+
+  font-weight:900 !important;
+
+  text-align:center !important;
+}
+
+
+/* Player names */
+
+.vc-viewer-page #nameA,
+.vc-viewer-page #nameB{
+  width:45% !important;
+
+  white-space:normal !important;
+
+  overflow:visible !important;
+
+  text-overflow:clip !important;
+
+  word-break:normal !important;
+  overflow-wrap:anywhere !important;
+
+  text-align:left !important;
+
+  color:#10233a !important;
+
+  font-size:12px !important;
+
+  line-height:1.15 !important;
+}
+
+
+/* Point column */
+
+.vc-viewer-page
+.viewer-score-panel
+.table td:nth-child(2){
+  color:#078f99 !important;
+
+  background:#edf8f8 !important;
+
+  font-size:24px !important;
+}
+
+
+/* Games */
+
+.vc-viewer-page
+.viewer-score-panel
+.table td:nth-child(3){
+  background:#f7fafb !important;
+}
+
+
+/* Sets */
+
+.vc-viewer-page
+.viewer-score-panel
+.table td:nth-child(4){
+  color:#7940a7 !important;
+
+  background:#f6f0fa !important;
+}
+
+
+/* state messages */
+
+.vc-viewer-page #status{
+  margin:0 15px 12px !important;
+
+  padding:9px 11px !important;
+
+  border-radius:9px !important;
+
+  color:#738599 !important;
+
+  background:#f7fafb !important;
+
+  font-size:9px !important;
+}
+
+.vc-viewer-page #photostatus{
+  display:none !important;
+}
+
+
+/* =========================================================
+   TIMELINE + HIGHLIGHTS
+   ========================================================= */
+
+.vc-viewer-page > .panel.section,
+.vc-viewer-page #highlightsPanel{
+  border:1px solid #dce7ec !important;
+
+  border-radius:18px !important;
+
+  background:#fff !important;
+
+  color:#10233a !important;
+
+  box-shadow:
+    0 8px 28px rgba(25,60,82,.05) !important;
+}
+
+.vc-viewer-page #highlightsPanel{
+  margin-top:18px !important;
+
+  padding:23px !important;
+}
+
+.vc-viewer-page .highlights-panel__title{
+  color:#10233a !important;
+
+  font-size:26px !important;
+
+  letter-spacing:-.035em !important;
+}
+
+
+/* cleaner pill controls */
+
+.vc-viewer-page .timeline-filter,
+.vc-viewer-page .highlights-filter,
+.vc-viewer-page .timeline-toolbar-button{
+  border:1px solid #d8e4e9 !important;
+
+  color:#40566c !important;
+
+  background:#fff !important;
+
+  font-size:10px !important;
+
+  font-weight:800 !important;
+}
+
+.vc-viewer-page .timeline-filter--active,
+.vc-viewer-page .highlights-filter--active,
+.vc-viewer-page .timeline-toolbar-button--accent{
+  border-color:transparent !important;
+
+  color:#fff !important;
+
+  background:#0aa8b2 !important;
+}
+
+
+/* =========================================================
+   MATCH END SUMMARY
+   ========================================================= */
+
+.vc-viewer-page .match-end-summary{
+  border:1px solid #dce7ec !important;
+
+  border-radius:18px !important;
+
+  background:#fff !important;
+
+  color:#10233a !important;
+}
+
+.vc-viewer-page .match-end-summary__title{
+  color:#10233a !important;
+}
+
+.vc-viewer-page .match-end-summary__trophy{
+  display:none !important;
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media(max-width:1050px){
+
+  .vc-viewer-page .viewerWrap{
+    grid-template-columns:
+      minmax(0,1.45fr)
+      minmax(330px,.75fr) !important;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media(max-width:800px){
+
+  .vc-viewer-page{
+    width:100% !important;
+  }
+
+
+  .vc-viewer-page #matchHero{
+    margin-top:10px !important;
+
+    padding:18px !important;
+  }
+
+
+  .vc-viewer-page .compact-match-header{
+    display:block !important;
+  }
+
+
+  .vc-viewer-page .compact-match-header__main{
+    align-items:flex-start !important;
+
+    flex-direction:column !important;
+
+    gap:10px !important;
+  }
+
+
+  .vc-viewer-page #miTitle{
+    font-size:21px !important;
+  }
+
+
+  .vc-viewer-page .compact-match-header__actions{
+    width:100% !important;
+
+    margin-top:15px !important;
+  }
+
+
+  .vc-viewer-page .compact-match-header__actions button{
+    flex:1 !important;
+  }
+
+
+  /* Video first, scoreboard second */
+
+  .vc-viewer-page .viewerWrap{
+    grid-template-columns:1fr !important;
+
+    gap:10px !important;
+  }
+
+
+  .vc-viewer-page .viewer-player-panel{
+    order:1 !important;
+
+    padding:10px !important;
+  }
+
+
+  .vc-viewer-page .viewer-score-panel{
+    order:2 !important;
+  }
+
+
+  .vc-viewer-page .cam--viewer{
+    aspect-ratio:16 / 9 !important;
+
+    border-radius:11px !important;
+  }
+
+
+  .vc-viewer-page .live-mode-controls{
+    gap:4px !important;
+  }
+
+
+  .vc-viewer-page .live-mode-button{
+    min-height:42px !important;
+
+    font-size:10px !important;
+  }
+
+
+  .vc-viewer-page
+  .viewer-score-panel
+  > div:nth-of-type(2)
+  > div{
+    min-height:78px !important;
+  }
+
+
+  .vc-viewer-page
+  .viewer-score-panel
+  > div:nth-of-type(2)
+  > div
+  > div:first-child{
+    width:56px !important;
+    height:56px !important;
+
+    flex-basis:56px !important;
+  }
+
+
+  .vc-viewer-page #photoATitle,
+  .vc-viewer-page #photoBTitle{
+    font-size:13px !important;
+  }
+
+
+  .vc-viewer-page
+  .viewer-score-panel
+  .table td{
+    height:57px !important;
+
+    font-size:18px !important;
+  }
+
+
+  .vc-viewer-page
+  .viewer-score-panel
+  .table td:nth-child(2){
+    font-size:22px !important;
+  }
+
+
+  .vc-viewer-page #nameA,
+  .vc-viewer-page #nameB{
+    font-size:11px !important;
+  }
+
+
+  .vc-viewer-page #highlightsPanel{
+    padding:17px !important;
+  }
+
+
+  .vc-viewer-page .highlights-panel__title{
+    font-size:22px !important;
+  }
+
+}
+

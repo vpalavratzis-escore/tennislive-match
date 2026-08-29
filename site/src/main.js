@@ -1,6 +1,7 @@
 import "./style.css";
 import "./home-production.css";
 import "./find-courts-production.css";
+import "./viewer-production.css";
 
 // ====== App root ======
 const app = document.getElementById("app");
@@ -52,15 +53,43 @@ function onLinkClick(e) {
   const href = a.getAttribute("href");
   if (!href) return;
 
-  // αφήνουμε external, mailto, tel, target=_blank
-  const isExternal =
-    href.startsWith("http") || href.startsWith("mailto:") || href.startsWith("tel:");
-  if (isExternal || a.target === "_blank") return;
+  if (
+    href.startsWith("http") ||
+    href.startsWith("mailto:") ||
+    href.startsWith("tel:") ||
+    href.startsWith("#") ||
+    a.target === "_blank"
+  ) {
+    return;
+  }
 
-  // εσωτερικά links: route χωρίς reload
   if (href.startsWith("/")) {
     e.preventDefault();
-    history.pushState({}, "", import.meta.env.BASE_URL.replace(/\/+$/, "") + href);
+
+    const base =
+      (import.meta.env.BASE_URL || "/").replace(/\/+$/, "");
+
+    let next = href;
+
+    /*
+     * Some pages already generate:
+     * /tennislive-match/live
+     *
+     * Others use:
+     * /live
+     *
+     * Prefix the base ONLY when it is not already there.
+     */
+    if (
+      base &&
+      base !== "/" &&
+      href !== base &&
+      !href.startsWith(base + "/")
+    ) {
+      next = base + href;
+    }
+
+    history.pushState({}, "", next);
     route();
   }
 }
