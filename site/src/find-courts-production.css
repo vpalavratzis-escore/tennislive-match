@@ -1,0 +1,413 @@
+
+/* =====================================================
+   VOXCOURT FIND COURTS — PRODUCTION
+   ===================================================== */
+
+body:has(.court-page){
+  background:#f5f8fa !important;
+  color:#10233a !important;
+}
+
+.court-page{
+  display:flex !important;
+  flex-direction:column !important;
+  gap:17px !important;
+}
+
+
+/* Main white selector area */
+
+.court-page main{
+  display:block !important;
+}
+
+.court-hero{
+  position:relative !important;
+
+  display:grid !important;
+  grid-template-columns:minmax(340px,.72fr) minmax(520px,1.28fr) !important;
+
+  align-items:center !important;
+
+  gap:55px !important;
+
+  min-height:520px !important;
+
+  padding:52px !important;
+
+  overflow:hidden !important;
+
+  border:1px solid #dce7ec !important;
+  border-radius:24px !important;
+
+  background:
+    radial-gradient(
+      circle at 88% 15%,
+      rgba(11,174,184,.09),
+      transparent 29%
+    ),
+    #ffffff !important;
+
+  box-shadow:
+    0 20px 55px rgba(25,60,82,.08) !important;
+}
+
+
+/* subtle background decoration */
+
+.court-hero::before{
+  content:"";
+
+  position:absolute;
+
+  width:440px;
+  height:440px;
+
+  left:-235px;
+  bottom:-300px;
+
+  border-radius:50%;
+
+  border:1px solid rgba(10,171,181,.10);
+
+  box-shadow:
+    0 0 0 55px rgba(10,171,181,.025),
+    0 0 0 110px rgba(10,171,181,.018);
+}
+
+
+/* LEFT */
+
+.court-hero-copy{
+  position:relative !important;
+  z-index:2 !important;
+}
+
+.court-eyebrow{
+  display:flex !important;
+  align-items:center !important;
+
+  gap:8px !important;
+
+  color:#079ba6 !important;
+
+  font-size:9px !important;
+  font-weight:900 !important;
+
+  letter-spacing:.14em !important;
+  text-transform:uppercase !important;
+}
+
+.court-eyebrow::before{
+  content:"";
+
+  width:7px;
+  height:7px;
+
+  border-radius:50%;
+
+  background:#0aabb5;
+}
+
+.court-title{
+  max-width:520px !important;
+
+  margin:18px 0 0 !important;
+
+  color:#10233a !important;
+
+  font-size:clamp(47px,4.5vw,69px) !important;
+
+  line-height:.99 !important;
+
+  letter-spacing:-.055em !important;
+
+  font-weight:950 !important;
+}
+
+.court-title span{
+  color:#09a5af !important;
+}
+
+.court-intro{
+  max-width:470px !important;
+
+  margin:22px 0 0 !important;
+
+  color:#687a8e !important;
+
+  font-size:14px !important;
+  line-height:1.7 !important;
+}
+
+
+/* sport chips */
+
+.court-sports{
+  display:flex !important;
+  flex-wrap:wrap !important;
+
+  gap:8px !important;
+
+  margin-top:25px !important;
+}
+
+.court-sport{
+  padding:8px 12px !important;
+
+  border:1px solid #dce7ec !important;
+  border-radius:999px !important;
+
+  background:#f8fbfc !important;
+
+  color:#3b5268 !important;
+
+  font-size:10px !important;
+  font-weight:800 !important;
+}
+
+
+/* RIGHT SELECTOR */
+
+.court-selector-card{
+  position:relative !important;
+  z-index:2 !important;
+
+  padding:30px !important;
+
+  border:1px solid #dce7ec !important;
+  border-radius:20px !important;
+
+  background:#fff !important;
+
+  box-shadow:
+    0 20px 55px rgba(24,62,84,.10) !important;
+}
+
+.court-selector-top{
+  display:flex !important;
+
+  align-items:flex-start !important;
+  justify-content:space-between !important;
+
+  gap:20px !important;
+}
+
+.court-selector-top .badge{
+  color:#079ba6 !important;
+
+  font-size:9px !important;
+
+  font-weight:900 !important;
+
+  letter-spacing:.12em !important;
+}
+
+.court-selector-top h2{
+  margin:8px 0 0 !important;
+
+  color:#10233a !important;
+
+  font-size:28px !important;
+
+  letter-spacing:-.035em !important;
+}
+
+.court-selector-top p{
+  margin:7px 0 0 !important;
+
+  color:#78899b !important;
+
+  font-size:12px !important;
+}
+
+.court-status{
+  flex:0 0 auto !important;
+
+  padding:7px 10px !important;
+
+  border-radius:999px !important;
+
+  color:#078f99 !important;
+
+  background:#eaf8f8 !important;
+
+  font-size:9px !important;
+
+  font-weight:900 !important;
+
+  letter-spacing:.06em !important;
+}
+
+
+/* SELECTS */
+
+.court-select-grid{
+  display:grid !important;
+
+  grid-template-columns:
+    repeat(2,minmax(0,1fr)) !important;
+
+  gap:13px !important;
+
+  margin-top:25px !important;
+}
+
+.court-field{
+  display:grid !important;
+
+  gap:7px !important;
+}
+
+.court-field label{
+  color:#627589 !important;
+
+  font-size:9px !important;
+
+  font-weight:900 !important;
+
+  letter-spacing:.08em !important;
+
+  text-transform:uppercase !important;
+}
+
+.court-field select{
+  width:100% !important;
+
+  min-height:52px !important;
+
+  padding:0 14px !important;
+
+  border:1px solid #d6e2e7 !important;
+  border-radius:12px !important;
+
+  outline:none !important;
+
+  background:#f9fbfc !important;
+
+  color:#10233a !important;
+
+  font-size:12px !important;
+
+  font-weight:750 !important;
+}
+
+.court-field select:focus{
+  border-color:#0aabb5 !important;
+
+  box-shadow:
+    0 0 0 3px rgba(10,171,181,.10) !important;
+
+  background:#fff !important;
+}
+
+.court-field select:disabled{
+  opacity:.48 !important;
+}
+
+.court-field option{
+  background:#fff !important;
+  color:#10233a !important;
+}
+
+
+/* OPEN BUTTON */
+
+.court-open{
+  width:100% !important;
+
+  min-height:52px !important;
+
+  margin-top:15px !important;
+
+  border:0 !important;
+  border-radius:12px !important;
+
+  color:#fff !important;
+
+  background:
+    linear-gradient(
+      135deg,
+      #12bdc6,
+      #078f9a
+    ) !important;
+
+  font-size:12px !important;
+
+  font-weight:900 !important;
+
+  box-shadow:
+    0 10px 24px rgba(8,158,168,.18) !important;
+}
+
+.court-open:disabled{
+  opacity:.46 !important;
+  box-shadow:none !important;
+}
+
+
+/* Remove the unnecessary instruction block */
+
+.court-help{
+  display:none !important;
+}
+
+
+/* MOBILE */
+
+@media(max-width:800px){
+
+  .court-hero{
+    grid-template-columns:1fr !important;
+
+    gap:30px !important;
+
+    min-height:0 !important;
+
+    padding:28px 20px !important;
+
+    border-radius:20px !important;
+  }
+
+  .court-title{
+    font-size:clamp(42px,12vw,58px) !important;
+  }
+
+  .court-intro{
+    font-size:13px !important;
+  }
+
+  .court-selector-card{
+    padding:20px !important;
+
+    border-radius:17px !important;
+  }
+
+  .court-selector-top{
+    display:block !important;
+  }
+
+  .court-status{
+    display:inline-flex !important;
+
+    margin-top:12px !important;
+  }
+
+  .court-select-grid{
+    grid-template-columns:1fr !important;
+  }
+
+  .court-field select{
+    min-height:50px !important;
+
+    font-size:14px !important;
+  }
+
+  .court-open{
+    min-height:52px !important;
+
+    font-size:13px !important;
+  }
+
+}
+
