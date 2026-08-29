@@ -519,9 +519,21 @@ async function installVoxCourtSponsors() {
 
   if (!viewerWrap) return;
 
-  if (
-    document.querySelector(".vc-sponsors")
-  ) return;
+  /* Prevent duplicate async installs */
+  if (window.__vcSponsorsInstalling) return;
+
+  const existingSponsors =
+    document.querySelectorAll(".vc-sponsors");
+
+  if (existingSponsors.length) {
+    /* Safety cleanup: keep only the first one */
+    existingSponsors.forEach((el, index) => {
+      if (index > 0) el.remove();
+    });
+    return;
+  }
+
+  window.__vcSponsorsInstalling = true;
 
   let data;
 
@@ -543,6 +555,7 @@ async function installVoxCourtSponsors() {
 
   } catch (_) {
 
+    window.__vcSponsorsInstalling = false;
     return;
 
   }
@@ -558,8 +571,10 @@ async function installVoxCourtSponsors() {
     [];
 
 
-  if (!Array.isArray(sponsors) || !sponsors.length)
+  if (!Array.isArray(sponsors) || !sponsors.length) {
+    window.__vcSponsorsInstalling = false;
     return;
+  }
 
 
   const section =
@@ -617,6 +632,8 @@ async function installVoxCourtSponsors() {
     "afterend",
     section
   );
+
+  window.__vcSponsorsInstalling = false;
 
 }
 
