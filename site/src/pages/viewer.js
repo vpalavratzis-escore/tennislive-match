@@ -226,7 +226,9 @@ async function pickBestStreamSource({ apiBase, courtObj, courtId }) {
 
   const courtLeaf = String(courtId || "").split("/").filter(Boolean).pop() || "";
   const legacyCourtNum = (courtLeaf.match(/^court-(\d+)$/i) || [])[1] || "";
-  const allowLegacyStreamFallback = courtObj?.legacyStreamFallback !== false;
+  const allowLegacyStreamFallback =
+    courtObj?.legacyStreamFallback === true ||
+    Boolean(String(fallbackUrlRaw || "").trim());
   const legacyPiFallbackUrl =
     allowLegacyStreamFallback && apiBase && legacyCourtNum
       ? `${String(apiBase).replace(/\/+$/, "")}/hls/court${legacyCourtNum}.m3u8`
@@ -2803,7 +2805,23 @@ export async function renderViewer(path) {
     const courtObj = (clubObj.courts || []).find((c) => c.id === courtId);
     if (!courtObj) throw new Error(`Court not found: ${courtId}`);
 
-    const stateUrl = resolveUrl(courtObj.state || "");
+    const configuredStateUrl = resolveUrl(courtObj.state || "");
+
+    const publicCourtKey = [
+      country,
+      city,
+      clubId,
+      courtId
+    ]
+      .map((part) => String(part || "").trim())
+      .filter(Boolean)
+      .join("/");
+
+    const stateUrl =
+      configuredStateUrl ||
+      (publicCourtKey
+        ? `https://api.escoreboards.eu/api/state/${publicCourtKey}`
+        : "");
     const photosCourt = String(courtObj.photosCourt || courtId || "court-1").trim() || "court-1";
     const apiBase = isAbsUrl(stateUrl) ? new URL(stateUrl).origin : window.location.origin;
 
