@@ -601,23 +601,23 @@ function attachWebRtcToVideo(video, url, onReady, onFatal) {
         const now = performance.now();
         const count = getDecodedVideoFrameCount();
 
-        let actualNewFrame = false;
-
-        if (Number.isFinite(count)) {
-          if (count > lastFrameCount) {
-            lastFrameCount = count;
-            actualNewFrame = true;
-          }
-        } else {
-          // If decoded-frame counters are unavailable,
-          // requestVideoFrameCallback itself proves a presented frame.
-          actualNewFrame = true;
+        /*
+         * requestVideoFrameCallback itself is proof that the
+         * browser presented a real WebRTC video frame.
+         *
+         * Do NOT require totalVideoFrames to increment here:
+         * some Chromium-family browsers expose the counter for
+         * MediaStream video but keep it at 0 during WebRTC.
+         */
+        if (
+          Number.isFinite(count) &&
+          count > lastFrameCount
+        ) {
+          lastFrameCount = count;
         }
 
-        if (actualNewFrame) {
-          lastVideoFrameAt = now;
-          safeReady();
-        }
+        lastVideoFrameAt = now;
+        safeReady();
 
         try {
           video._webrtcFrameCallbackId =
@@ -799,6 +799,18 @@ function attachWebRtcToVideo(video, url, onReady, onFatal) {
         }
 
         if (track.kind === "video") {
+          /*
+           * Start the media element immediately when the WebRTC
+           * video track arrives. Readiness is still confirmed by
+           * an actual presented frame below.
+           */
+          video.play?.().catch((error) => {
+            console.warn(
+              "Initial WebRTC play attempt:",
+              error
+            );
+          });
+
           track.onunmute = () => {
             clearMutedTooLongTimer();
 
