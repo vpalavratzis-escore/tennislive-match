@@ -226,8 +226,11 @@ async function pickBestStreamSource({ apiBase, courtObj, courtId }) {
 
   const courtLeaf = String(courtId || "").split("/").filter(Boolean).pop() || "";
   const legacyCourtNum = (courtLeaf.match(/^court-(\d+)$/i) || [])[1] || "";
+  const allowLegacyStreamFallback = courtObj?.legacyStreamFallback !== false;
   const legacyPiFallbackUrl =
-    apiBase && legacyCourtNum ? `${String(apiBase).replace(/\/+$/, "")}/hls/court${legacyCourtNum}.m3u8` : "";
+    allowLegacyStreamFallback && apiBase && legacyCourtNum
+      ? `${String(apiBase).replace(/\/+$/, "")}/hls/court${legacyCourtNum}.m3u8`
+      : "";
 
   const result = {
     selectedUrl: "",

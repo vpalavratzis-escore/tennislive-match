@@ -45,29 +45,32 @@
                 {
                   "id": "court-1",
                   "name": "Court 1",
-                  "state": "",
+                  "state": "https://api.escoreboards.eu/api/state/gr/chalkida/chalkida-tennis-club/court-1",
                   "stream": {
                     "type": "hls",
                     "url": ""
-                  }
+                  },
+                  "legacyStreamFallback": false
                 },
                 {
                   "id": "court-2",
                   "name": "Court 2",
-                  "state": "",
+                  "state": "https://api.escoreboards.eu/api/state/gr/chalkida/chalkida-tennis-club/court-2",
                   "stream": {
                     "type": "hls",
                     "url": ""
-                  }
+                  },
+                  "legacyStreamFallback": false
                 },
                 {
                   "id": "court-3",
                   "name": "Court 3",
-                  "state": "",
+                  "state": "https://api.escoreboards.eu/api/state/gr/chalkida/chalkida-tennis-club/court-3",
                   "stream": {
                     "type": "hls",
                     "url": ""
-                  }
+                  },
+                  "legacyStreamFallback": false
                 }
               ]
             },
@@ -78,20 +81,22 @@
                 {
                   "id": "court-1",
                   "name": "Court 1",
-                  "state": "",
+                  "state": "https://api.escoreboards.eu/api/state/gr/chalkida/chalkida-sports-center/court-1",
                   "stream": {
                     "type": "hls",
                     "url": ""
-                  }
+                  },
+                  "legacyStreamFallback": false
                 },
                 {
                   "id": "court-2",
                   "name": "Court 2",
-                  "state": "",
+                  "state": "https://api.escoreboards.eu/api/state/gr/chalkida/chalkida-sports-center/court-2",
                   "stream": {
                     "type": "hls",
                     "url": ""
-                  }
+                  },
+                  "legacyStreamFallback": false
                 }
               ]
             },
@@ -102,20 +107,22 @@
                 {
                   "id": "court-1",
                   "name": "Court 1",
-                  "state": "",
+                  "state": "https://api.escoreboards.eu/api/state/gr/chalkida/evia-tennis-academy/court-1",
                   "stream": {
                     "type": "hls",
                     "url": ""
-                  }
+                  },
+                  "legacyStreamFallback": false
                 },
                 {
                   "id": "court-2",
                   "name": "Court 2",
-                  "state": "",
+                  "state": "https://api.escoreboards.eu/api/state/gr/chalkida/evia-tennis-academy/court-2",
                   "stream": {
                     "type": "hls",
                     "url": ""
-                  }
+                  },
+                  "legacyStreamFallback": false
                 }
               ]
             },
@@ -126,11 +133,12 @@
                 {
                   "id": "court-1",
                   "name": "Court 1",
-                  "state": "",
+                  "state": "https://api.escoreboards.eu/api/state/gr/chalkida/neos-tennis-club/court-1",
                   "stream": {
                     "type": "hls",
                     "url": ""
-                  }
+                  },
+                  "legacyStreamFallback": false
                 }
               ]
             }
