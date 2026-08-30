@@ -3059,40 +3059,94 @@ export async function renderViewer(path) {
     }
 
 
-    const liveQualityStreamKeys = {
-      "1080": {
-        cam1: "court1-1080",
-        cam2: "court1-cam2-1080"
-      },
-      "720": {
-        cam1: "court1-720",
-        cam2: "court1-cam2-720"
-      }
-    };
+    /*
+     * VOXCOURT V4.2 HARDWARE-BOUND LIVE ROUTING
+     *
+     * Cameras no longer belong to court-1 globally.
+     * A physical camera belongs to a Hardware Kit.
+     * The Hardware Kit is assigned exclusively to one full public court key.
+     */
 
-    const liveFallbackStreamKeys = {
-      cam1: "court1",
-      cam2: "court1-cam2"
-    };
+    let assignedHardware = null;
+    let assignedHardwareSignature = "";
+
+    function getAssignedCameraBaseKey(camRole) {
+      if (
+        !assignedHardware ||
+        assignedHardware.status !== "active"
+      ) {
+        return "";
+      }
+
+      const cameras =
+        Array.isArray(assignedHardware.cameras)
+          ? assignedHardware.cameras
+          : [];
+
+      const camera = cameras.find(
+        (item) =>
+          item &&
+          item.camRole === camRole &&
+          item.streamKey
+      );
+
+      if (camera?.streamKey) {
+        return String(camera.streamKey).trim();
+      }
+
+      if (camRole === "cam1") {
+        return String(
+          assignedHardware.cam1StreamKey || ""
+        ).trim();
+      }
+
+      if (camRole === "cam2") {
+        return String(
+          assignedHardware.cam2StreamKey || ""
+        ).trim();
+      }
+
+      return "";
+    }
 
     function makeLiveStream(camRole) {
       const quality =
         selectedLiveQuality === "720" ? "720" : "1080";
 
+      const baseStreamKey =
+        getAssignedCameraBaseKey(camRole);
+
       const streamKey =
-        liveQualityStreamKeys[quality][camRole];
+        baseStreamKey
+          ? `${baseStreamKey}-${quality}`
+          : "";
 
       return {
-        label: camRole === "cam2" ? "Camera 2" : "Camera 1",
+        label:
+          camRole === "cam2"
+            ? "Camera 2"
+            : "Camera 1",
+
         quality,
         qualityLabel: `${quality}p`,
-        webrtcUrl: buildWebRtcUrl(apiBase, streamKey),
 
-        // Fallback keeps the same selected quality.
-        hlsUrl: buildMobileHlsUrl(
-          apiBase,
+        kitCode:
+          String(
+            assignedHardware?.kitCode || ""
+          ).trim(),
+
+        baseStreamKey,
+        streamKey,
+
+        webrtcUrl:
           streamKey
-        )
+            ? buildWebRtcUrl(apiBase, streamKey)
+            : "",
+
+        hlsUrl:
+          streamKey
+            ? buildMobileHlsUrl(apiBase, streamKey)
+            : ""
       };
     }
 
@@ -3102,12 +3156,88 @@ export async function renderViewer(path) {
     };
 
     function applyLiveQualityToStreams() {
-      Object.assign(liveStreams.cam1, makeLiveStream("cam1"));
-      Object.assign(liveStreams.cam2, makeLiveStream("cam2"));
+      Object.assign(
+        liveStreams.cam1,
+        makeLiveStream("cam1")
+      );
+
+      Object.assign(
+        liveStreams.cam2,
+        makeLiveStream("cam2")
+      );
 
       if (liveQualitySelect) {
-        liveQualitySelect.value = selectedLiveQuality;
+        liveQualitySelect.value =
+          selectedLiveQuality;
       }
+    }
+
+    async function syncAssignedHardware() {
+      let nextHardware = null;
+
+      try {
+        const hardwareUrl =
+          `${apiBase}/api/club-registry/public/hardware/court/` +
+          `${String(publicCourtKey || "").replace(/^\/+/, "")}` +
+          `?t=${Date.now()}`;
+
+        const payload =
+          await fetchJson(hardwareUrl);
+
+        nextHardware =
+          payload?.hardware &&
+          payload.hardware.status === "active"
+            ? payload.hardware
+            : null;
+      } catch (_) {
+        /*
+         * Fail closed.
+         * A registry error must never make a physical kit
+         * visible on an unrelated court.
+         */
+        nextHardware = null;
+      }
+
+      const nextSignature =
+        nextHardware
+          ? JSON.stringify({
+              kitCode:
+                nextHardware.kitCode || "",
+              status:
+                nextHardware.status || "",
+              court:
+                nextHardware.assignedCourt?.courtKey || "",
+              cam1:
+                nextHardware.cam1StreamKey || "",
+              cam2:
+                nextHardware.cam2StreamKey || ""
+            })
+          : "NO-HARDWARE";
+
+      const changed =
+        nextSignature !==
+        assignedHardwareSignature;
+
+      assignedHardware =
+        nextHardware;
+
+      assignedHardwareSignature =
+        nextSignature;
+
+      applyLiveQualityToStreams();
+
+      if (changed) {
+        ++streamCheckToken;
+
+        clearOpenAttemptTimer();
+        clearLiveReconnectTimer(true);
+
+        currentSelectedStreamUrl = "";
+
+        resetVideoElement(videoEl);
+      }
+
+      return assignedHardware;
     }
 
     function formatMatchStart(value) {
@@ -6573,11 +6703,44 @@ ${safeUrl}`
 
       clearLiveReconnectTimer(false);
 
+      await syncAssignedHardware();
+
+      if (playerMode !== "live") return;
+
       const myToken = ++streamCheckToken;
-      const picked = liveStreams[selectedLiveCamera] || liveStreams.cam1;
-      const sourceIdentity = picked.webrtcUrl || picked.hlsUrl;
-      const cameraLabel = picked.label;
-      const qualityLabel = picked.qualityLabel || "1080p";
+
+      const picked =
+        liveStreams[selectedLiveCamera] ||
+        liveStreams.cam1;
+
+      const sourceIdentity =
+        picked.webrtcUrl ||
+        picked.hlsUrl;
+
+      const cameraLabel =
+        picked.label;
+
+      const qualityLabel =
+        picked.qualityLabel || "1080p";
+
+      if (!sourceIdentity) {
+        clearOpenAttemptTimer();
+        clearLiveReconnectTimer(true);
+
+        currentSelectedStreamUrl = "";
+
+        streamSourceLabel.textContent =
+          "LIVE • No hardware kit assigned";
+
+        showVideoUnavailable(
+          videoEl,
+          videoOverlay,
+          "No camera assigned",
+          "This court currently has no VoxCourt hardware kit assigned."
+        );
+
+        return;
+      }
 
       const alreadyPlaying =
         sourceIdentity === currentSelectedStreamUrl &&
