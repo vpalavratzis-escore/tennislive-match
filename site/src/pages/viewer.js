@@ -1,3 +1,5 @@
+import { loadClubRegistry } from "../clubRegistry.js";
+
 function segs(path) {
   return String(path || "").split("/").filter(Boolean);
 }
@@ -11,13 +13,6 @@ function resolveUrl(u) {
   if (!s) return "";
   if (isAbsUrl(s)) return s;
   return new URL(s, window.location.origin).toString();
-}
-
-async function loadClubs() {
-  const base = import.meta.env.BASE_URL || "/";
-  const r = await fetch(`${base}config/clubs.json`, { cache: "no-store" });
-  if (!r.ok) throw new Error(`Cannot load ${base}config/clubs.json (${r.status})`);
-  return r.json();
 }
 
 async function fetchJson(url) {
@@ -2787,7 +2782,7 @@ export async function renderViewer(path) {
   }
 
   try {
-    const data = await loadClubs();
+    const data = await loadClubRegistry();
 
     if (!data || !Array.isArray(data.countries)) {
       throw new Error("Invalid clubs.json: expected { countries: [...] }");

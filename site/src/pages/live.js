@@ -1,3 +1,5 @@
+import { loadClubRegistry } from "../clubRegistry.js";
+
 function opt(value, label) {
   const option = document.createElement("option");
   option.value = value;
@@ -14,17 +16,6 @@ function setOptions(select, items, placeholder) {
   }
 
   select.disabled = items.length === 0;
-}
-
-async function loadClubs() {
-  const url = `${import.meta.env.BASE_URL}config/clubs.json`;
-  const response = await fetch(url, { cache: "no-store" });
-
-  if (!response.ok) {
-    throw new Error(`Failed to load clubs.json: ${response.status}`);
-  }
-
-  return response.json();
 }
 
 export function renderLive() {
@@ -255,7 +246,7 @@ export function renderLive() {
 
   (async () => {
     try {
-      data = await loadClubs();
+      data = await loadClubRegistry();
       setOptions(selCountry, data.countries || [], "Country");
     } catch (error) {
       console.error("Failed to load court configuration:", error);
