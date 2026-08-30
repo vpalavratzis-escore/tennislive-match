@@ -334,6 +334,15 @@ async function pickBestStreamSource({ apiBase, courtObj, courtId }) {
     );
 
     if (activeCam1) {
+      if (await hardwareClaimBlocksStream(activeCam1.streamKey)) {
+        result.selectedUrl = "";
+        result.hlsUrl = "";
+        result.webrtcUrl = "";
+        result.sourceLabel = "Hardware kit assigned to another court";
+        result.sourcesPayloadLabel = result.sourceLabel;
+        return result;
+      }
+
       result.hlsUrl = buildMobileHlsUrl(apiBase, activeCam1.streamKey);
       result.webrtcUrl = buildWebRtcUrl(apiBase, activeCam1.streamKey);
       result.selectedUrl = result.hlsUrl;
@@ -343,6 +352,15 @@ async function pickBestStreamSource({ apiBase, courtObj, courtId }) {
     }
 
     if (activeCam2) {
+      if (await hardwareClaimBlocksStream(activeCam2.streamKey)) {
+        result.selectedUrl = "";
+        result.hlsUrl = "";
+        result.webrtcUrl = "";
+        result.sourceLabel = "Hardware kit assigned to another court";
+        result.sourcesPayloadLabel = result.sourceLabel;
+        return result;
+      }
+
       result.hlsUrl = buildMobileHlsUrl(apiBase, activeCam2.streamKey);
       result.webrtcUrl = buildWebRtcUrl(apiBase, activeCam2.streamKey);
       result.selectedUrl = result.hlsUrl;
