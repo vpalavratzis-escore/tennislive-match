@@ -893,10 +893,35 @@ export async function renderViewer(path) {
           </div>
 
           <div class="compact-match-header__main">
+            <img
+              id="clubLogoHeader"
+              class="vc-club-logo-header"
+              alt=""
+              hidden
+            />
+
             <div class="compact-match-header__text">
-              <h1 id="miTitle" class="compact-match-header__title">
-                Loading…
-              </h1>
+              <div class="vc-club-title-row">
+                <h1 id="miTitle" class="compact-match-header__title">
+                  Loading…
+                </h1>
+
+                <a
+                  id="clubMapLink"
+                  class="vc-club-map-link"
+                  href="#"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Open club in Google Maps"
+                  title="Open club in Google Maps"
+                  hidden
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 21s6-5.3 6-11a6 6 0 1 0-12 0c0 5.7 6 11 6 11Z"/>
+                    <circle cx="12" cy="10" r="2.2"/>
+                  </svg>
+                </a>
+              </div>
 
               <div
                 id="miLine2"
@@ -2154,6 +2179,8 @@ export async function renderViewer(path) {
 
   const miTitle = app.querySelector("#miTitle");
   const miLine2 = app.querySelector("#miLine2");
+  const clubLogoHeader = app.querySelector("#clubLogoHeader");
+  const clubMapLink = app.querySelector("#clubMapLink");
 
   const matchHero = app.querySelector("#matchHero");
   const matchStatusBadge = app.querySelector("#matchStatusBadge");
@@ -3367,6 +3394,39 @@ ${window.location.href}`
 
     miTitle.textContent = `${clubObj.name} – ${courtObj.name}`;
     miLine2.textContent = `${cityObj.name}, ${countryObj.name}  •  LIVE`;
+
+    const clubLogoUrl = String(clubObj.logo || "").trim();
+    if (clubLogoHeader) {
+      if (clubLogoUrl) {
+        clubLogoHeader.src = clubLogoUrl;
+        clubLogoHeader.alt = `${clubObj.name} logo`;
+        clubLogoHeader.hidden = false;
+        clubLogoHeader.onerror = () => {
+          clubLogoHeader.hidden = true;
+          clubLogoHeader.removeAttribute("src");
+        };
+      } else {
+        clubLogoHeader.hidden = true;
+        clubLogoHeader.removeAttribute("src");
+      }
+    }
+
+    const clubAddress = String(clubObj.address || "").trim();
+    if (clubMapLink) {
+      if (clubAddress) {
+        const mapQuery = [clubObj.name, clubAddress, cityObj.name, countryObj.name]
+          .map((part) => String(part || "").trim())
+          .filter(Boolean)
+          .join(", ");
+        clubMapLink.href =
+          String(clubObj.mapsUrl || "").trim() ||
+          `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`;
+        clubMapLink.hidden = false;
+      } else {
+        clubMapLink.hidden = true;
+        clubMapLink.removeAttribute("href");
+      }
+    }
 
     let replayObjectUrl = "";
     let selectedReplayCam = "cam1";

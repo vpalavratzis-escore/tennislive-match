@@ -48,6 +48,7 @@ export function renderLive() {
           <a href="${base}" data-nav>Home</a>
           <a class="active" href="${base}live" data-nav>Find courts</a>
           <a href="https://voxcourt.com/matches/">Match Results</a>
+          <a href="https://voxcourt.com/members/manage.html">Members</a>
         </nav>
 
         <a

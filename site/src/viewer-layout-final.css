@@ -1943,3 +1943,55 @@ and (max-width:1180px){
 }
 
 /* ===== VC REPLAY SCOREBOARD HEIGHT LOCK END ===== */
+
+
+/* VOXCOURT V3 CLUB IDENTITY */
+.vc-viewer-page .compact-match-header__main{
+  display:flex !important;
+  align-items:center !important;
+  min-width:0 !important;
+  gap:12px !important;
+}
+.vc-viewer-page .vc-club-logo-header{
+  width:50px !important;
+  height:50px !important;
+  flex:0 0 50px !important;
+  object-fit:contain !important;
+  object-position:center !important;
+  padding:5px !important;
+  border:1px solid #d9e4e9 !important;
+  border-radius:12px !important;
+  background:#fff !important;
+  box-shadow:0 5px 14px rgba(20,54,76,.08) !important;
+}
+.vc-viewer-page .vc-club-logo-header[hidden]{display:none !important;}
+.vc-viewer-page .compact-match-header__text{min-width:0 !important;flex:1 1 auto !important;}
+.vc-viewer-page .vc-club-title-row{
+  min-width:0 !important;
+  display:flex !important;
+  align-items:center !important;
+  gap:8px !important;
+}
+.vc-viewer-page .vc-club-title-row .compact-match-header__title{min-width:0 !important;margin:0 !important;}
+.vc-viewer-page .vc-club-map-link{
+  width:31px !important;
+  height:31px !important;
+  flex:0 0 31px !important;
+  display:grid !important;
+  place-items:center !important;
+  border:1px solid #cce1e5 !important;
+  border-radius:9px !important;
+  color:#079da7 !important;
+  background:#f2fbfc !important;
+  text-decoration:none !important;
+  transition:transform .15s ease,background .15s ease !important;
+}
+.vc-viewer-page .vc-club-map-link:hover{transform:translateY(-1px) !important;background:#e6f8fa !important;}
+.vc-viewer-page .vc-club-map-link[hidden]{display:none !important;}
+.vc-viewer-page .vc-club-map-link svg{width:17px !important;height:17px !important;fill:none !important;stroke:currentColor !important;stroke-width:1.8 !important;stroke-linecap:round !important;stroke-linejoin:round !important;}
+@media(max-width:700px){
+  .vc-viewer-page .compact-match-header__main{gap:9px !important;}
+  .vc-viewer-page .vc-club-logo-header{width:40px !important;height:40px !important;flex-basis:40px !important;padding:4px !important;border-radius:10px !important;}
+  .vc-viewer-page .vc-club-map-link{width:28px !important;height:28px !important;flex-basis:28px !important;}
+  .vc-viewer-page .vc-club-map-link svg{width:15px !important;height:15px !important;}
+}

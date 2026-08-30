@@ -23,6 +23,7 @@ export function renderHome() {
           <a class="active" href="${base}" data-nav>Home</a>
           <a href="${base}live" data-nav>Find courts</a>
           <a href="https://voxcourt.com/matches/">Match Results</a>
+          <a href="https://voxcourt.com/members/manage.html">Members</a>
         </nav>
 
         <a
