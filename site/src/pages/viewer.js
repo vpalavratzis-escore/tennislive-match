@@ -240,6 +240,86 @@ async function pickBestStreamSource({ apiBase, courtObj, courtId }) {
     mobileSources: []
   };
 
+  /* VOXCOURT V4 HARDWARE KIT ROUTING
+   * Physical cameras belong to a permanent hardware kit. The kit can then
+   * move atomically between ANY public court key without changing camera
+   * stream names. Dynamic courts may already carry hardware metadata; legacy
+   * static courts resolve the same assignment from the public hardware API.
+   */
+  let hardware = courtObj?.hardware || null;
+
+  if (!hardware && courtId) {
+    try {
+      const hardwareUrl =
+        `${apiBase}/api/club-registry/public/hardware/court/${String(courtId).replace(/^\/+/, "")}`;
+      const hardwarePayload = await fetchJson(hardwareUrl);
+      hardware = hardwarePayload?.hardware || null;
+    } catch (_) {
+      hardware = null;
+    }
+  }
+
+  const configuredHardwareSources =
+    hardware?.status === "active" && Array.isArray(hardware?.cameras)
+      ? hardware.cameras
+          .filter((source) => source?.camRole && source?.streamKey)
+          .map((source) => ({
+            ...source,
+            liveActive: false,
+            hardwareKit: hardware.kitCode || hardware.name || "VoxCourt kit"
+          }))
+      : [];
+
+  if (configuredHardwareSources.length) {
+    const checkedHardwareSources = await Promise.all(
+      configuredHardwareSources.map(async (source) => {
+        const hlsUrl = buildMobileHlsUrl(apiBase, source.streamKey);
+        const liveActive = await probeStreamUrl(hlsUrl, 2500);
+        return { ...source, liveActive };
+      })
+    );
+
+    result.mobileSources = checkedHardwareSources;
+
+    const activeHardwareCam =
+      checkedHardwareSources.find((source) => source.camRole === "cam1" && source.liveActive) ||
+      checkedHardwareSources.find((source) => source.camRole === "cam2" && source.liveActive);
+
+    if (activeHardwareCam) {
+      result.hlsUrl = buildMobileHlsUrl(apiBase, activeHardwareCam.streamKey);
+      result.webrtcUrl = buildWebRtcUrl(apiBase, activeHardwareCam.streamKey);
+      result.selectedUrl = result.hlsUrl;
+      result.sourceLabel =
+        `${hardware.kitCode || "Hardware kit"} • ${activeHardwareCam.camRole}`;
+      result.sourcesPayloadLabel = result.sourceLabel;
+      return result;
+    }
+
+    // An assigned kit is exclusive. If its cameras are offline, this court
+    // must NOT silently inherit a legacy camera from another court.
+    result.selectedUrl = "";
+    result.sourceLabel = `${hardware.kitCode || "Hardware kit"} assigned • cameras offline`;
+    return result;
+  }
+
+  async function hardwareClaimBlocksStream(streamKey) {
+    const key = String(streamKey || "").trim();
+    if (!key) return false;
+    try {
+      const claimUrl =
+        `${apiBase}/api/club-registry/public/hardware/stream/${encodeURIComponent(key)}`;
+      const claim = await fetchJson(claimUrl);
+      if (!claim?.claimed) return false;
+      const assigned = String(claim.assignedCourtKey || "").replace(/^\/+|\/+$/g, "");
+      const current = String(courtId || "").replace(/^\/+|\/+$/g, "");
+      // Registered hardware is visible only at its current assignment.
+      return !assigned || assigned !== current || claim.kitStatus !== "active";
+    } catch (_) {
+      // Preserve legacy behavior during a temporary registry outage.
+      return false;
+    }
+  }
+
   try {
     const sourcesUrl = `${apiBase}/api/court/sources?courtId=${encodeURIComponent(courtId)}`;
     const payload = await fetchJson(sourcesUrl);
@@ -272,6 +352,12 @@ async function pickBestStreamSource({ apiBase, courtObj, courtId }) {
     }
 
     if (legacyPiFallbackUrl) {
+      const legacyStreamKey = `court${legacyCourtNum}`;
+      if (await hardwareClaimBlocksStream(legacyStreamKey)) {
+        result.selectedUrl = "";
+        result.sourceLabel = "Hardware kit assigned to another court";
+        return result;
+      }
       result.hlsUrl = legacyPiFallbackUrl;
       result.webrtcUrl = buildWebRtcUrlFromHlsUrl(legacyPiFallbackUrl);
       result.selectedUrl = result.hlsUrl;
@@ -280,6 +366,17 @@ async function pickBestStreamSource({ apiBase, courtObj, courtId }) {
     }
 
     if (fallbackUrl) {
+      let fallbackStreamKey = "";
+      try {
+        const fallbackParsed = new URL(fallbackUrl, window.location.origin);
+        const fallbackMatch = fallbackParsed.pathname.match(/^\/hls\/(.+)\.m3u8$/i);
+        fallbackStreamKey = fallbackMatch ? decodeURIComponent(fallbackMatch[1]) : "";
+      } catch (_) {}
+      if (fallbackStreamKey && await hardwareClaimBlocksStream(fallbackStreamKey)) {
+        result.selectedUrl = "";
+        result.sourceLabel = "Hardware kit assigned to another court";
+        return result;
+      }
       result.hlsUrl = fallbackUrl;
       result.webrtcUrl = buildWebRtcUrlFromHlsUrl(fallbackUrl);
       result.selectedUrl = result.hlsUrl;
@@ -292,6 +389,12 @@ async function pickBestStreamSource({ apiBase, courtObj, courtId }) {
     return result;
   } catch (_) {
     if (legacyPiFallbackUrl) {
+      const legacyStreamKey = `court${legacyCourtNum}`;
+      if (await hardwareClaimBlocksStream(legacyStreamKey)) {
+        result.selectedUrl = "";
+        result.sourceLabel = "Hardware kit assigned to another court";
+        return result;
+      }
       result.hlsUrl = legacyPiFallbackUrl;
       result.webrtcUrl = buildWebRtcUrlFromHlsUrl(legacyPiFallbackUrl);
       result.selectedUrl = result.hlsUrl;
@@ -300,6 +403,17 @@ async function pickBestStreamSource({ apiBase, courtObj, courtId }) {
     }
 
     if (fallbackUrl) {
+      let fallbackStreamKey = "";
+      try {
+        const fallbackParsed = new URL(fallbackUrl, window.location.origin);
+        const fallbackMatch = fallbackParsed.pathname.match(/^\/hls\/(.+)\.m3u8$/i);
+        fallbackStreamKey = fallbackMatch ? decodeURIComponent(fallbackMatch[1]) : "";
+      } catch (_) {}
+      if (fallbackStreamKey && await hardwareClaimBlocksStream(fallbackStreamKey)) {
+        result.selectedUrl = "";
+        result.sourceLabel = "Hardware kit assigned to another court";
+        return result;
+      }
       result.hlsUrl = fallbackUrl;
       result.webrtcUrl = buildWebRtcUrlFromHlsUrl(fallbackUrl);
       result.selectedUrl = result.hlsUrl;
