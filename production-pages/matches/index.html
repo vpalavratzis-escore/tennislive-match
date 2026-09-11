@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Match Archive — VoxCourt</title>
+  <meta
+    name="description"
+    content="Browse completed VoxCourt tennis matches, results, highlights and match timelines."
+  >
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet"
+  >
+
+  <link rel="stylesheet" href="/matches/matches.css?v=20260830-060">
+</head>
+
+<body data-page="archive">
+
+  <div class="site-shell">
+
+    <header class="topbar">
+
+      <a
+        class="brand"
+        href="/tennislive-match/"
+        aria-label="VoxCourt home"
+      >
+        <img
+          src="/assets/logoText.png"
+          alt="VoxCourt"
+        >
+      </a>
+
+      <nav class="nav" aria-label="Main navigation">
+        <a href="/tennislive-match/">Home</a>
+        <a href="/tennislive-match/live">Find courts</a>
+        <a class="active" href="/matches/">Match Results</a>
+        <a href="/members/manage.html">Members</a>
+      </nav>
+
+      <a
+        class="header-cta"
+        href="/tennislive-match/live"
+      >
+        Open a court
+      </a>
+
+    </header>
+
+
+    <main>
+
+      <section class="archive-hero">
+
+        <div class="hero-copy">
+
+          <div class="eyebrow">
+            Match archive
+          </div>
+
+          <h1>
+            Every match.<br>
+            One place.
+          </h1>
+
+          <p>
+            Browse completed VoxCourt matches, filter by club,
+            court or player, and open the full match record with
+            highlights and timeline.
+          </p>
+
+        </div>
+
+        <div class="hero-stat">
+
+          <span class="hero-stat-label">
+            Archived matches
+          </span>
+
+          <strong id="archiveCount">—</strong>
+
+          <span id="archiveStatus">
+            Loading archive…
+          </span>
+
+        </div>
+
+      </section>
+
+
+      <section class="archive-panel">
+
+        <div class="archive-toolbar">
+
+          <div class="filter-field">
+            <label for="sportFilter">Sport</label>
+            <select id="sportFilter">
+              <option value="">All sports</option>
+              <option value="tennis">Tennis</option>
+              <option value="padel">Padel</option>
+            </select>
+          </div>
+
+          <div class="filter-field">
+            <label for="countryFilter">Country</label>
+            <select id="countryFilter">
+              <option value="">All countries</option>
+            </select>
+          </div>
+
+          <div class="filter-field">
+            <label for="clubFilter">Club</label>
+            <select id="clubFilter">
+              <option value="">All clubs</option>
+            </select>
+          </div>
+
+          <div class="filter-field">
+            <label for="courtFilter">Court</label>
+            <select id="courtFilter">
+              <option value="">All courts</option>
+            </select>
+          </div>
+
+          <div class="filter-field search-field">
+            <label for="playerFilter">Player</label>
+
+            <div class="search-input-wrap">
+              <span aria-hidden="true">⌕</span>
+
+              <input
+                id="playerFilter"
+                type="search"
+                autocomplete="off"
+                placeholder="Search player"
+              >
+            </div>
+          </div>
+
+          <div class="filter-field">
+            <label for="dateFilter">Date</label>
+
+            <input
+              id="dateFilter"
+              type="date"
+            >
+          </div>
+
+          <button
+            id="clearFilters"
+            class="ghost-button"
+            type="button"
+          >
+            Clear
+          </button>
+
+        </div>
+
+
+        <div class="archive-summary">
+
+          <div>
+            <strong id="resultCount">0</strong>
+            <span id="resultLabel">matches</span>
+          </div>
+
+          <button
+            id="refreshMatches"
+            class="refresh-button"
+            type="button"
+          >
+            Refresh
+          </button>
+
+        </div>
+
+
+        <div
+          id="matchesGrid"
+          class="matches-grid"
+          aria-live="polite"
+        >
+          <div class="archive-message">
+            Loading matches…
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+
+    <footer class="footer">
+      <span>
+        © <span id="year"></span> VoxCourt.
+      </span>
+
+      <span>
+        Smart scoring for modern courts.
+      </span>
+    </footer>
+
+  </div>
+
+  <script src="/matches/matches.js?v=20260830-060" defer></script>
+
+</body>
+</html>

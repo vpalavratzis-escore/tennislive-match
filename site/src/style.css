@@ -27,6 +27,15 @@
   --content: 1440px;
 }
 
+/* Secure responsive score controller */
+.controller-shell{min-height:100vh;background:#061a33;color:#fff;padding:18px;font-family:Inter,system-ui,sans-serif}.controller-head{max-width:1040px;margin:auto;display:flex;align-items:center;gap:18px;padding:12px 0 24px}.controller-head img{width:150px}.controller-head div{display:grid;margin-right:auto}.controller-head div span{color:#9cafc5;font-size:.78rem}.controller-connection{padding:8px 12px;border-radius:999px;background:rgba(85,226,223,.12);color:#55e2df;font-size:.75rem}.controller-main{max-width:1040px;margin:auto}.controller-score{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:22px;border-radius:20px;background:#0b294c}.controller-score>div{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;padding:14px;border-radius:12px;background:rgba(255,255,255,.05)}.controller-score>div>span{color:#55e2df}.controller-score>div>b{font-size:clamp(1.4rem,4vw,2.5rem)}.controller-score>p{grid-column:1/-1;margin:0;color:#55e2df;font-weight:800;letter-spacing:.12em}.controller-points{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0}.controller-points button{min-height:180px;border:0;border-radius:20px;background:#55e2df;color:#03162d;font-size:clamp(1rem,2vw,1.35rem);font-weight:700;cursor:pointer}.controller-points button:nth-child(2){background:#fff}.controller-points strong{display:block;margin-top:10px;font-size:clamp(1.5rem,4vw,2.8rem)}.controller-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.controller-actions button{min-height:54px;border:1px solid rgba(255,255,255,.2);border-radius:12px;background:#0b294c;color:#fff;font-weight:800}.controller-feedback{color:#9cafc5;text-align:center}.controller-shell button:disabled{opacity:.5}
+@media(max-width:600px){.controller-shell{padding:10px}.controller-head div{display:none}.controller-score{grid-template-columns:1fr;padding:12px}.controller-score>p{grid-column:auto}.controller-points{gap:10px}.controller-points button{min-height:160px;padding:10px}.controller-actions{grid-template-columns:1fr 1fr}}
+
+/* Mobile release guard: core match information remains visible. */
+@media(max-width:600px){html,body,#app,.wrap{max-width:100%;overflow-x:hidden}.cam--viewer,.cam--viewer video{aspect-ratio:16/9;width:100%;height:auto}.match-hero__meta,.match-stats,.match-summary,.score-card,.highlights-panel,.timeline-panel{display:block!important}.match-hero__column-labels{display:grid!important}.match-hero-player{display:grid!important}.btn,button,a.btn{min-height:44px}.match-hero__actions{display:flex!important;flex-wrap:wrap}.match-hero__score{overflow:visible}}
+#app[data-match-state="COMPLETED"] .video-mode-badge--live .video-mode-badge__dot{display:none}
+#app[data-match-state="COMPLETED"] .video-mode-badge--live{background:rgba(85,226,223,.13);color:#55e2df}
+
 /* =========================================================
    GLOBAL
 ========================================================= */

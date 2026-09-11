@@ -16,6 +16,7 @@ if (!app) {
 import { renderHome } from "./pages/home.js";
 import { renderLive } from "./pages/live.js";
 import { renderViewer } from "./pages/viewer.js";
+import { renderController } from "./pages/controller.js";
 import "./viewer-layout-final.css";
 
 // ====== Router ======
@@ -63,6 +64,7 @@ function route() {
 
   if (path === "/") return renderHome();
   if (path === "/live") return renderLive();
+  if (path.startsWith("/control/")) return renderController(path.slice(9).split("/"));
 
   // fallback
   return renderHome();

@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Match — VoxCourt</title>
+
+  <meta
+    name="description"
+    content="VoxCourt match result, highlights and match timeline."
+  >
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet"
+  >
+
+  <link rel="stylesheet" href="/matches/matches.css?v=20260830-060">
+</head>
+
+<body data-page="match">
+
+  <div class="site-shell">
+
+    <header class="topbar">
+
+      <a
+        class="brand"
+        href="/tennislive-match/"
+        aria-label="VoxCourt home"
+      >
+        <img
+          src="/assets/logoText.png"
+          alt="VoxCourt"
+        >
+      </a>
+
+      <nav class="nav" aria-label="Main navigation">
+        <a href="/tennislive-match/">Home</a>
+        <a href="/tennislive-match/live">Find courts</a>
+        <a class="active" href="/matches/">Match Results</a>
+        <a href="/members/manage.html">Members</a>
+      </nav>
+
+      <a
+        class="header-cta"
+        href="/tennislive-match/live"
+      >
+        Open a court
+      </a>
+
+    </header>
+
+
+    <main>
+
+      <a
+        class="back-link"
+        href="/matches/"
+      >
+        ← Match archive
+      </a>
+
+
+      <section
+        id="matchHero"
+        class="match-hero"
+      >
+        <div class="archive-message">
+          Loading match…
+        </div>
+      </section>
+
+
+      <section
+        id="matchContent"
+        class="match-content"
+        hidden
+      >
+
+        <nav
+          class="match-tabs"
+          aria-label="Match sections"
+        >
+          <button
+            class="match-tab active"
+            type="button"
+            data-tab="overview"
+          >
+            Overview
+          </button>
+
+          <button
+            class="match-tab"
+            type="button"
+            data-tab="highlights"
+          >
+            Highlights
+          </button>
+
+          <button class="match-tab" type="button" data-tab="replay">Full replay</button>
+
+          <button
+            class="match-tab"
+            type="button"
+            data-tab="timeline"
+          >
+            Timeline
+          </button>
+        </nav>
+
+
+        <section
+          class="tab-panel active"
+          data-panel="overview"
+        >
+
+          <header class="match-panel-head match-panel-head--overview">
+            <span>MATCH SUMMARY</span>
+            <h2>Match overview</h2>
+            <p>Final result, winner, court and match information.</p>
+          </header>
+
+          <div
+            id="overviewGrid"
+            class="overview-grid"
+          ></div>
+        </section>
+
+        <section class="tab-panel" data-panel="replay">
+          <header class="match-panel-head"><span>MATCH MEDIA</span><h2>Full match replay</h2><p>A complete recording is shown only when a permanent match asset exists.</p></header>
+          <div class="archive-message"><strong>Full replay unavailable</strong><span>No permanent full-match recording is attached to this match.</span></div>
+        </section>
+
+
+        <section
+          class="tab-panel"
+          data-panel="highlights"
+        >
+
+          <header class="match-panel-head match-panel-head--highlights">
+            <span>MATCH MEDIA</span>
+            <h2>Saved highlights</h2>
+            <p>Replay clips captured during this match.</p>
+          </header>
+
+          <div
+            id="highlightsGrid"
+            class="highlights-grid"
+          ></div>
+        </section>
+
+
+        <section
+          class="tab-panel"
+          data-panel="timeline"
+        >
+
+          <header class="match-panel-head match-panel-head--timeline">
+            <span>POINT BY POINT</span>
+            <h2>Match timeline</h2>
+            <p>Every scoring event, clearly grouped by set.</p>
+          </header>
+
+          <div
+            id="timelineList"
+            class="timeline-list"
+          ></div>
+        </section>
+
+      </section>
+
+    </main>
+
+
+    <footer class="footer">
+      <span>
+        © <span id="year"></span> VoxCourt.
+      </span>
+
+      <span>
+        Match archive
+      </span>
+    </footer>
+
+  </div>
+
+  <script src="/matches/match.js?v=20260830-060" defer></script>
+
+</body>
+</html>

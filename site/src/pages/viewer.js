@@ -1,4 +1,5 @@
 import { loadClubRegistry } from "../clubRegistry.js";
+import { normalizeMatchState, PresentationState } from "../matchState.js";
 
 function segs(path) {
   return String(path || "").split("/").filter(Boolean);
@@ -3296,7 +3297,7 @@ export async function renderViewer(path) {
         ""
       ).toUpperCase();
 
-      if (matchStatus !== "ENDED") {
+      if (normalizeMatchState(matchStatus, state) !== PresentationState.COMPLETED) {
         matchEndSummary.style.display = "none";
         matchEndSummarySpacer.style.display = "none";
         return;
@@ -3471,17 +3472,26 @@ export async function renderViewer(path) {
 
 
     function setMatchStatus(status) {
-      const normalized = String(status || "READY").toUpperCase();
+      const presentation = normalizeMatchState(status);
+      const visibleStatus = presentation === PresentationState.COMPLETED
+        ? "MATCH COMPLETED"
+        : presentation === PresentationState.LIVE
+          ? "LIVE"
+          : presentation === PresentationState.ABORTED
+            ? "MATCH ABORTED"
+            : presentation === PresentationState.NO_MATCH
+              ? "NO MATCH"
+              : "PRE-MATCH";
 
-      let visibleStatus = normalized;
-
-      if (
-        visibleStatus !== "LIVE" &&
-        visibleStatus !== "ENDED" &&
-        visibleStatus !== "READY"
-      ) {
-        visibleStatus = "READY";
+      app.dataset.matchState = presentation;
+      const scoreKicker = app.querySelector(".vc-scoreboard-kicker");
+      const scoreLive = app.querySelector(".vc-scoreboard-live");
+      if (scoreKicker) scoreKicker.textContent = presentation === PresentationState.COMPLETED ? "FINAL SCORE" : "LIVE SCORE";
+      if (scoreLive) {
+        scoreLive.innerHTML = presentation === PresentationState.COMPLETED ? "MATCH COMPLETED" : "<span></span>LIVE";
+        scoreLive.hidden = presentation !== PresentationState.LIVE && presentation !== PresentationState.COMPLETED;
       }
+      if (videoModeBadgeText && presentation === PresentationState.COMPLETED) videoModeBadgeText.textContent = "REPLAY";
 
       if (matchStatusText) {
         matchStatusText.textContent = visibleStatus;
@@ -3496,9 +3506,9 @@ export async function renderViewer(path) {
         "match-status--waiting"
       );
 
-      if (visibleStatus === "LIVE") {
+      if (presentation === PresentationState.LIVE) {
         matchStatusBadge.classList.add("match-status--live");
-      } else if (visibleStatus === "ENDED") {
+      } else if (presentation === PresentationState.COMPLETED || presentation === PresentationState.ABORTED) {
         matchStatusBadge.classList.add("match-status--ended");
       } else {
         matchStatusBadge.classList.add("match-status--ready");
@@ -6976,7 +6986,6 @@ ${safeUrl}`
         );
 
         const hasMeaningfulCourtState =
-          stateUpdatedAt > 0 ||
           statePointA !== "0" ||
           statePointB !== "0" ||
           stateGamesA > 0 ||
@@ -6988,16 +6997,16 @@ ${safeUrl}`
           matchStatusText?.textContent || ""
         ).toUpperCase();
 
-        if (
-          hasMeaningfulCourtState &&
-          currentStatus !== "ENDED"
-        ) {
+        const explicitState = normalizeMatchState(s.matchStatus, s);
+        const latestState = normalizeMatchState(latestMatchLifecycle?.status, latestMatchLifecycle || {});
+        if (explicitState === PresentationState.LIVE || hasMeaningfulCourtState) {
           setMatchStatus("LIVE");
-        } else if (
-          !hasMeaningfulCourtState &&
-          currentStatus !== "ENDED"
-        ) {
-          setMatchStatus("READY");
+        } else if (explicitState === PresentationState.ABORTED) {
+          setMatchStatus("ABORTED");
+        } else if (explicitState === PresentationState.COMPLETED || latestState === PresentationState.COMPLETED) {
+          setMatchStatus("COMPLETED");
+        } else {
+          setMatchStatus("PRE_MATCH");
         }
 
         const nameA = s.nameA ?? s.playerA?.name ?? "Player A";

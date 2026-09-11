@@ -1,5 +1,5 @@
 const DYNAMIC_REGISTRY_URL =
-  "https://api.escoreboards.eu/api/club-registry/public/clubs";
+  "https://api.voxcourt.com/api/public/clubs";
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value || { countries: [] }));
