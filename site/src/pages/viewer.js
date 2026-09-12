@@ -3445,6 +3445,7 @@ export async function renderViewer(path) {
 
     function setMatchStatus(status) {
       const presentation = normalizeMatchState(status);
+      const previousPresentation = app.dataset.matchState || "";
       const visibleStatus = presentation === PresentationState.COMPLETED
         ? "MATCH COMPLETED"
         : presentation === PresentationState.LIVE
@@ -3463,7 +3464,19 @@ export async function renderViewer(path) {
         scoreLive.innerHTML = presentation === PresentationState.COMPLETED ? "MATCH COMPLETED" : "<span></span>LIVE";
         scoreLive.hidden = presentation !== PresentationState.LIVE && presentation !== PresentationState.COMPLETED;
       }
-      if (videoModeBadgeText && presentation === PresentationState.COMPLETED) videoModeBadgeText.textContent = "REPLAY";
+      if (
+        presentation === PresentationState.NO_MATCH &&
+        previousPresentation &&
+        previousPresentation !== PresentationState.NO_MATCH &&
+        playerMode === "replay"
+      ) {
+        backToLive();
+      } else if (videoModeBadgeText) {
+        videoModeBadgeText.textContent =
+          presentation === PresentationState.COMPLETED || playerMode === "replay"
+            ? "REPLAY"
+            : `LIVE • ${selectedLiveCamera === "cam2" ? "CAMERA 2" : "CAMERA 1"}`;
+      }
 
       if (matchStatusText) {
         matchStatusText.textContent = visibleStatus;
@@ -6978,7 +6991,7 @@ ${safeUrl}`
         } else if (explicitState === PresentationState.LIVE || hasMeaningfulCourtState) {
           setMatchStatus("LIVE");
         } else {
-          setMatchStatus("PRE_MATCH");
+          setMatchStatus("NO_MATCH");
         }
 
         const nameA = s.nameA ?? s.playerA?.name ?? "Player A";
@@ -7031,7 +7044,9 @@ ${safeUrl}`
         photoATitle.textContent = clampText(nameA, 30);
         photoBTitle.textContent = clampText(nameB, 30);
 
-        status.textContent = `LIVE ✓ Updated: ${new Date().toLocaleTimeString()}`;
+        status.textContent = app.dataset.matchState === PresentationState.NO_MATCH
+          ? "NO MATCH • Ready"
+          : `LIVE ✓ Updated: ${new Date().toLocaleTimeString()}`;
       } catch (e) {
         status.textContent = `Waiting… (${e.message})`;
       }
@@ -7039,6 +7054,12 @@ ${safeUrl}`
 
     async function tickPhotos() {
       try {
+        if (app.dataset.matchState === PresentationState.NO_MATCH) {
+          setPhoto(photoAImg, photoAPh, "");
+          setPhoto(photoBImg, photoBPh, "");
+          photoStatus.textContent = "PHOTOS • No active match";
+          return;
+        }
         const url = `${apiBase}/api/photos?court=${encodeURIComponent(photosCourt)}`;
         const p = await fetchJson(url);
         setPhoto(photoAImg, photoAPh, p.playerA || "");

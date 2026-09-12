@@ -7,7 +7,7 @@ export function normalizeMatchState(value, state = {}) {
   const raw = String(value ?? state.matchStatus ?? state.status ?? "").trim().toUpperCase();
   if (["LIVE", "PLAYING", "IN_PROGRESS", "ACTIVE"].includes(raw)) return PresentationState.LIVE;
   if (["COMPLETED", "ENDED", "FINISHED", "FINAL"].includes(raw)) return PresentationState.COMPLETED;
-  if (["ABORTED", "CANCELLED", "CANCELED", "RETIRED"].includes(raw)) return PresentationState.ABORTED;
+  if (["ABORTED", "CANCELLED", "CANCELED", "RETIRED", "TIMED_OUT", "STALE"].includes(raw)) return PresentationState.ABORTED;
   if (["READY", "WAITING", "SCHEDULED", "WARMUP", "PRE_MATCH"].includes(raw)) return PresentationState.PRE_MATCH;
   const hasMatch = Boolean(state.matchId || state.nameA || state.nameB || state.startedAt);
   return hasMatch ? PresentationState.PRE_MATCH : PresentationState.NO_MATCH;

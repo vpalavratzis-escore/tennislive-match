@@ -150,6 +150,7 @@ class MatchStore:
         court_id: str,
         result: Optional[Dict[str, Any]] = None,
         ended_at_ms: Optional[int] = None,
+        expected_match_id: Optional[str] = None,
     ) -> Optional[Dict[str, Any]]:
         """
         Ends a match using final result information supplied by the tablet.
@@ -164,6 +165,12 @@ class MatchStore:
             match = data.get(court_id)
 
             if not match:
+                return None
+
+            if (
+                expected_match_id is not None
+                and match.get("matchId") != expected_match_id
+            ):
                 return None
 
             match = dict(match)
@@ -200,3 +207,28 @@ class MatchStore:
             self._write_all(data)
 
         return dict(match)
+
+    def clear_current(
+        self,
+        court_id: str,
+        expected_match_id: Optional[str] = None,
+    ) -> Optional[Dict[str, Any]]:
+        """Remove one court's current-match snapshot after it is archived."""
+        with _MATCH_LOCK:
+            data = self._read_all()
+            match = data.get(court_id)
+
+            if not match:
+                return None
+
+            if (
+                expected_match_id is not None
+                and match.get("matchId") != expected_match_id
+            ):
+                return None
+
+            removed = dict(match)
+            del data[court_id]
+            self._write_all(data)
+
+        return removed

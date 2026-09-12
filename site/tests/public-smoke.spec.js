@@ -284,6 +284,83 @@ test("viewer renders safe mocked live, unavailable video, and completed states",
   expect(errors).toEqual([]);
 });
 
+test("timed out viewer reloads as a true NO_MATCH court without stale match data", async ({page}) => {
+  const errors=watchRuntime(page);
+  await mockRegistry(page);
+  let timedOut=false;
+  const eventRequests=[];
+  const oldPhoto="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='2' height='2'/%3E";
+  await page.route("https://api.test.local/**", route => {
+    const url=route.request().url();
+    if(url.includes("/api/state/")) return route.fulfill({json:timedOut
+      ? {matchStatus:"NO_MATCH",nameA:"Player A",nameB:"Player B",pointA:"0",pointB:"0",gamesA:0,gamesB:0,setsA:0,setsB:0,server:"A",updatedAt:Date.now()}
+      : {matchStatus:"LIVE",matchId:"stale-match-1",startedAt:Date.now()-1000,nameA:"Old Player A",nameB:"Old Player B",pointA:"30",pointB:"15",gamesA:4,gamesB:3,setsA:1,setsB:0,server:"A",updatedAt:Date.now()}});
+    if(url.includes("/api/matches/latest/")) return route.fulfill({json:{match:timedOut?null:{matchId:"stale-match-1",status:"LIVE",nameA:"Old Player A",nameB:"Old Player B"}}});
+    if(url.includes("/api/events/")) {
+      eventRequests.push(url);
+      return route.fulfill({json:{events:timedOut?[]:[{eventId:"old-event",matchId:"stale-match-1",type:"POINT",timestamp:Date.now(),metadata:{nameA:"Old Player A",scoringSide:"A"},display:{type:"POINT",title:"POINT A",score:"30-15",games:"4-3",sets:"1-0",scoringSide:"A",replayAvailable:true}}]}});
+    }
+    if(url.includes("/api/court/sources")) return route.fulfill({json:{sources:[]}});
+    if(url.includes("/api/club-registry/public/hardware/court/")) return route.fulfill({json:{hardware:null}});
+    if(url.includes("/api/photos")) return route.fulfill({json:{playerA:oldPhoto,playerB:oldPhoto}});
+    return route.fulfill({json:{}});
+  });
+
+  await page.goto("./?p=/gr/attica/multi-club/tennis-1");
+  await expect(page.locator("#app")).toHaveAttribute("data-match-state","LIVE");
+  await expect(page.locator("#nameA")).toHaveText("Old Player A");
+  await expect(page.locator("#pointA")).toHaveText("30");
+  await expect(page.locator("#photoA")).toHaveAttribute("src",/^data:image\/svg\+xml/);
+  await expect(page.locator("#timelineList")).toContainText("Old Player A won the point");
+
+  timedOut=true;
+  await expect(page.locator("#app")).toHaveAttribute("data-match-state","NO_MATCH",{timeout:5000});
+  await expect(page.locator("#matchStatusText")).toHaveText("NO MATCH");
+  await expect(page.locator("#nameA")).toHaveText("Player A");
+  await expect(page.locator("#nameB")).toHaveText("Player B");
+  await expect(page.locator("#pointA")).toHaveText("0");
+  await expect(page.locator("#pointB")).toHaveText("0");
+  await expect(page.locator("#gamesA")).toHaveText("0");
+  await expect(page.locator("#setsA")).toHaveText("0");
+  await expect(page.locator("#photoA")).toHaveAttribute("src",/players\/default-a\.jpg$/,{timeout:5000});
+  await expect(page.locator("#photoB")).toHaveAttribute("src",/players\/default-b\.jpg$/);
+  await expect(page.locator("#matchEndSummary")).toBeHidden();
+  await expect(page.locator("#timelineList")).not.toContainText("Old Player A",{timeout:5000});
+  await expect(page.locator("#highlightsGrid .highlight-card")).toHaveCount(0);
+  await expect(page.locator("#miTitle")).toContainText("Multi Club");
+  await expect(page.locator("#miTitle")).toContainText("Tennis 1");
+  await expect.poll(()=>eventRequests.at(-1) || "").not.toContain("stale-match-1");
+  await expect(page.locator("#matchStatusText")).not.toContainText("COMPLETED");
+  expect(errors).toEqual([]);
+});
+
+test("genuine completed viewer retains final players and score", async ({page}) => {
+  await mockRegistry(page);
+  const finalPhoto="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='3' height='3'/%3E";
+  await page.route("https://api.test.local/**", route => {
+    const url=route.request().url();
+    if(url.includes("/api/state/")) return route.fulfill({json:{matchStatus:"COMPLETED",matchId:"completed-match-1",startedAt:Date.now()-3600000,endedAt:Date.now(),nameA:"Champion",nameB:"Finalist",pointA:"0",pointB:"0",gamesA:6,gamesB:4,setsA:2,setsB:0,server:"A",winner:"A",winnerName:"Champion",finalScore:"2-0",updatedAt:Date.now()}});
+    if(url.includes("/api/matches/latest/")) return route.fulfill({json:{match:{matchId:"completed-match-1",status:"COMPLETED",nameA:"Champion",nameB:"Finalist",winner:"A",winnerName:"Champion",finalScore:"2-0",setsA:2,setsB:0}}});
+    if(url.includes("/api/events/")) return route.fulfill({json:{events:[]}});
+    if(url.includes("/api/court/sources")) return route.fulfill({json:{sources:[]}});
+    if(url.includes("/api/club-registry/public/hardware/court/")) return route.fulfill({json:{hardware:null}});
+    if(url.includes("/api/photos")) return route.fulfill({json:{playerA:finalPhoto,playerB:""}});
+    return route.fulfill({json:{}});
+  });
+
+  await page.goto("./?p=/gr/attica/multi-club/tennis-1");
+  await expect(page.locator("#app")).toHaveAttribute("data-match-state","COMPLETED");
+  await expect(page.locator("#matchStatusText")).toHaveText("MATCH COMPLETED");
+  await expect(page.locator("#nameA")).toHaveText("Champion");
+  await expect(page.locator("#nameB")).toHaveText("Finalist");
+  await expect(page.locator("#setsA")).toHaveText("2");
+  await expect(page.locator("#setsB")).toHaveText("0");
+  await expect(page.locator("#matchEndSummary")).toBeVisible();
+  await expect(page.locator("#matchWinnerName")).toHaveText("Champion");
+  await expect(page.locator("#matchEndSetsA")).toHaveText("2-0");
+  await expect(page.locator("#photoA")).toHaveAttribute("src",/^data:image\/svg\+xml/);
+});
+
 test("controller forms authenticated actions without touching production state", async ({page}) => {
   const actions=[];
   page.on("dialog", dialog => dialog.accept("test-key"));

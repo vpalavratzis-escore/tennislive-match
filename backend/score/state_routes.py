@@ -10,6 +10,12 @@ from state_store import StateStore
 from event_store import EventStore
 from match_store import MatchStore
 from match_history_store import MatchHistoryStore
+from stale_match_lifecycle import (
+    canonical_no_match_state,
+    clear_current_player_photos,
+    close_stale_matches as settle_stale_matches,
+    completed_current_state,
+)
 from clip_worker import schedule_event_clip
 
 def mount_state_api(app):
@@ -50,34 +56,14 @@ def mount_state_api(app):
 
     def close_stale_matches(now_ms=None):
         """Archive inactive LIVE matches without treating viewer reads as activity."""
-        now_ms = int(now_ms or time.time() * 1000)
-        closed = []
-        for active in match_store.list_active():
-            court_id = str(active.get("courtId") or "")
-            state = store.get(court_id) or {}
-            last_activity = int(state.get("updatedAt") or active.get("startedAt") or 0)
-            if not last_activity or now_ms - last_activity < stale_timeout_seconds * 1000:
-                continue
-            sets_a, sets_b = int(state.get("setsA") or 0), int(state.get("setsB") or 0)
-            rules = state.get("rules") or active.get("metadata", {}).get("rules") or {}
-            try:
-                needed = max(1, int(rules.get("bestOfSets") or 3) // 2 + 1)
-            except (TypeError, ValueError):
-                needed = 2
-            completed = max(sets_a, sets_b) >= needed and sets_a != sets_b
-            winner = "A" if completed and sets_a > sets_b else "B" if completed else ""
-            events = event_store.list_recent(court_id, limit=5000, match_id=active.get("matchId", ""))
-            result = {"winner":winner,"winnerName":state.get(f"name{winner}", "") if winner else "","finalScore":f"{sets_a}-{sets_b}","nameA":state.get("nameA") or active.get("nameA", ""),"nameB":state.get("nameB") or active.get("nameB", ""),"setsA":sets_a,"setsB":sets_b,"gamesA":int(state.get("gamesA") or 0),"gamesB":int(state.get("gamesB") or 0),"rules":rules,"metadata":{"endReason":"STALE_TIMEOUT","staleTimeoutSeconds":stale_timeout_seconds}}
-            payload = dict(active); payload.update(result); payload.update({"status":"ENDED","endedAt":now_ms,"finalState":dict(state),"events":events,"eventCount":len(events)})
-            started_at = int(active.get("startedAt") or 0)
-            if started_at: payload["durationSeconds"] = max(0, (now_ms-started_at)//1000)
-            archive_status = "COMPLETED" if completed else "TIMED_OUT"
-            match_history_store.archive(payload, archive_status=archive_status)
-            match_store.end(court_id, result=result, ended_at_ms=now_ms)
-            store.set(court_id, {"nameA":"Player A","nameB":"Player B","pointA":"0","pointB":"0","gamesA":0,"gamesB":0,"setsA":0,"setsB":0,"server":"A","updatedAt":now_ms})
-            event_store.clear_court(court_id)
-            closed.append({"courtId":court_id,"matchId":active.get("matchId"),"archiveStatus":archive_status})
-        return closed
+        return settle_stale_matches(
+            store=store,
+            event_store=event_store,
+            match_store=match_store,
+            match_history_store=match_history_store,
+            stale_timeout_seconds=stale_timeout_seconds,
+            now_ms=now_ms,
+        )
 
     def stale_match_worker():
         while True:
@@ -191,17 +177,8 @@ def mount_state_api(app):
 
         if not data:
             # default empty state
-            data = {
-                "nameA": "Player A",
-                "nameB": "Player B",
-                "pointA": "0",
-                "pointB": "0",
-                "gamesA": 0,
-                "gamesB": 0,
-                "setsA": 0,
-                "setsB": 0,
-                "updatedAt": 0
-            }
+            data = canonical_no_match_state()
+            data["updatedAt"] = 0
 
         return JSONResponse(data)
 
@@ -377,7 +354,7 @@ def mount_state_api(app):
                 ended_at_ms = int(time.time() * 1000)
 
                 archive_payload = dict(active_match)
-                archive_payload["status"] = "ENDED"
+                archive_payload["status"] = archive_status
                 archive_payload["endedAt"] = ended_at_ms
 
                 for field, value in final_result.items():
@@ -419,15 +396,22 @@ def mount_state_api(app):
                         archive_status=archive_status,
                     )
 
-                    ended_match = match_store.end(
-                        court_id=k,
-                        result=final_result,
-                        ended_at_ms=ended_at_ms,
-                    )
+                    if archive_status == "COMPLETED":
+                        ended_match = match_store.end(
+                            court_id=k,
+                            result=final_result,
+                            ended_at_ms=ended_at_ms,
+                            expected_match_id=match_id,
+                        )
+                    else:
+                        ended_match = match_store.clear_current(
+                            court_id=k,
+                            expected_match_id=match_id,
+                        )
 
                     if ended_match is None:
                         raise RuntimeError(
-                            "archive succeeded but live match could not be ended"
+                            "archive succeeded but current match could not be settled"
                         )
 
                     archive_ok = True
@@ -441,8 +425,21 @@ def mount_state_api(app):
                         flush=True,
                     )
 
-            if archive_ok:
+            if archive_ok and archive_status == "COMPLETED":
+                saved = store.set(
+                    k,
+                    completed_current_state(
+                        previous,
+                        active_match,
+                        final_result,
+                        ended_at_ms,
+                    ),
+                )
+                events_cleared = False
+            elif archive_ok:
+                saved = store.set(k, canonical_no_match_state())
                 events_cleared = event_store.clear_court(k)
+                clear_current_player_photos(k)
             else:
                 # Preserve live event data if permanent archival failed.
                 events_cleared = False
