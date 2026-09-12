@@ -6,6 +6,12 @@ const API_BASE =
 const VC_HISTORY_API_ORIGIN =
   new URL(API_BASE).origin;
 
+const detailLanguage = localStorage.getItem("voxcourt-language") || ((navigator.language || "").toLowerCase().startsWith("el") ? "el" : "en");
+const detailText = detailLanguage === "el" ? {
+  home:"Αρχική", find:"Βρες γήπεδα", results:"Αποτελέσματα", members:"Μέλη", open:"Άνοιγμα γηπέδου", back:"← Αρχείο αγώνων", share:"Κοινοποίηση", shared:"Ο σύνδεσμος αντιγράφηκε.", shareFallback:"Αντίγραψε τον σύνδεσμο από τη γραμμή διευθύνσεων.", final:"Τελικό", result:"Αποτέλεσμα", winner:"Νικητής", format:"Μορφή", duration:"Διάρκεια", club:"Σύλλογος", court:"Γήπεδο", started:"Έναρξη", finished:"Λήξη", unavailable:"Ο αγώνας δεν είναι διαθέσιμος", overview:"Επισκόπηση", highlights:"Φάσεις", replay:"Πλήρης επανάληψη", timeline:"Χρονολόγιο", summary:"ΣΥΝΟΨΗ ΑΓΩΝΑ", overviewTitle:"Σύνοψη αγώνα", overviewBody:"Τελικό αποτέλεσμα, νικητής, γήπεδο και στοιχεία αγώνα.", media:"ΥΛΙΚΟ ΑΓΩΝΑ", replayBody:"Η πλήρης καταγραφή εμφανίζεται μόνο όταν υπάρχει μόνιμο αρχείο του αγώνα.", replayUnavailable:"Η πλήρης επανάληψη δεν είναι διαθέσιμη", replayUnavailableBody:"Δεν υπάρχει μόνιμη καταγραφή για αυτόν τον αγώνα.", saved:"Αποθηκευμένες φάσεις", savedBody:"Αποσπάσματα επανάληψης που καταγράφηκαν σε αυτόν τον αγώνα.", pointByPoint:"ΦΑΣΗ ΠΡΟΣ ΦΑΣΗ", timelineTitle:"Χρονολόγιο αγώνα", timelineBody:"Κάθε φάση του σκορ, ομαδοποιημένη ανά σετ.", footer:"Αρχείο αγώνων"
+} : { final:"Final", result:"Result", winner:"Winner", format:"Format", duration:"Duration", club:"Club", court:"Court", started:"Started", finished:"Finished", unavailable:"Match unavailable", share:"Share match", shared:"Match link copied.", shareFallback:"Copy the match link from the address bar." };
+document.documentElement.lang = detailLanguage;
+
 
 
 function byId(id) {
@@ -440,7 +446,7 @@ function renderHero(match) {
 
   setText(
     final,
-    "Final"
+    detailText.final
   );
 
 
@@ -612,21 +618,21 @@ function renderOverview(match) {
 
   addInfoCard(
     grid,
-    "Result",
+    detailText.result,
     match.finalScore ||
       `${match.setsA ?? "—"}-${match.setsB ?? "—"}`
   );
 
   addInfoCard(
     grid,
-    "Winner",
+    detailText.winner,
     match.winnerName ||
       "—"
   );
 
   addInfoCard(
     grid,
-    "Format",
+    detailText.format,
     match.formatLabel ||
       match.metadata?.formatLabel ||
       "—"
@@ -634,7 +640,7 @@ function renderOverview(match) {
 
   addInfoCard(
     grid,
-    "Duration",
+    detailText.duration,
     formatDuration(
       match.durationSeconds
     )
@@ -642,7 +648,7 @@ function renderOverview(match) {
 
   addInfoCard(
     grid,
-    "Club",
+    detailText.club,
     prettyLabel(
       location.club
     ) || "—"
@@ -650,7 +656,7 @@ function renderOverview(match) {
 
   addInfoCard(
     grid,
-    "Court",
+    detailText.court,
     prettyLabel(
       location.court
     ) || "—"
@@ -658,7 +664,7 @@ function renderOverview(match) {
 
   addInfoCard(
     grid,
-    "Started",
+    detailText.started,
     formatDate(
       match.startedAt
     )
@@ -666,7 +672,7 @@ function renderOverview(match) {
 
   addInfoCard(
     grid,
-    "Finished",
+    detailText.finished,
     formatDate(
       match.endedAt
     )
@@ -1396,7 +1402,7 @@ function showError(message) {
 
   setText(
     strong,
-    "Match unavailable"
+    detailText.unavailable
   );
 
   const text =
@@ -1497,6 +1503,54 @@ setText(
   byId("year"),
   new Date().getFullYear()
 );
+
+if (detailLanguage === "el") {
+  const navLinks = document.querySelectorAll(".nav a");
+  [detailText.home, detailText.find, detailText.results, detailText.members].forEach((text, index) => setText(navLinks[index], text));
+  setText(document.querySelector(".header-cta"), detailText.open);
+  setText(document.querySelector(".back-link"), detailText.back);
+  [detailText.overview, detailText.highlights, detailText.replay, detailText.timeline].forEach((text, index) => setText(document.querySelectorAll(".match-tab")[index], text));
+  const heads = document.querySelectorAll(".match-panel-head");
+  [[detailText.summary, detailText.overviewTitle, detailText.overviewBody], [detailText.media, detailText.replay, detailText.replayBody], [detailText.media, detailText.saved, detailText.savedBody], [detailText.pointByPoint, detailText.timelineTitle, detailText.timelineBody]].forEach((copy, index) => {
+    setText(heads[index].querySelector("span"), copy[0]);
+    setText(heads[index].querySelector("h2"), copy[1]);
+    setText(heads[index].querySelector("p"), copy[2]);
+  });
+  setText(document.querySelector('[data-panel="replay"] .archive-message strong'), detailText.replayUnavailable);
+  setText(document.querySelector('[data-panel="replay"] .archive-message span'), detailText.replayUnavailableBody);
+  setText(document.querySelector(".footer > span:last-child"), detailText.footer);
+}
+
+setText(byId("shareMatch"), detailText.share);
+
+document.querySelectorAll("[data-language]").forEach(button => {
+  button.classList.toggle("active", button.dataset.language === detailLanguage);
+  button.addEventListener("click", () => {
+    localStorage.setItem("voxcourt-language", button.dataset.language);
+    location.reload();
+  });
+});
+
+byId("mobileNavToggle")?.addEventListener("click", event => {
+  const open = document.body.classList.toggle("archive-menu-open");
+  event.currentTarget.setAttribute("aria-expanded", String(open));
+});
+
+byId("shareMatch")?.addEventListener("click", async () => {
+  const shareData = { title: document.title, url: window.location.href };
+  try {
+    if (navigator.share) {
+      await navigator.share(shareData);
+      return;
+    }
+    await navigator.clipboard.writeText(shareData.url);
+    setText(byId("shareStatus"), detailText.shared);
+  } catch (error) {
+    if (error?.name !== "AbortError") {
+      setText(byId("shareStatus"), detailText.shareFallback);
+    }
+  }
+});
 
 
 activateTabs();

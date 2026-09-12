@@ -41,8 +41,23 @@ const API_URL =
 
 let allMatches = [];
 const archiveLanguage = localStorage.getItem("voxcourt-language") || ((navigator.language || "").toLowerCase().startsWith("el") ? "el" : "en");
-const archiveText = archiveLanguage === "el" ? { none:"Δεν υπάρχουν ακόμη ολοκληρωμένοι αγώνες", noneBody:"Οι ολοκληρωμένοι αγώνες θα εμφανίζονται αυτόματα εδώ.", filtered:"Δεν βρέθηκαν αγώνες με αυτά τα φίλτρα", filteredBody:"Δοκίμασε να αλλάξεις ή να καθαρίσεις τα φίλτρα.", match:"αγώνας", matches:"αγώνες", view:"Προβολή αγώνα →", final:"Τελικό", allSports:"Όλα τα αθλήματα", countries:"Όλες οι χώρες", clubs:"Όλοι οι σύλλογοι", courts:"Όλα τα γήπεδα", completed:"Ολοκληρωμένοι αγώνες VoxCourt", ready:"Το αρχείο είναι έτοιμο", unavailable:"Το αρχείο δεν είναι διαθέσιμο" } : { none:"No completed matches yet", noneBody:"Completed matches will appear here automatically.", filtered:"No matches match these filters", filteredBody:"Try changing or clearing the filters.", match:"match", matches:"matches", view:"View match →", final:"Final", allSports:"All sports", countries:"All countries", clubs:"All clubs", courts:"All courts", completed:"Completed VoxCourt matches", ready:"Archive ready", unavailable:"Archive unavailable" };
+const archiveText = archiveLanguage === "el" ? { none:"Δεν υπάρχουν ακόμη ολοκληρωμένοι αγώνες", noneBody:"Οι ολοκληρωμένοι αγώνες θα εμφανίζονται αυτόματα εδώ.", filtered:"Δεν βρέθηκαν αγώνες με αυτά τα φίλτρα", filteredBody:"Δοκίμασε να αλλάξεις ή να καθαρίσεις τα φίλτρα.", match:"αγώνας", matches:"αγώνες", view:"Προβολή αγώνα →", final:"Τελικό", allSports:"Όλα τα αθλήματα", countries:"Όλες οι χώρες", clubs:"Όλοι οι σύλλογοι", courts:"Όλα τα γήπεδα", completed:"Ολοκληρωμένοι αγώνες VoxCourt", ready:"Το αρχείο είναι έτοιμο", unavailable:"Το αρχείο δεν είναι διαθέσιμο", home:"Αρχική", find:"Βρες γήπεδα", results:"Αποτελέσματα", members:"Μέλη", open:"Άνοιγμα γηπέδου", eyebrow:"Αρχείο αγώνων", hero:"<span>Όλοι οι αγώνες.</span><br>Σε ένα μέρος.", description:"Δες τους ολοκληρωμένους αγώνες VoxCourt, φίλτραρε ανά σύλλογο, γήπεδο ή παίκτη και άνοιξε κάθε καταγραφή με φάσεις και χρονολόγιο.", archived:"Αρχειοθετημένοι αγώνες", sport:"Άθλημα", country:"Χώρα", club:"Σύλλογος", court:"Γήπεδο", player:"Παίκτης", playerSearch:"Αναζήτηση παίκτη", date:"Ημερομηνία", clear:"Καθαρισμός", refresh:"Ανανέωση", footer:"Έξυπνη βαθμολόγηση για σύγχρονα γήπεδα.", loading:"Φόρτωση αγώνων…", loadError:"Αδύνατη φόρτωση του αρχείου", retry:"Δοκίμασε ξανά." } : { none:"No completed matches yet", noneBody:"Completed matches will appear here automatically.", filtered:"No matches match these filters", filteredBody:"Try changing or clearing the filters.", match:"match", matches:"matches", view:"View match →", final:"Final", allSports:"All sports", countries:"All countries", clubs:"All clubs", courts:"All courts", completed:"Completed VoxCourt matches", ready:"Archive ready", unavailable:"Archive unavailable", loading:"Loading matches…", loadError:"Could not load the archive", retry:"Please try again." };
 document.documentElement.lang = archiveLanguage;
+
+if (archiveLanguage === "el") {
+  const navLinks = document.querySelectorAll(".nav a");
+  [archiveText.home, archiveText.find, archiveText.results, archiveText.members].forEach((text, index) => setText(navLinks[index], text));
+  setText(document.querySelector(".header-cta"), archiveText.open);
+  setText(document.querySelector(".eyebrow"), archiveText.eyebrow);
+  document.querySelector(".archive-hero h1").innerHTML = archiveText.hero;
+  setText(document.querySelector(".hero-copy p"), archiveText.description);
+  setText(document.querySelector(".hero-stat-label"), archiveText.archived);
+  ["sport", "country", "club", "court", "player", "date"].forEach((key, index) => setText(document.querySelectorAll(".filter-field label")[index], archiveText[key]));
+  byId("playerFilter").placeholder = archiveText.playerSearch;
+  setText(byId("clearFilters"), archiveText.clear);
+  setText(byId("refreshMatches"), archiveText.refresh);
+  setText(document.querySelector(".footer > span:last-child"), archiveText.footer);
+}
 
 
 function byId(id) {
@@ -736,7 +751,7 @@ async function loadMatches() {
     byId("matchesGrid");
 
   grid.innerHTML =
-    '<div class="archive-message">Loading matches…</div>';
+    `<div class="archive-message">${archiveText.loading}</div>`;
 
   byId("refreshMatches").disabled =
     true;
@@ -810,7 +825,7 @@ async function loadMatches() {
     );
 
     grid.innerHTML =
-      '<div class="archive-message"><strong>Could not load the archive</strong><span>Please try again.</span></div>';
+      `<div class="archive-message"><strong>${archiveText.loadError}</strong><span>${archiveText.retry}</span></div>`;
 
   } finally {
     byId("refreshMatches").disabled =

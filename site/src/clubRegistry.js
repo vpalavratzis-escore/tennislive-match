@@ -5,6 +5,31 @@ function clone(value) {
   return JSON.parse(JSON.stringify(value || { countries: [] }));
 }
 
+export function courtSport(court) {
+  return String(court?.sport || "tennis").trim().toLowerCase();
+}
+
+export function configuredCourts(node) {
+  if (!node || typeof node !== "object") return [];
+  if (Array.isArray(node.courts)) {
+    return node.courts.filter((court) => court?.id && court?.name);
+  }
+  for (const key of ["clubs", "cities", "countries"]) {
+    if (Array.isArray(node[key])) return node[key].flatMap(configuredCourts);
+  }
+  return [];
+}
+
+export function configuredSports(registry) {
+  return [...new Set(configuredCourts(registry).map(courtSport))]
+    .filter(Boolean)
+    .sort();
+}
+
+export function supportsSport(node, sport) {
+  return configuredCourts(node).some((court) => courtSport(court) === sport);
+}
+
 function mergeById(target, incoming, childKey) {
   for (const item of incoming || []) {
     const found = target.find((x) => x.id === item.id);
@@ -59,19 +84,17 @@ export async function loadClubRegistry() {
       ? staticResult.value
       : { countries: [] };
 
-  const dynamicData =
-    dynamicResult.status === "fulfilled"
-      ? dynamicResult.value
-      : { countries: [] };
-
-  // Existing hard-coded clubs remain available even if the registry service
-  // is temporarily offline. New self-provisioned clubs appear automatically
-  // whenever the registry is reachable.
-  const merged = mergeClubRegistries(staticData, dynamicData);
-
-  if (!merged.countries.length && staticResult.status === "rejected") {
-    throw staticResult.reason;
+  // The production registry is authoritative whenever it responds, including
+  // an intentionally empty registry. Static data is only an outage fallback;
+  // merging it into a healthy response would expose courts that are not
+  // actually registered for public use.
+  if (dynamicResult.status === "fulfilled") {
+    return clone(dynamicResult.value);
   }
 
-  return merged;
+  if (staticResult.status === "fulfilled") {
+    return clone(staticData);
+  }
+
+  throw dynamicResult.reason || staticResult.reason;
 }

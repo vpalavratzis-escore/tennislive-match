@@ -18,7 +18,7 @@
     rel="stylesheet"
   >
 
-  <link rel="stylesheet" href="/matches/matches.css?v=20260830-060">
+  <link rel="stylesheet" href="/matches/matches.css?v=20260912-061">
 </head>
 
 <body data-page="match">
@@ -45,6 +45,13 @@
         <a href="/members/manage.html">Members</a>
       </nav>
 
+      <button class="mobile-nav-toggle" id="mobileNavToggle" type="button" aria-label="Menu" aria-expanded="false">☰</button>
+
+      <div class="archive-language" aria-label="Language">
+        <button data-language="en" type="button">EN</button>
+        <button data-language="el" type="button">EL</button>
+      </div>
+
       <a
         class="header-cta"
         href="/tennislive-match/live"
@@ -57,12 +64,20 @@
 
     <main>
 
-      <a
-        class="back-link"
-        href="/matches/"
-      >
-        ← Match archive
-      </a>
+      <div class="match-page-actions">
+        <a
+          class="back-link"
+          href="/matches/"
+        >
+          ← Match archive
+        </a>
+
+        <button id="shareMatch" class="share-match-button" type="button">
+          Share match
+        </button>
+      </div>
+
+      <p id="shareStatus" class="share-status" role="status" aria-live="polite"></p>
 
 
       <section
@@ -188,7 +203,7 @@
 
   </div>
 
-  <script src="/matches/match.js?v=20260830-060" defer></script>
+  <script src="/matches/match.js?v=20260912-061" defer></script>
 
 </body>
 </html>

@@ -6999,12 +6999,12 @@ ${safeUrl}`
 
         const explicitState = normalizeMatchState(s.matchStatus, s);
         const latestState = normalizeMatchState(latestMatchLifecycle?.status, latestMatchLifecycle || {});
-        if (explicitState === PresentationState.LIVE || hasMeaningfulCourtState) {
-          setMatchStatus("LIVE");
-        } else if (explicitState === PresentationState.ABORTED) {
-          setMatchStatus("ABORTED");
-        } else if (explicitState === PresentationState.COMPLETED || latestState === PresentationState.COMPLETED) {
+        if (explicitState === PresentationState.COMPLETED || latestState === PresentationState.COMPLETED) {
           setMatchStatus("COMPLETED");
+        } else if (explicitState === PresentationState.ABORTED || latestState === PresentationState.ABORTED) {
+          setMatchStatus("ABORTED");
+        } else if (explicitState === PresentationState.LIVE || hasMeaningfulCourtState) {
+          setMatchStatus("LIVE");
         } else {
           setMatchStatus("PRE_MATCH");
         }
