@@ -240,8 +240,8 @@ test("approved Greek homepage copy and sport-specific finder empty states", asyn
   await page.addInitScript(()=>localStorage.setItem("voxcourt-language","el"));
   await page.goto("./");
   await expect(page.locator(".vc-home-hero__copy>p")).toHaveText("Ζωντανό σκορ, live μετάδοση και replay — όλα σε μία εμπειρία.");
-  await expect(page.locator(".vc-sports h2")).toHaveText("Τένις, Padel και Pickleball σήμερα. Περισσότερα αθλήματα έρχονται.");
-  await expect(page.locator(".vc-how h2")).toHaveText("Παίξε live. Ξαναδές τις στιγμές που αξίζουν.");
+  await expect(page.locator(".vc-sports h2")).toHaveText("Τένις. Padel. Pickleball. Περισσότερα σύντομα.");
+  await expect(page.locator(".vc-how h2")).toHaveText("Ζήσε τη δράση. Κράτησε τη στιγμή.");
   await expect(page.locator(".vc-how-grid h3")).toHaveText(["Βρες γήπεδο","Παίξε live","Replay & Highlights"]);
   await expect(page.locator(".vc-home-finder h2")).toHaveText("Βρες το γήπεδό σου.");
   await page.locator('#homeSportChoice [data-sport="padel"]').click();
