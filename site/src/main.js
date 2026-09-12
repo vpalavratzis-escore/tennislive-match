@@ -121,6 +121,7 @@ function onLinkClick(e) {
 
 // ====== Start ======
 window.addEventListener("popstate", route);
+window.addEventListener("voxcourt:language", route);
 document.addEventListener("click", onLinkClick);
 
 // ΚΑΛΕΣΕ ΤΟ ΤΩΡΑ

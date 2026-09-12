@@ -2851,8 +2851,17 @@ body[data-page="archive"] .footer{
 /* =========================================================
    MOBILE
    ========================================================= */
+.mobile-nav-toggle,.archive-language{display:none}
+.archive-language button{border:0;background:none;color:#7d8d9a;font-weight:850;cursor:pointer}.archive-language button.active{color:#079ba6}
 
 @media (max-width:760px){
+  body[data-page="archive"] .mobile-nav-toggle{display:grid;place-items:center;width:44px;height:44px;border:0;border-radius:10px;background:#edf7f7;color:#15354a;font-size:20px}
+  body[data-page="archive"] .archive-language{display:flex;grid-column:1/-1;gap:8px}
+  body[data-page="archive"] .archive-language button{min-width:54px;min-height:40px;border:1px solid #dce7ec;border-radius:9px}
+  body[data-page="archive"] .header-cta{display:none!important}
+  body[data-page="archive"] .nav{display:none!important;grid-column:1/-1!important;flex-direction:column;align-items:stretch!important}
+  body.archive-menu-open[data-page="archive"] .nav{display:flex!important}
+  body[data-page="archive"] .nav a{min-height:44px;display:flex;align-items:center;border-bottom:1px solid #edf2f4}
 
   body[data-page="archive"] .site-shell{
     width:min(100% - 20px,1500px) !important;

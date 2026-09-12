@@ -1,0 +1,13 @@
+const STORAGE_KEY = "voxcourt-language";
+const messages = {
+  en: { home:"Home", findCourts:"Find Courts", results:"Match Results", members:"Members", findCourt:"Find a Court", menu:"Menu" },
+  el: { home:"Αρχική", findCourts:"Βρες γήπεδο", results:"Αποτελέσματα αγώνων", members:"Μέλη", findCourt:"Βρες γήπεδο", menu:"Μενού" },
+};
+export function getLanguage(){ const saved=localStorage.getItem(STORAGE_KEY); if(saved==="en"||saved==="el") return saved; return (navigator.language||"").toLowerCase().startsWith("el")?"el":"en"; }
+export function setLanguage(language){ const next=language==="el"?"el":"en"; localStorage.setItem(STORAGE_KEY,next); document.documentElement.lang=next; window.dispatchEvent(new CustomEvent("voxcourt:language",{detail:next})); }
+export function t(key,language=getLanguage()){ return messages[language]?.[key]||messages.en[key]||key; }
+export function publicHeader(base,active=""){
+  const language=getLanguage(); const link=(key,href)=>`<a ${active===key?'class="active"':""} href="${href}">${t(key,language)}</a>`;
+  return `<header class="vc-home-nav"><a href="${base}" class="vc-home-brand"><img src="${base}logoText.png" alt="VoxCourt"></a><button class="vc-menu-toggle" type="button" aria-expanded="false" aria-controls="vcMobileMenu"><span></span><span></span><span></span><b>${t("menu",language)}</b></button><nav class="vc-home-links" aria-label="Main navigation">${link("home",base)}${link("findCourts",`${base}live`)}${link("results","/matches/")}${link("members","/members/manage.html")}</nav><div class="vc-nav-actions"><div class="vc-language" aria-label="Language"><button data-language="en" class="${language==="en"?"active":""}">EN</button><i></i><button data-language="el" class="${language==="el"?"active":""}">EL</button></div><a href="${base}live" class="vc-home-open">${t("findCourt",language)} <span>›</span></a></div><div class="vc-mobile-menu" id="vcMobileMenu"><nav>${link("home",base)}${link("findCourts",`${base}live`)}${link("results","/matches/")}${link("members","/members/manage.html")}</nav><div class="vc-mobile-language"><button data-language="en" class="${language==="en"?"active":""}">EN</button><button data-language="el" class="${language==="el"?"active":""}">EL</button></div></div></header>`;
+}
+export function bindPublicHeader(root=document){ const header=root.querySelector(".vc-home-nav"),toggle=root.querySelector(".vc-menu-toggle"); toggle?.addEventListener("click",()=>{const open=!header.classList.contains("menu-open");header.classList.toggle("menu-open",open);toggle.setAttribute("aria-expanded",String(open));}); root.querySelectorAll("[data-language]").forEach(button=>button.addEventListener("click",()=>setLanguage(button.dataset.language))); }

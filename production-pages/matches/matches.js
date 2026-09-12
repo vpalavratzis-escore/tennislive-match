@@ -40,6 +40,9 @@ const API_URL =
   "https://api.voxcourt.com/api/matches/history?limit=1000&status=COMPLETED";
 
 let allMatches = [];
+const archiveLanguage = localStorage.getItem("voxcourt-language") || ((navigator.language || "").toLowerCase().startsWith("el") ? "el" : "en");
+const archiveText = archiveLanguage === "el" ? { none:"Δεν υπάρχουν ακόμη ολοκληρωμένοι αγώνες", noneBody:"Οι ολοκληρωμένοι αγώνες θα εμφανίζονται αυτόματα εδώ.", filtered:"Δεν βρέθηκαν αγώνες με αυτά τα φίλτρα", filteredBody:"Δοκίμασε να αλλάξεις ή να καθαρίσεις τα φίλτρα.", match:"αγώνας", matches:"αγώνες", view:"Προβολή αγώνα →", final:"Τελικό" } : { none:"No completed matches yet", noneBody:"Completed matches will appear here automatically.", filtered:"No matches match these filters", filteredBody:"Try changing or clearing the filters.", match:"match", matches:"matches", view:"View match →", final:"Final" };
+document.documentElement.lang = archiveLanguage;
 
 
 function byId(id) {
@@ -595,7 +598,7 @@ function makeMatchCard(match) {
 
   setText(
     status,
-    ["Final", match.finalScore || `${match.setsA ?? "—"}-${match.setsB ?? "—"}`, match.durationSeconds ? `${Math.max(1, Math.round(match.durationSeconds / 60))} min` : ""]
+    [archiveText.final, match.finalScore || `${match.setsA ?? "—"}-${match.setsB ?? "—"}`, match.durationSeconds ? `${Math.max(1, Math.round(match.durationSeconds / 60))} min` : ""]
       .filter(Boolean).join(" · ")
   );
 
@@ -609,7 +612,7 @@ function makeMatchCard(match) {
 
   setText(
     view,
-    "View match →"
+    archiveText.view
   );
 
   bottom.append(
@@ -649,8 +652,8 @@ function renderMatches() {
   setText(
     byId("resultLabel"),
     matches.length === 1
-      ? "match"
-      : "matches"
+      ? archiveText.match
+      : archiveText.matches
   );
 
   if (!matches.length) {
@@ -670,8 +673,8 @@ function renderMatches() {
     setText(
       strong,
       allMatches.length
-        ? "No matches match these filters"
-        : "No completed matches yet"
+        ? archiveText.filtered
+        : archiveText.none
     );
 
     const text =
@@ -682,8 +685,8 @@ function renderMatches() {
     setText(
       text,
       allMatches.length
-        ? "Try changing or clearing the filters."
-        : "Completed matches will appear here automatically."
+        ? archiveText.filteredBody
+        : archiveText.noneBody
     );
 
     message.append(
@@ -854,6 +857,19 @@ setText(
   byId("year"),
   new Date().getFullYear()
 );
+
+document.querySelectorAll("[data-language]").forEach(button => {
+  button.classList.toggle("active", button.dataset.language === archiveLanguage);
+  button.addEventListener("click", () => {
+    localStorage.setItem("voxcourt-language", button.dataset.language);
+    location.reload();
+  });
+});
+
+byId("mobileNavToggle")?.addEventListener("click", event => {
+  const open = document.body.classList.toggle("archive-menu-open");
+  event.currentTarget.setAttribute("aria-expanded", String(open));
+});
 
 
 loadMatches();

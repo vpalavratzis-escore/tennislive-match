@@ -1,4 +1,5 @@
 import os
+import threading
 import time
 from typing import Any, Dict
 from fastapi import APIRouter, Body
@@ -44,6 +45,49 @@ def mount_state_api(app):
         "/opt/tennislive-score/data/match_history.db"
     )
     router = APIRouter()
+
+    stale_timeout_seconds = max(60, int(os.getenv("MATCH_STALE_TIMEOUT_SECONDS", "21600")))
+
+    def close_stale_matches(now_ms=None):
+        """Archive inactive LIVE matches without treating viewer reads as activity."""
+        now_ms = int(now_ms or time.time() * 1000)
+        closed = []
+        for active in match_store.list_active():
+            court_id = str(active.get("courtId") or "")
+            state = store.get(court_id) or {}
+            last_activity = int(state.get("updatedAt") or active.get("startedAt") or 0)
+            if not last_activity or now_ms - last_activity < stale_timeout_seconds * 1000:
+                continue
+            sets_a, sets_b = int(state.get("setsA") or 0), int(state.get("setsB") or 0)
+            rules = state.get("rules") or active.get("metadata", {}).get("rules") or {}
+            try:
+                needed = max(1, int(rules.get("bestOfSets") or 3) // 2 + 1)
+            except (TypeError, ValueError):
+                needed = 2
+            completed = max(sets_a, sets_b) >= needed and sets_a != sets_b
+            winner = "A" if completed and sets_a > sets_b else "B" if completed else ""
+            events = event_store.list_recent(court_id, limit=5000, match_id=active.get("matchId", ""))
+            result = {"winner":winner,"winnerName":state.get(f"name{winner}", "") if winner else "","finalScore":f"{sets_a}-{sets_b}","nameA":state.get("nameA") or active.get("nameA", ""),"nameB":state.get("nameB") or active.get("nameB", ""),"setsA":sets_a,"setsB":sets_b,"gamesA":int(state.get("gamesA") or 0),"gamesB":int(state.get("gamesB") or 0),"rules":rules,"metadata":{"endReason":"STALE_TIMEOUT","staleTimeoutSeconds":stale_timeout_seconds}}
+            payload = dict(active); payload.update(result); payload.update({"status":"ENDED","endedAt":now_ms,"finalState":dict(state),"events":events,"eventCount":len(events)})
+            started_at = int(active.get("startedAt") or 0)
+            if started_at: payload["durationSeconds"] = max(0, (now_ms-started_at)//1000)
+            archive_status = "COMPLETED" if completed else "TIMED_OUT"
+            match_history_store.archive(payload, archive_status=archive_status)
+            match_store.end(court_id, result=result, ended_at_ms=now_ms)
+            store.set(court_id, {"nameA":"Player A","nameB":"Player B","pointA":"0","pointB":"0","gamesA":0,"gamesB":0,"setsA":0,"setsB":0,"server":"A","updatedAt":now_ms})
+            event_store.clear_court(court_id)
+            closed.append({"courtId":court_id,"matchId":active.get("matchId"),"archiveStatus":archive_status})
+        return closed
+
+    def stale_match_worker():
+        while True:
+            try:
+                close_stale_matches()
+            except Exception as exc:
+                print("STALE MATCH WORKER ERROR:", repr(exc), flush=True)
+            time.sleep(min(300, max(30, stale_timeout_seconds // 12)))
+
+    threading.Thread(target=stale_match_worker, name="voxcourt-stale-match-worker", daemon=True).start()
 
     tracked_fields = (
         "pointA",
