@@ -41,7 +41,7 @@ const API_URL =
 
 let allMatches = [];
 const archiveLanguage = localStorage.getItem("voxcourt-language") || ((navigator.language || "").toLowerCase().startsWith("el") ? "el" : "en");
-const archiveText = archiveLanguage === "el" ? { none:"Δεν υπάρχουν ακόμη ολοκληρωμένοι αγώνες", noneBody:"Οι ολοκληρωμένοι αγώνες θα εμφανίζονται αυτόματα εδώ.", filtered:"Δεν βρέθηκαν αγώνες με αυτά τα φίλτρα", filteredBody:"Δοκίμασε να αλλάξεις ή να καθαρίσεις τα φίλτρα.", match:"αγώνας", matches:"αγώνες", view:"Προβολή αγώνα →", final:"Τελικό" } : { none:"No completed matches yet", noneBody:"Completed matches will appear here automatically.", filtered:"No matches match these filters", filteredBody:"Try changing or clearing the filters.", match:"match", matches:"matches", view:"View match →", final:"Final" };
+const archiveText = archiveLanguage === "el" ? { none:"Δεν υπάρχουν ακόμη ολοκληρωμένοι αγώνες", noneBody:"Οι ολοκληρωμένοι αγώνες θα εμφανίζονται αυτόματα εδώ.", filtered:"Δεν βρέθηκαν αγώνες με αυτά τα φίλτρα", filteredBody:"Δοκίμασε να αλλάξεις ή να καθαρίσεις τα φίλτρα.", match:"αγώνας", matches:"αγώνες", view:"Προβολή αγώνα →", final:"Τελικό", allSports:"Όλα τα αθλήματα", countries:"Όλες οι χώρες", clubs:"Όλοι οι σύλλογοι", courts:"Όλα τα γήπεδα", completed:"Ολοκληρωμένοι αγώνες VoxCourt", ready:"Το αρχείο είναι έτοιμο", unavailable:"Το αρχείο δεν είναι διαθέσιμο" } : { none:"No completed matches yet", noneBody:"Completed matches will appear here automatically.", filtered:"No matches match these filters", filteredBody:"Try changing or clearing the filters.", match:"match", matches:"matches", view:"View match →", final:"Final", allSports:"All sports", countries:"All countries", clubs:"All clubs", courts:"All courts", completed:"Completed VoxCourt matches", ready:"Archive ready", unavailable:"Archive unavailable" };
 document.documentElement.lang = archiveLanguage;
 
 
@@ -206,6 +206,7 @@ function refillSelect(
 
 
 function renderFilterOptions() {
+  const sports = [...new Set(allMatches.map(matchSport).filter(Boolean))].sort();
   const countries =
     [
       ...new Set(
@@ -248,22 +249,24 @@ function renderFilterOptions() {
       )
     ].sort();
 
+  refillSelect(byId("sportFilter"), sports, archiveText.allSports);
+
   refillSelect(
     byId("countryFilter"),
     countries,
-    "All countries"
+    archiveText.countries
   );
 
   refillSelect(
     byId("clubFilter"),
     clubs,
-    "All clubs"
+    archiveText.clubs
   );
 
   refillSelect(
     byId("courtFilter"),
     courts,
-    "All courts"
+    archiveText.courts
   );
 }
 
@@ -783,8 +786,8 @@ async function loadMatches() {
     setText(
       byId("archiveStatus"),
       allMatches.length
-        ? "Completed VoxCourt matches"
-        : "Archive ready"
+        ? archiveText.completed
+        : archiveText.ready
     );
 
     renderFilterOptions();
@@ -803,7 +806,7 @@ async function loadMatches() {
 
     setText(
       byId("archiveStatus"),
-      "Archive unavailable"
+      archiveText.unavailable
     );
 
     grid.innerHTML =
