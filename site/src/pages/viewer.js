@@ -1,4 +1,5 @@
 import { loadClubRegistry } from "../clubRegistry.js";
+import { bindPublicHeader, publicHeader } from "../i18n.js";
 import { normalizeMatchState, PresentationState } from "../matchState.js";
 
 function segs(path) {
@@ -994,37 +995,7 @@ export async function renderViewer(path) {
 
   app.innerHTML = `
   <div class="wrap vc-viewer-page">
-
-    <header class="vc-home-nav">
-
-      <a
-        href="/"
-        data-nav
-        class="vc-home-brand"
-        aria-label="VoxCourt home"
-      >
-        <img
-          src="${base}logoText.png"
-          alt="VoxCourt"
-        />
-      </a>
-
-      <nav class="vc-home-links" aria-label="Main navigation">
-        <a href="/" data-nav>Home</a>
-        <a href="/live" data-nav>Find courts</a>
-        <a href="https://voxcourt.com/matches/">Match Results</a>
-      </nav>
-
-      <a
-        href="/live"
-        data-nav
-        class="vc-home-open"
-      >
-        Change court
-        <span>›</span>
-      </a>
-
-    </header>
+    ${publicHeader(base)}
 
     <section
       id="matchHero"
@@ -2320,6 +2291,7 @@ export async function renderViewer(path) {
   </div>
 `;
 
+  bindPublicHeader(app);
   app.querySelector("#y").textContent = String(new Date().getFullYear());
 
   const miTitle = app.querySelector("#miTitle");

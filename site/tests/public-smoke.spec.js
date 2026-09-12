@@ -270,12 +270,17 @@ test("viewer renders safe mocked live, unavailable video, and completed states",
   await page.goto("./?p=/gr/attica/multi-club/tennis-1");
   await expect(page.locator("#nameA")).toHaveText("Αλέξανδρος");
   await expect(page.locator("#matchStatusText")).toContainText("LIVE");
+  await expect(page.locator(".vc-home-links a")).toHaveCount(4);
   await expect(page.getByText("No camera assigned",{exact:true}).first()).toBeVisible();
   await expect(page.locator("button,a").filter({hasText:/Share/i}).first()).toBeVisible();
   await assertNoOverflow(page);
   completed=true;
   await page.waitForTimeout(3400);
   await expect(page.locator("#matchStatusText")).toContainText("COMPLETED");
+  await page.setViewportSize({width:390,height:844});
+  await page.locator(".vc-menu-toggle").click();
+  await expect(page.locator("#vcMobileMenu nav a")).toHaveCount(4);
+  await assertNoOverflow(page);
   expect(errors).toEqual([]);
 });
 
