@@ -12,15 +12,23 @@ test("production home and registered finder journey", async ({page}) => {
   await page.goto("./");
   await expect(page.locator(".vc-home-hero .vc-hero-image")).toHaveAttribute("src",/hero-alltogether\.png$/);
   await expect(page.locator(".vc-story,.vc-control")).toHaveCount(0);
-  await expect(page.locator("#homeSportChoice button").first()).toBeVisible();
+  await expect(page.locator("#homeSportChoice button")).toHaveText(["Tennis","Padel","Pickleball"]);
+  expect(await page.locator(".vc-sport-grid a").evaluateAll(links=>links.map(link=>link.getAttribute("href")))).toEqual([
+    "/tennislive-match/live?sport=tennis",
+    "/tennislive-match/live?sport=padel",
+    "/tennislive-match/live?sport=pickleball",
+  ]);
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=document.documentElement.clientWidth+1)).toBe(true);
 
   await page.goto("./live");
   const sport=page.locator("#selSport");
   await expect(sport).toBeEnabled();
-  const available=await sport.locator("option").evaluateAll(options=>options.slice(1).map(x=>x.value));
-  expect(available.length).toBeGreaterThan(0);
-  await page.locator(`[data-sport="${available[0]}"]`).click();
+  await expect(sport.locator("option")).toHaveText(["Choose sport","Tennis","Padel","Pickleball"]);
+  await page.locator('[data-sport="padel"]').click();
+  await expect(page.locator("#courtMessage")).toHaveText("No Padel courts are currently available.");
+  await page.locator('[data-sport="pickleball"]').click();
+  await expect(page.locator("#courtMessage")).toHaveText("No Pickleball courts are currently available.");
+  await page.locator('[data-sport="tennis"]').click();
   const country=page.locator("#selCountry"),city=page.locator("#selCity"),club=page.locator("#selClub"),court=page.locator("#selCourt");
   await country.selectOption({index:1}); await city.selectOption({index:1}); await club.selectOption({index:1}); await court.selectOption({index:1});
   await expect(page.locator("#btnOpen")).toBeEnabled();
@@ -32,6 +40,40 @@ test("production home and registered finder journey", async ({page}) => {
   await page.locator(".vc-menu-toggle").click();
   await expect(page.locator("#vcMobileMenu nav a")).toHaveCount(4);
   expect(errors).toEqual([]);
+});
+
+test("production desktop/mobile navigation clicks open the owning applications", async ({browser}) => {
+  for(const {viewport,language,nav} of [
+    {viewport:{width:1440,height:900},language:"en",nav:".vc-home-links"},
+    {viewport:{width:390,height:844},language:"el",nav:"#vcMobileMenu nav"},
+  ]){
+    const context=await browser.newContext({viewport});
+    await context.addInitScript(lang=>localStorage.setItem("voxcourt-language",lang),language);
+    const page=await context.newPage();
+    for(const [href,pathname] of [["/tennislive-match/","/tennislive-match/"],["/tennislive-match/live","/tennislive-match/live"],["/matches/","/matches/"],["/members/manage.html","/members/manage.html"]]){
+      await page.goto("https://voxcourt.com/tennislive-match/");
+      if(viewport.width<=900) await page.locator(".vc-menu-toggle").click();
+      await page.locator(`${nav} a[href="${href}"]`).click();
+      await expect.poll(()=>new URL(page.url()).pathname).toBe(pathname);
+    }
+    for(const [href,pathname] of [["/matches/","/matches/"],["/members/manage.html","/members/manage.html"]]){
+      await page.goto("https://voxcourt.com/tennislive-match/live");
+      if(viewport.width<=900) await page.locator(".vc-menu-toggle").click();
+      await page.locator(`${nav} a[href="${href}"]`).click();
+      await expect.poll(()=>new URL(page.url()).pathname).toBe(pathname);
+    }
+    await context.close();
+  }
+});
+
+test("production active sport cards preserve the requested finder sport", async ({page}) => {
+  for(const sport of ["tennis","padel","pickleball"]){
+    await page.goto("./");
+    await page.locator(`.vc-sport-grid a[href$="sport=${sport}"]`).click();
+    await expect.poll(()=>new URL(page.url()).pathname).toBe("/tennislive-match/live");
+    await expect.poll(()=>new URL(page.url()).searchParams.get("sport")).toBe(sport);
+    await expect(page.locator("#selSport")).toHaveValue(sport);
+  }
 });
 
 test("production EN/EL and valid registered viewer", async ({page}) => {
@@ -48,6 +90,13 @@ test("production EN/EL and valid registered viewer", async ({page}) => {
   await expect(page.locator("#matchStatusText")).toBeVisible();
   await expect(page.getByRole("button",{name:/Share match/i})).toBeVisible();
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=document.documentElement.clientWidth+1)).toBe(true);
+
+  const viewerUrl=page.url();
+  await page.locator('.vc-home-links a[href="/matches/"]').click();
+  await expect.poll(()=>new URL(page.url()).pathname).toBe("/matches/");
+  await page.goto(viewerUrl);
+  await page.locator('.vc-home-links a[href="/members/manage.html"]').click();
+  await expect.poll(()=>new URL(page.url()).pathname).toBe("/members/manage.html");
 
   await page.goto("./");
   await page.locator('[data-language="el"]').first().click();

@@ -72,51 +72,37 @@ function route() {
 
 // ====== SPA navigation ======
 function onLinkClick(e) {
+  if (
+    e.defaultPrevented ||
+    e.button !== 0 ||
+    e.metaKey ||
+    e.ctrlKey ||
+    e.shiftKey ||
+    e.altKey
+  ) return;
+
   const a = e.target.closest("a");
   if (!a) return;
 
   const href = a.getAttribute("href");
   if (!href) return;
 
-  if (
-    href.startsWith("http") ||
-    href.startsWith("mailto:") ||
-    href.startsWith("tel:") ||
-    href.startsWith("#") ||
-    a.target === "_blank"
-  ) {
-    return;
-  }
+  if (href.startsWith("mailto:") || href.startsWith("tel:") || href.startsWith("#") || a.target === "_blank" || a.hasAttribute("download")) return;
 
-  if (href.startsWith("/")) {
-    e.preventDefault();
+  const target = new URL(a.href, window.location.href);
+  const spaRoot = (import.meta.env.BASE_URL || "/").replace(/\/+$/, "") || "/";
+  const isSpaPath = spaRoot === "/"
+    ? target.origin === window.location.origin
+    : target.origin === window.location.origin &&
+      (target.pathname === spaRoot || target.pathname.startsWith(`${spaRoot}/`));
 
-    const base =
-      (import.meta.env.BASE_URL || "/").replace(/\/+$/, "");
+  // Root-level applications such as /matches/ and /members/ own their
+  // navigation. Only links inside this SPA are handled with pushState.
+  if (!isSpaPath) return;
 
-    let next = href;
-
-    /*
-     * Some pages already generate:
-     * /tennislive-match/live
-     *
-     * Others use:
-     * /live
-     *
-     * Prefix the base ONLY when it is not already there.
-     */
-    if (
-      base &&
-      base !== "/" &&
-      href !== base &&
-      !href.startsWith(base + "/")
-    ) {
-      next = base + href;
-    }
-
-    history.pushState({}, "", next);
-    route();
-  }
+  e.preventDefault();
+  history.pushState({}, "", `${target.pathname}${target.search}${target.hash}`);
+  route();
 }
 
 // ====== Start ======

@@ -64,6 +64,7 @@ async function assertHitTarget(page, selector) {
 test("homepage desktop/mobile EN/EL layout, navigation and persistence", async ({browser}) => {
   const matrix=[
     [1440,900,"en","desktop-en"], [1440,900,"el","desktop-el"],
+    [1920,1080,"el","desktop-1920-el"],
     [390,844,"en","mobile-390-en"], [390,844,"el","mobile-390-el"],
     [430,932,"en","mobile-430-en"], [430,932,"el","mobile-430-el"],
     [768,1024,"en","tablet-en"], [768,1024,"el","tablet-el"],
@@ -82,6 +83,8 @@ test("homepage desktop/mobile EN/EL layout, navigation and persistence", async (
     await expect(page.locator(".vc-coming-grid article")).toHaveCount(2);
     await expect(page.locator(".vc-story,.vc-control")).toHaveCount(0);
     await expect(page.locator(".vc-how-grid article")).toHaveCount(3);
+    const cardGeometry=await page.evaluate(()=>[".vc-sport-grid>a",".vc-coming-grid>article"].map(selector=>[...document.querySelectorAll(selector)].map(node=>{const box=node.getBoundingClientRect();return [box.width,box.height]})));
+    for(const group of cardGeometry){expect(Math.max(...group.map(x=>x[0]))-Math.min(...group.map(x=>x[0]))).toBeLessThan(1);expect(Math.max(...group.map(x=>x[1]))-Math.min(...group.map(x=>x[1]))).toBeLessThan(1)}
     await assertNoOverflow(page);
     if(language==="el") await assertGreekTextNotClipped(page);
     await page.screenshot({path:`/tmp/voxcourt-qa-${name}.png`,fullPage:true});
@@ -115,16 +118,44 @@ test("homepage desktop/mobile EN/EL layout, navigation and persistence", async (
   await context.close();
 });
 
-test("home mini finder uses authoritative registry and carries selected sport", async ({page}) => {
+test("desktop and mobile header clicks stay within their owning applications", async ({browser}) => {
+  for(const {viewport,language,nav} of [
+    {viewport:{width:1440,height:900},language:"en",nav:".vc-home-links"},
+    {viewport:{width:390,height:844},language:"el",nav:"#vcMobileMenu nav"},
+  ]){
+    const context=await browser.newContext({viewport});
+    const page=await context.newPage();
+    await mockRegistry(page);
+    await page.addInitScript(lang=>localStorage.setItem("voxcourt-language",lang),language);
+    for(const [href,pathname] of [["/tennislive-match/","/tennislive-match/"],["/tennislive-match/live","/tennislive-match/live"],["/matches/","/matches/"],["/members/manage.html","/members/manage.html"]]){
+      await page.goto("./");
+      if(viewport.width<=900) await page.locator(".vc-menu-toggle").click();
+      await page.locator(`${nav} a[href="${href}"]`).click();
+      await expect.poll(()=>new URL(page.url()).pathname).toBe(pathname);
+    }
+    await context.close();
+  }
+});
+
+test("home finder and active sport cards always carry the three supported sports", async ({page}) => {
   await mockRegistry(page);
   await page.goto("./");
   await expect(page.locator("#homeSportChoice button")).toHaveCount(3);
+  await expect(page.locator("#homeSportChoice button")).toHaveText(["Tennis","Padel","Pickleball"]);
   await expect(page.locator('#homeSportChoice [data-sport="padel"]')).toBeVisible();
   await expect(page.locator('#homeSportChoice [data-sport="legacy"]')).toHaveCount(0);
   await assertHitTarget(page,'#homeSportChoice [data-sport="padel"]');
   await page.locator('#homeSportChoice [data-sport="padel"]').click();
   await expect(page.locator('#homeSportChoice [data-sport="padel"]')).toHaveAttribute("aria-pressed","true");
   await expect(page.locator("#homeFinderLink")).toHaveAttribute("href",/live\?sport=padel$/);
+  for(const sport of ["tennis","padel","pickleball"]){
+    await page.goto("./");
+    await page.locator(`.vc-sport-grid a[href$="sport=${sport}"]`).click();
+    await expect.poll(()=>new URL(page.url()).pathname).toBe("/tennislive-match/live");
+    await expect.poll(()=>new URL(page.url()).searchParams.get("sport")).toBe(sport);
+    await expect(page.locator("#selSport")).toHaveValue(sport);
+  }
+  await expect(page.locator('.future-sports')).toContainText("Basketball");
 });
 
 test("full finder follows sport-first cascade and resets every dependent field", async ({page}) => {
@@ -133,6 +164,7 @@ test("full finder follows sport-first cascade and resets every dependent field",
   await page.goto("./live");
   const sport=page.locator("#selSport"), country=page.locator("#selCountry"), city=page.locator("#selCity"), club=page.locator("#selClub"), court=page.locator("#selCourt"), open=page.locator("#btnOpen");
   await expect(sport).toBeEnabled();
+  await expect(sport.locator("option")).toHaveText(["Choose sport","Tennis","Padel","Pickleball"]);
   await expect(country).toBeDisabled();
   await expect(city).toBeDisabled();
   await expect(club).toBeDisabled();
@@ -176,14 +208,18 @@ test("full finder follows sport-first cascade and resets every dependent field",
 test("finder honors empty authoritative registry", async ({page}) => {
   await mockRegistry(page,{countries:[]});
   await page.goto("./live");
-  await expect(page.locator("#selSport")).toBeDisabled();
-  await expect(page.locator("#sportChoice button")).toHaveCount(0);
+  await expect(page.locator("#selSport")).toBeEnabled();
+  await expect(page.locator("#sportChoice button")).toHaveText(["Tennis","Padel","Pickleball"]);
+  for(const [sport,name] of [["tennis","Tennis"],["padel","Padel"],["pickleball","Pickleball"]]){
+    await page.locator(`[data-sport="${sport}"]`).click();
+    await expect(page.locator("#courtMessage")).toHaveText(`No ${name} courts are currently available.`);
+    expect(await page.locator("#selCountry,#selCity,#selClub,#selCourt").evaluateAll(elements=>elements.every(element=>element.disabled))).toBe(true);
+  }
   await expect(page.locator("#btnOpen")).toBeDisabled();
-  await expect(page.locator("#courtMessage")).toContainText(/No configured|Δεν υπάρχουν/);
 });
 
 test("finder Greek typography remains unclipped at desktop and mobile", async ({browser}) => {
-  for(const viewport of [{width:1440,height:900},{width:390,height:844},{width:430,height:932},{width:768,height:1024}]){
+  for(const viewport of [{width:1920,height:1080},{width:1440,height:900},{width:390,height:844},{width:430,height:932},{width:768,height:1024}]){
     const context=await browser.newContext({viewport});
     const page=await context.newPage();
     await mockRegistry(page);
@@ -191,10 +227,28 @@ test("finder Greek typography remains unclipped at desktop and mobile", async ({
     await page.goto("./live");
     await expect(page.locator("#selSport")).toBeEnabled();
     await assertGreekTextNotClipped(page);
+    await expect.poll(()=>page.locator(".court-title").evaluate(element=>element.scrollWidth<=element.clientWidth+1)).toBe(true);
     await assertNoOverflow(page);
+    if(viewport.width>800){const separated=await page.evaluate(()=>{const left=document.querySelector(".court-hero-copy").getBoundingClientRect(),right=document.querySelector(".court-selector-card").getBoundingClientRect();return left.right<right.left});expect(separated).toBe(true)}
     await page.screenshot({path:`/tmp/voxcourt-qa-finder-el-${viewport.width}x${viewport.height}.png`,fullPage:true});
     await context.close();
   }
+});
+
+test("approved Greek homepage copy and sport-specific finder empty states", async ({page}) => {
+  await mockRegistry(page,{countries:[]});
+  await page.addInitScript(()=>localStorage.setItem("voxcourt-language","el"));
+  await page.goto("./");
+  await expect(page.locator(".vc-home-hero__copy>p")).toHaveText("Ζωντανό σκορ, live μετάδοση και replay — όλα σε μία εμπειρία.");
+  await expect(page.locator(".vc-sports h2")).toHaveText("Τένις, Padel και Pickleball σήμερα. Περισσότερα αθλήματα έρχονται.");
+  await expect(page.locator(".vc-how h2")).toHaveText("Παίξε live. Ξαναδές τις στιγμές που αξίζουν.");
+  await expect(page.locator(".vc-how-grid h3")).toHaveText(["Βρες γήπεδο","Παίξε live","Replay & Highlights"]);
+  await expect(page.locator(".vc-home-finder h2")).toHaveText("Βρες το γήπεδό σου.");
+  await page.locator('#homeSportChoice [data-sport="padel"]').click();
+  await expect(page.locator(".vc-finder-next>span")).toHaveText("Δεν υπάρχουν ακόμη διαθέσιμα γήπεδα Padel.");
+  await page.goto("./live?sport=padel");
+  await expect(page.locator("#selSport")).toHaveValue("padel");
+  await expect(page.locator("#courtMessage")).toHaveText("Δεν υπάρχουν ακόμη διαθέσιμα γήπεδα Padel.");
 });
 
 test("viewer renders safe mocked live, unavailable video, and completed states", async ({page}) => {

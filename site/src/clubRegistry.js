@@ -1,6 +1,12 @@
 const DYNAMIC_REGISTRY_URL =
   "https://api.voxcourt.com/api/public/clubs";
 
+export const SUPPORTED_PUBLIC_SPORTS = Object.freeze([
+  "tennis",
+  "padel",
+  "pickleball",
+]);
+
 function clone(value) {
   return JSON.parse(JSON.stringify(value || { countries: [] }));
 }
