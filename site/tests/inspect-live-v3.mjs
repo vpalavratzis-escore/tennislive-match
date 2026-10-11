@@ -34,5 +34,22 @@ const info=await page.evaluate(()=>{
   return {url:location.href,bodyBackground:st('body'),bodyBgImage:$('#vc3PageBackgroundImage')?{src:$('#vc3PageBackgroundImage').src,complete:$('#vc3PageBackgroundImage').complete,naturalWidth:$('#vc3PageBackgroundImage').naturalWidth}:null,styleMounted:!!$('#voxcourt-live-v3-vps-styles'),root:st('.vc-viewer-page'),dataset:$('.vc-viewer-page')?.dataset.premiumV3Ready,header:st('#matchHero'),nameB:st('#nameB'),nameA:st('#nameA'),nameBParent:st('.vc-player-score--b .vc-player-info'),poster:st('#vc3OfflinePosterImage'),sponsorContainer:st('.vc-sponsors'),sponsorGrid:st('.vc-sponsor-grid'),cards,overlaps,overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth};
 });
 console.log('PRODUCTION UI ANALYSIS',JSON.stringify(info,null,2));
+console.log('LAYOUT ROOT-CAUSE',JSON.stringify(await page.evaluate(()=>{
+  const $=s=>document.querySelector(s);
+  const selectors=['#matchHero','#nameB','.vc-player-score--b','.vc-player-score--b .vc-player-main','.vc-player-score--b .vc-player-info','.vc-sponsors','.vc-sponsor-grid','.vc-sponsor-grid > :nth-child(1)','.vc-sponsor-grid > :nth-child(2)','.vc-sponsor-grid > :nth-child(3)'];
+  return selectors.map(s=>{
+    const e=$(s);if(!e)return{selector:s,exists:false};
+    const c=getComputedStyle(e),r=e.getBoundingClientRect(),p=e.parentElement?.getBoundingClientRect();
+    return {selector:s,tag:e.tagName,class:e.className,style:e.getAttribute('style'),offsetParent:e.offsetParent?.className,
+    computed:{position:c.position,transform:c.transform,translate:c.translate,margin:c.margin,padding:c.padding,
+      background:c.background,backgroundColor:c.backgroundColor,opacity:c.opacity,
+      width:c.width,height:c.height,top:c.top,bottom:c.bottom,left:c.left,right:c.right,
+      display:c.display,gridArea:c.gridArea,gridColumn:c.gridColumn,gridTemplateColumns:c.gridTemplateColumns,
+      flex:c.flex,flexDirection:c.flexDirection,alignItems:c.alignItems,justifyContent:c.justifyContent,
+      color:c.color,overflow:c.overflow,visibility:c.visibility},
+    rect:{x:r.x,y:r.y,w:r.width,h:r.height,parentY:p?.y,parentW:p?.width,parentH:p?.height}};
+  })
+}),null,2));
+
 console.log('ERRORS',JSON.stringify(errors.slice(0,20)));
 await browser.close();
