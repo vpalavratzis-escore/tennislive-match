@@ -8,8 +8,8 @@ if [[ "${EUID}" -ne 0 ]]; then echo "Run as root: sudo bash deploy-live-v3-vps.s
 
 ROOT="/var/www/voxcourt"
 REPO_RAW="https://raw.githubusercontent.com/vpalavratzis-escore/tennislive-match/dev"
-V3DIR=""
 STATIC_PREFIX=""
+UPLOADED_FILES=()
 BACKUP_READY=0
 DOMAIN="https://voxcourt.com"
 VERSION="v3-20261011-hetzner"
@@ -30,12 +30,14 @@ rollback(){
   if [[ "${COMPLETED}" -eq 0 && "${BACKUP_READY}" -eq 1 ]]; then
     echo "Deployment did not finish; restoring previous index/assets." >&2
     cp -a "${BACKUP}/index.html" "${ROOT}/index.html" || true
-    if [[ -d "${BACKUP}/voxcourt-live-v3" ]]; then
-      rm -rf "${V3DIR}"
-      cp -a "${BACKUP}/voxcourt-live-v3" "${V3DIR}" || true
-    else
-      rm -rf "${V3DIR}"
-    fi
+    for f in "${UPLOADED_FILES[@]}"; do
+      name="${f##*/}"
+      if [[ -f "${BACKUP}/${name}" ]]; then
+        cp -a "${BACKUP}/${name}" "${f}" || true
+      else
+        rm -f "${f}"
+      fi
+    done
   fi
   if [[ -n "${STAGING}" && -d "${STAGING}" ]]; then rm -rf "${STAGING}"; fi
   exit "${exit_code}"
@@ -119,12 +121,15 @@ PY
 )"
 STATIC_DIR="${STATIC_DETAILS%%|*}"
 STATIC_PREFIX="${STATIC_DETAILS#*|}"
-V3DIR="${STATIC_DIR}/voxcourt-live-v3"
-PUBLIC_URL="${STATIC_PREFIX}/voxcourt-live-v3"
-echo "Confirmed public asset directory: ${STATIC_DIR} -> ${PUBLIC_URL}"
+PUBLIC_URL="${STATIC_PREFIX}"
+echo "Confirmed public asset directory: ${STATIC_DIR} -> ${PUBLIC_URL} (flat V3 assets)"
 mkdir -p "${BACKUP}"
 cp -a "${ROOT}/index.html" "${BACKUP}/index.html"
-if [[ -d "${V3DIR}" ]]; then cp -a "${V3DIR}" "${BACKUP}/voxcourt-live-v3"; fi
+for name in "${ASSETS[@]}" viewer.css viewer-standalone.js; do
+  dest="${STATIC_DIR}/vc3-${name}"
+  UPLOADED_FILES+=("${dest}")
+  if [[ -f "${dest}" ]]; then cp -a "${dest}" "${BACKUP}/vc3-${name}"; fi
+done
 BACKUP_READY=1
 echo "Backup: ${BACKUP}"
 # Remap approved assets to the REAL public static route.
@@ -135,14 +140,15 @@ p = Path(sys.argv[1])
 prefix, public, version = sys.argv[2:5]
 css = p.joinpath('viewer.css')
 text = css.read_text()
-text = text.replace('/tennislive-match/voxcourt-live-v3/', public + '/')
+text = text.replace('/tennislive-match/voxcourt-live-v3/', public + '/vc3-')
 css.write_text(text)
 jsfile = p.joinpath('viewer-standalone.js')
 js = jsfile.read_text()
 assert "const BASE='/'" in js
 assert "const cssUrl='/voxcourt-live-v3/viewer.css?v=20261011-live';" in js
 js = js.replace("const BASE='/'",f"const BASE='{prefix}/'")
-js = js.replace("const cssUrl='/voxcourt-live-v3/viewer.css?v=20261011-live';",f"const cssUrl='{public}/viewer.css?v={version}';")
+js = js.replace("const cssUrl='/voxcourt-live-v3/viewer.css?v=20261011-live';",f"const cssUrl='{public}/vc3-viewer.css?v={version}';")
+js = js.replace('voxcourt-live-v3/', 'vc3-')
 jsfile.write_text(js)
 assert 'voxcourt-live-v3-vps-styles' in js and 'premiumWeather' in js
 assert 'body:has(.vc-viewer-page)' in text and 'court-poster.webp' in text
@@ -153,11 +159,13 @@ for img in p.glob('*.png'):
 print('Prepared and checked', len(list(p.glob('*.png'))) + len(list(p.glob('*.webp'))), 'approved images')
 PY
 
-# Stage and swap complete directory. No cache busting of the score/camera JS.
-TEMP_DIR="$(mktemp -d "${STATIC_DIR}/.vc3-upload.XXXXXXXX")"
-cp -a "${STAGING}/." "${TEMP_DIR}/"
-if [[ -d "${V3DIR}" ]]; then rm -rf "${V3DIR}"; fi
-mv "${TEMP_DIR}" "${V3DIR}"
+# Install files FLAT in the directory proven accessible from public URLs.
+# The active Nginx configuration does not expose nested /voxcourt-live-v3/*.
+for name in "${ASSETS[@]}"; do
+  install -m 0644 "${STAGING}/${name}" "${STATIC_DIR}/vc3-${name}"
+done
+install -m 0644 "${STAGING}/viewer.css" "${STATIC_DIR}/vc3-viewer.css"
+install -m 0644 "${STAGING}/viewer-standalone.js" "${STATIC_DIR}/vc3-viewer-standalone.js"
 
 # Add a SINGLE versioned script to the end of the actual VPS index page.
 # Its CSS is injected after existing styles; no SPA bundle is overwritten.
@@ -169,7 +177,7 @@ v, public = sys.argv[2:4]
 h = p.read_text(encoding='utf-8')
 h = re.sub(r'\s*<!-- VoxCourt V3 VPS BEGIN -->[\s\S]*?<!-- VoxCourt V3 VPS END -->\s*', '\n', h)
 tag = f'''<!-- VoxCourt V3 VPS BEGIN -->
-<script defer src="{public}/viewer-standalone.js?v={v}"></script>
+<script defer src="{public}/vc3-viewer-standalone.js?v={v}"></script>
 <!-- VoxCourt V3 VPS END -->
 '''
 if '</body>' not in h.lower(): raise SystemExit('STOP: no body closing tag')
@@ -188,11 +196,11 @@ public,version,poster=sys.argv[1:]
 def fetch(p):
     with urlopen(Request('https://voxcourt.com'+p,headers={'Cache-Control':'no-cache'}),timeout=20) as r:
         return r.read(1000000)
-assert fetch(public+'/court-poster.webp?v='+version)==Path(poster).read_bytes(), 'V3 image not served'
-js=fetch(public+'/viewer-standalone.js?v='+version)
+assert fetch(public+'/vc3-court-poster.webp?v='+version)==Path(poster).read_bytes(), 'V3 image not served'
+js=fetch(public+'/vc3-viewer-standalone.js?v='+version)
 assert b'premiumWeather' in js and b'voxcourt-live-v3-vps-styles' in js, 'V3 JS not served'
 html=fetch('/?vc3confirm='+uuid.uuid4().hex)
-assert (public+'/viewer-standalone.js?v='+version).encode() in html, 'V3 script not in PUBLIC HTML'
+assert (public+'/vc3-viewer-standalone.js?v='+version).encode() in html, 'V3 script not in PUBLIC HTML'
 print('PUBLIC WEBSITE VERIFIED: HTML, V3 JavaScript and approved court poster')
 PY
 
