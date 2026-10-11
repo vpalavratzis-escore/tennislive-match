@@ -17,6 +17,16 @@ jobs:
           curl -fLsS "$BASE/ops/live-v3-vps/deploy-live-v3-vps.sh" -o deploy.sh
           curl -fLsS "$BASE/ops/live-v3-vps/viewer-standalone.js" -o viewer.js
           bash -n deploy.sh
+          python3 - <<'PY'
+          import re,ast
+          source=open('deploy.sh').read()
+          blocks=re.findall(r"python3 - .*? <<'PY'\n(.*?)\nPY",source,re.S)
+          assert len(blocks)>=4, len(blocks)
+          for i,block in enumerate(blocks): ast.parse(block,filename=f"embedded-python-{i}")
+          assert 'PUBLIC WEBSITE VERIFIED' in source
+          assert 'STATIC_DETAILS=' in source
+          print('PASS: bash and',len(blocks),'embedded Python scripts parse')
+          PY
           node --check viewer.js
           grep -q 'voxcourt-live-v3-vps-styles' viewer.js
           grep -q 'cp -a' deploy.sh
