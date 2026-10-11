@@ -52,12 +52,12 @@ ASSETS=(
 )
 
 for name in "${ASSETS[@]}"; do
-  curl -fsSL --retry 3 --connect-timeout 12 --max-time 50
+  curl -fsSL --retry 3 --connect-timeout 12 --max-time 50 \
        "${REPO_RAW}/site/public/voxcourt-live-v3/${name}" -o "${STAGING}/${name}"
 done
-curl -fsSL --retry 3 --connect-timeout 12 --max-time 50
+curl -fsSL --retry 3 --connect-timeout 12 --max-time 50 \
      "${REPO_RAW}/site/src/viewer-premium-v3.css" -o "${STAGING}/viewer.css"
-curl -fsSL --retry 3 --connect-timeout 12 --max-time 50
+curl -fsSL --retry 3 --connect-timeout 12 --max-time 50 \
      "${REPO_RAW}/ops/live-v3-vps/viewer-standalone.js" -o "${STAGING}/viewer-standalone.js"
 
 # This VPS serves the SPA at "/", unlike GitHub Pages at "/tennislive-match/".
