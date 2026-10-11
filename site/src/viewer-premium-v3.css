@@ -141,3 +141,68 @@ body:has(.vc-viewer-page){overflow-x:clip!important}
 .vc-viewer-page .cam--viewer:not(.viewer-mode-replay) .videoOverlay.videoOverlay--show .videoOverlay__box{
  background:rgba(2,11,19,.85)!important;
 }
+
+/* V3.1 — continuous glass hero, protected names and responsive sponsors. */
+.vc-viewer-page #matchHero{
+  background-color:rgba(2,20,32,.52)!important;
+  background-image:none!important;
+  backdrop-filter:blur(7px) saturate(1.14)!important;
+  -webkit-backdrop-filter:blur(7px) saturate(1.14)!important;
+  isolation:isolate;
+}
+.vc-viewer-page .vc-player-score--b .vc-player-main,
+.vc-viewer-page .vc-player-score--a .vc-player-main{
+  display:flex!important;flex-direction:row!important;align-items:center!important;
+  justify-content:flex-start!important;min-width:0!important;
+}
+.vc-viewer-page .vc-player-score--b .vc-player-info{
+  display:flex!important;align-items:center!important;flex:1 1 0!important;
+  width:auto!important;min-width:0!important;min-height:25px!important;
+  position:relative!important;z-index:2!important;
+}
+.vc-viewer-page .vc-player-score--b #nameB{
+  display:block!important;position:static!important;visibility:visible!important;
+  opacity:1!important;color:#f5fbff!important;white-space:normal!important;
+  overflow-wrap:anywhere!important;text-align:left!important;transform:none!important;
+  width:100%!important;height:auto!important;min-height:16px!important;
+  font-size:clamp(11px,1vw,15px)!important;line-height:1.35!important;
+}
+.vc-viewer-page .vc-sponsors{width:100%!important;max-width:100%!important;
+  min-width:0!important;overflow:hidden!important;align-items:stretch!important}
+.vc-viewer-page .vc-sponsor-grid{
+  display:grid!important;grid-template-columns:repeat(auto-fit,minmax(138px,1fr))!important;
+  grid-auto-rows:minmax(65px,auto)!important;gap:10px!important;
+  align-items:stretch!important;min-width:0!important;max-width:100%!important;
+  overflow:visible!important;
+}
+.vc-viewer-page .vc-sponsor-grid > *,
+.vc-viewer-page .vc-sponsor-card{
+  min-width:0!important;max-width:100%!important;width:100%!important;
+  height:100%!important;min-height:65px!important;overflow:hidden!important;
+  position:relative!important;transform:none!important;
+  float:none!important;margin:0!important;
+}
+.vc-viewer-page .vc-sponsor-grid > * :is(a,div,img,span){
+  max-width:100%!important;min-width:0!important;max-height:49px!important;
+  object-fit:contain!important;box-sizing:border-box!important;
+}
+.vc-viewer-page .vc-sponsor-grid .vc-sponsor-card a{
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  width:100%!important;height:100%!important;overflow:hidden!important;
+}
+.vc-viewer-page .vc-sponsor-grid .vc-sponsor-card img{
+  display:block!important;width:auto!important;height:auto!important;
+  max-height:46px!important;max-width:100%!important;object-fit:contain!important;
+}
+.vc-viewer-page .vc-sponsor-card[data-vc3-example="true"]{
+  border-style:dashed!important;border-color:#315166!important;
+}
+@media(max-width:850px){
+  .vc-viewer-page .vc-sponsors{display:block!important}
+  .vc-viewer-page .vc-sponsor-grid{grid-template-columns:repeat(auto-fit,minmax(130px,1fr))!important}
+}
+@media(max-width:520px){
+  .vc-viewer-page .vc-sponsor-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .vc-viewer-page .vc-sponsor-grid > *{min-height:62px!important}
+  .vc-viewer-page .vc-player-score--b #nameB{font-size:11px!important}
+}
