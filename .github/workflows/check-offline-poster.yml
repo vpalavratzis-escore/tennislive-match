@@ -1,0 +1,25 @@
+name: Check Studio offline poster bindings
+on:
+  push:
+    branches: [diagnostic/live-v3-serving-20261011]
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check actual published image rules and runtime
+        run: |
+          python3 - <<'PY'
+          import urllib.request,json,re
+          u='https://voxcourt.com/__vcstudio/published.json'
+          obj=json.load(urllib.request.urlopen(urllib.request.Request(u,headers={'Cache-Control':'no-cache'}),timeout=25))
+          for r in obj.get('rules',[]):
+            st=str(r.get('selector',''))
+            if re.search(r'OfflinePoster|videoOverlay|cam--viewer|court-poster|vc3PageBackground',st,re.I):
+              print('STUDIO MEDIA RULE',json.dumps(r,ensure_ascii=False)[:1600])
+          print('TOTAL',len(obj.get('rules',[])))
+          runtime=urllib.request.urlopen('https://voxcourt.com/__vcstudio/runtime.js',timeout=25).read().decode()
+          i=runtime.index('function applyImages')
+          print('APPLY_IMAGES',runtime[i:i+2300])
+          PY
