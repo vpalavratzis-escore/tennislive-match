@@ -1,0 +1,33 @@
+name: Live V3 regression checks
+on:
+  push:
+    branches:
+      - feat/live-premium-v3-20261011
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - name: Install dependencies
+        working-directory: site
+        run: npm ci
+      - name: Production build
+        working-directory: site
+        run: npm run build
+      - name: Install Chromium
+        working-directory: site
+        run: npx playwright install --with-deps chromium
+      - name: Public viewer and navigation smoke tests
+        working-directory: site
+        run: npm run test:smoke
