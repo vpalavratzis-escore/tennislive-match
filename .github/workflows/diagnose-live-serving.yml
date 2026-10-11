@@ -50,3 +50,36 @@ jobs:
                   print('  COMPILED JS has premiumWeather?',b'premiumWeather' in script,'has premium file?',b'voxcourt-live-v3' in script,'has mount?',b'voxcourt-live-v3-styles' in script,'js length',len(script))
                   break
           PY
+
+      - name: Verify whether V3.1 is installed on the actual VPS
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import urllib.request, urllib.error, re, hashlib
+          origin='https://voxcourt.com'
+          endpoints=['/','/voxcourt-assets/vc3-viewer-standalone.js','/voxcourt-assets/vc3-viewer.css','/voxcourt-assets/vc3-court-poster.webp']
+          github=['https://raw.githubusercontent.com/vpalavratzis-escore/tennislive-match/dev/ops/live-v3-vps/viewer-standalone.js','https://raw.githubusercontent.com/vpalavratzis-escore/tennislive-match/dev/site/src/viewer-premium-v3.css']
+          def req(url):
+            try:
+              r=urllib.request.urlopen(urllib.request.Request(url,headers={'Cache-Control':'no-cache','Pragma':'no-cache'}),timeout=20)
+              data=r.read(1500000)
+              return data,r.headers.get('Content-Type',''),r.url
+            except Exception as e:
+              print('FETCH ERROR',url,str(e)[:250])
+              return b'','',url
+          for path in endpoints:
+            data,ct,url=req(origin+path+'?vc3-verification=20261011-1413')
+            print('LIVE CHECK',path,'url',url,'bytes',len(data),'mime',ct,'sha256',hashlib.sha256(data).hexdigest()[:16])
+            if path=='/':
+              html=data.decode('utf-8','replace')
+              print('HTML injection',re.findall(r'<script[^>]*vc3-viewer-standalone[^>]*>',html))
+            elif path.endswith('.js'):
+              for q in ['ensureTeamBName(root)','exposeStudioMedia(root)','existingSponsorKeys(grid)','DESIGN_EXAMPLES']:
+                print('JS MARKER',q,q.encode() in data)
+            elif path.endswith('.css'):
+              for q in ['V3.1','V3.1 Studio media image elements','#vc3PageBackgroundImage','.vc-sponsor-grid']:
+                print('CSS MARKER',q,q.encode() in data)
+          for url in github:
+            data,ct,u=req(url)
+            print('GITHUB HEAD',url.split('/')[-1],'bytes',len(data),'sha256',hashlib.sha256(data).hexdigest()[:16])
+          PY
