@@ -27,6 +27,30 @@ jobs:
           assert 'STATIC_DETAILS=' in source
           print('PASS: bash and',len(blocks),'embedded Python scripts parse')
           PY
+          curl -fLsS "$BASE/site/src/viewer-premium-v3.css" -o viewer.css
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          source=Path('deploy.sh').read_text()
+          css=Path('viewer.css').read_text()
+          js=Path('viewer.js').read_text()
+          public='/voxcourt-assets'
+          css=css.replace('/tennislive-match/voxcourt-live-v3/',public+'/vc3-')
+          assert '/voxcourt-assets/vc3-court-poster.webp' in css
+          js=js.replace("const BASE='/'","const BASE='/voxcourt-assets/'")
+          js=js.replace("const cssUrl='/voxcourt-live-v3/viewer.css?v=20261011-live';",f"const cssUrl='{public}/vc3-viewer.css?v=test-version';")
+          js=js.replace('voxcourt-live-v3/','vc3-')
+          assert "const BASE='/voxcourt-assets/'" in js
+          assert "const cssUrl='/voxcourt-assets/vc3-viewer.css?v=test-version';" in js
+          assert 'voxcourt-live-v3/brand' not in js
+          assert 'vc3-brand-voxcourt.png' in js
+          assert 'install -m 0644' in source
+          assert 'PUBLIC_URL="${STATIC_PREFIX}"' in source
+          assert 'UPLOADED_FILES' in source
+          assert '/vc3-court-poster.webp?v=' in source
+          assert '<script defer src="{public}/vc3-viewer-standalone.js?v={v}"></script>' in source
+          print('PASS: approved V3 assets and JS URLs remap to flat /voxcourt-assets/vc3-*')
+          PY
           node --check viewer.js
           grep -q 'voxcourt-live-v3-vps-styles' viewer.js
           grep -q 'cp -a' deploy.sh
