@@ -1,0 +1,52 @@
+name: Diagnose public VoxCourt origin (read-only)
+on:
+  push:
+    branches:
+      - diagnostic/live-v3-serving-20261011
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inspect live domains and compiled app (no deploy)
+        shell: bash
+        run: |
+          echo "===== DNS voxcourt.com ====="
+          getent ahostsv4 voxcourt.com || true
+          echo "===== DNS github.io ====="
+          getent ahostsv4 vpalavratzis-escore.github.io || true
+          python3 - <<'PY'
+          import urllib.request, urllib.parse, re, hashlib
+          sites = [
+            'https://voxcourt.com/',
+            'https://voxcourt.com/tennislive-match/',
+            'https://voxcourt.com/tennislive-match/?p=/gr/chalkida/chalkis-padel-club/beach-volley-court-1',
+            'https://vpalavratzis-escore.github.io/tennislive-match/',
+            'https://voxcourt.com/tennislive-match/voxcourt-live-v3/court-poster.webp',
+          ]
+          def fetch(u):
+            try:
+              req=urllib.request.Request(u,headers={'User-Agent':'VoxCourt-Diagnostic/1.0','Cache-Control':'no-cache'})
+              with urllib.request.urlopen(req,timeout=18) as r:
+                data=r.read(1000000)
+                print('URL',u,'->',r.url,'HTTP',r.status,'size',len(data),'type',r.headers.get('Content-Type'),
+                      'server',r.headers.get('Server'),'cf-ray',r.headers.get('CF-Ray'),
+                      'x-github-request-id',r.headers.get('X-GitHub-Request-Id'),
+                      'digest',hashlib.sha256(data).hexdigest()[:16])
+                return data,r.url
+            except Exception as e:
+              print('URL',u,'ERROR',str(e)[:300]);return b'',u
+          for u in sites:
+            data,actual=fetch(u)
+            if b'<html' in data[:2000].lower() or b'<!doctype' in data[:2000].lower():
+              txt=data.decode('utf-8','replace')
+              srcs=re.findall(r'<script[^>]+src=["\']([^"\']+)',txt)
+              print('SCRIPTS:',srcs,'CNAME in HTML?','voxcourt-live-v3' in txt)
+              for s in srcs:
+                if '/assets/' in s or 'main' in s:
+                  script_url=urllib.parse.urljoin(actual,s)
+                  script,b=fetch(script_url)
+                  print('  COMPILED JS has premiumWeather?',b'premiumWeather' in script,'has premium file?',b'voxcourt-live-v3' in script,'has mount?',b'voxcourt-live-v3-styles' in script,'js length',len(script))
+                  break
+          PY
