@@ -1,0 +1,25 @@
+name: Inspect actual VoxCourt V3 UI
+on:
+  push:
+    branches:
+      - diagnostic/live-v3-serving-20261011
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install Playwright
+        run: |
+          cd site
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: Inspect real production DOM
+        run: |
+          cd site
+          node tests/inspect-live-v3.mjs
