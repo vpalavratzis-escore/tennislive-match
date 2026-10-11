@@ -54,4 +54,8 @@ jobs:
           node --check viewer.js
           grep -q 'voxcourt-live-v3-vps-styles' viewer.js
           grep -q 'cp -a' deploy.sh
-          echo 'VPS deployment script shell syntax and viewer JavaScript syntax PASS'
+          grep -q 'exposeStudioMedia(root)' viewer.js
+          grep -q 'ensureTeamBName(root)' viewer.js
+          grep -q 'existingSponsorKeys(grid)' viewer.js
+          grep -q 'V3.1' viewer.css
+          echo 'V3.1 viewer, sponsors, name, media and installer checks PASS'
