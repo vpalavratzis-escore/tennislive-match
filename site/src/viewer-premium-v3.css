@@ -3,14 +3,14 @@
 body:has(.vc-viewer-page){
   background:#041624!important;
   color:#f3f9ff!important;
-  background-image:linear-gradient(110deg,rgba(2,13,23,.84),rgba(4,22,35,.59) 50%,rgba(3,15,27,.80)),url("/tennislive-match/homepage/beach-volley-960.webp")!important;
+  background-image:linear-gradient(180deg,rgba(3,14,24,.51) 0%,rgba(3,14,24,.46) 48%,rgba(3,14,24,.63) 100%),url("/tennislive-match/voxcourt-live-v3/court-poster.webp")!important;
   background-size:cover!important;background-position:center!important;background-attachment:fixed!important;
 }
 body:has(.vc-viewer-page) #app{min-height:100vh}
 .vc-viewer-page{color:#f3f9ff!important;width:min(1580px,calc(100% - 54px))!important;max-width:1580px!important;margin:auto!important}
 .vc-viewer-page *{box-sizing:border-box}
 .vc-viewer-page .vc-home-nav{border:1px solid rgba(56,167,194,.26)!important;border-radius:0 0 12px 12px!important;background:rgba(3,22,35,.92)!important;backdrop-filter:blur(18px);box-shadow:0 10px 24px #0005!important}
-.vc-viewer-page #matchHero{margin:18px 0 14px!important;min-height:115px!important;border:1px solid #15617a!important;border-radius:14px!important;padding:16px 20px!important;color:#f5fbff!important;background-image:linear-gradient(93deg,rgba(3,26,40,.95),rgba(3,23,36,.72) 68%,rgba(3,20,33,.94)),url("/tennislive-match/homepage/beach-volley-960.webp")!important;background-position:center 46%!important;background-size:cover!important;box-shadow:0 12px 35px #0004!important}
+.vc-viewer-page #matchHero{margin:18px 0 14px!important;min-height:115px!important;border:1px solid #15617a!important;border-radius:14px!important;padding:16px 20px!important;color:#f5fbff!important;background-image:linear-gradient(93deg,rgba(3,26,40,.95),rgba(3,23,36,.72) 68%,rgba(3,20,33,.94)),url("/tennislive-match/voxcourt-live-v3/header-bg.webp")!important;background-position:center 46%!important;background-size:cover!important;box-shadow:0 12px 35px #0004!important}
 .vc-viewer-page .compact-match-header{display:flex!important;justify-content:space-between!important;align-items:center!important;gap:14px!important;flex-wrap:wrap!important}
 .vc-viewer-page .compact-match-header__content{flex:1 1 450px!important;min-width:0}
 .vc-viewer-page .compact-match-header__main{display:flex!important;align-items:center!important;gap:15px!important;min-width:0}
@@ -34,7 +34,7 @@ body:has(.vc-viewer-page) #app{min-height:100vh}
 .vc-viewer-page .viewerWrap{display:grid!important;grid-template-columns:minmax(0,1.7fr) minmax(410px,1fr)!important;gap:14px!important;align-items:stretch!important}
 .vc-viewer-page .viewer-player-panel{order:1!important;display:flex!important;flex-direction:column!important;min-width:0!important;overflow:hidden!important;padding:0!important;margin:0!important;height:auto!important;min-height:0!important;background:#031724!important;border:1px solid #1a5e76!important;border-radius:15px!important;box-shadow:0 15px 35px #0006!important}
 .vc-viewer-page .viewer-player-panel>.badge,.vc-viewer-page #streamSourceLabel,.vc-viewer-page #replayStatus,.vc-viewer-page .viewer-player-panel>div[style*="flex:1 1 auto"]{display:none!important}
-.vc-viewer-page .cam--viewer{position:relative!important;min-height:0!important;flex:1 1 auto!important;margin:0!important;aspect-ratio:16/9!important;width:100%!important;overflow:hidden!important;border-radius:14px 14px 0 0!important;border:0!important;background-color:#01080d!important;background-image:linear-gradient(0deg,rgba(2,8,14,.28),transparent 40%),url("/tennislive-match/homepage/beach-volley-960.webp")!important;background-size:cover!important;background-position:center!important}
+.vc-viewer-page .cam--viewer{position:relative!important;min-height:0!important;flex:1 1 auto!important;margin:0!important;aspect-ratio:16/9!important;width:100%!important;overflow:hidden!important;border-radius:14px 14px 0 0!important;border:0!important;background-color:#01080d!important;background-image:linear-gradient(0deg,rgba(2,8,14,.28),transparent 40%),url("/tennislive-match/voxcourt-live-v3/court-poster.webp")!important;background-size:cover!important;background-position:center!important}
 .vc-viewer-page .cam--viewer video{object-fit:contain!important;width:100%!important;height:100%!important}
 .vc-viewer-page .videoOverlay{z-index:10!important}
 .vc-viewer-page .videoOverlay__box{background:rgba(1,8,15,.84)!important;backdrop-filter:blur(11px);border:1px solid rgba(170,217,236,.25)!important;border-radius:15px!important;box-shadow:0 16px 30px #0007!important;padding:17px 25px!important;color:white!important}
@@ -44,8 +44,8 @@ body:has(.vc-viewer-page) #app{min-height:100vh}
 .vc-viewer-page .live-quality-control{z-index:12!important}
 .vc-viewer-page .live-mode-controls{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;align-items:stretch!important;flex:0 0 66px!important;height:66px!important;min-height:66px!important;margin:0!important;padding:6px!important;gap:8px!important;border:0!important;border-top:1px solid #164a60!important;background:#041827!important;border-radius:0!important}
 .vc-viewer-page .live-mode-button{display:flex!important;align-items:center!important;justify-content:center!important;gap:10px!important;min-width:0!important;min-height:52px!important;color:#e8f5fd!important;background:linear-gradient(140deg,#062e43,#031b2b)!important;border:1px solid #19516b!important;border-radius:9px!important;font-weight:800!important;font-size:11px!important;text-transform:none!important;box-shadow:none!important}
-.vc-viewer-page .live-mode-button::before{content:"";height:36px;flex:0 0 60px;border-radius:6px;background:url("/tennislive-match/homepage/beach-volley-480.webp") center/cover;box-shadow:inset 0 0 0 1px #ffffff19}
-.vc-viewer-page #btnReplay30::before{background-image:url("/tennislive-match/homepage/beach-volley-960.webp")}
+.vc-viewer-page .live-mode-button::before{content:"";height:36px;flex:0 0 60px;border-radius:6px;background:url("/tennislive-match/voxcourt-live-v3/court-poster.webp") center/cover;box-shadow:inset 0 0 0 1px #ffffff19}
+.vc-viewer-page #btnReplay30::before{background-image:url("/tennislive-match/voxcourt-live-v3/court-poster.webp")}
 .vc-viewer-page .live-mode-button--active{border:2px solid #00d8e7!important;background:linear-gradient(120deg,#005a74,#042a3e)!important;color:white!important;box-shadow:0 0 14px #00d5e550!important}
 .vc-viewer-page .vc-scoreboard{order:2!important;display:flex!important;flex-direction:column!important;min-width:0!important;min-height:0!important;width:100%!important;height:100%!important;padding:0!important;margin:0!important;border:1px solid #1a5e76!important;border-radius:15px!important;background:rgba(2,24,39,.95)!important;color:#f2f9fe!important;overflow:hidden!important;box-shadow:0 15px 35px #0006!important}
 .vc-viewer-page .vc-scoreboard-top{flex:0 0 65px!important;display:flex!important;align-items:center!important;justify-content:space-between!important;background:linear-gradient(120deg,#061a29,#082d41)!important;border-bottom:1px solid #214f67!important;padding:12px 16px!important}

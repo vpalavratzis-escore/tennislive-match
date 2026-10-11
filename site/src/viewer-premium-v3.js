@@ -125,14 +125,14 @@ function weather(root){
 // Brands shown only as clearly labeled *design examples* on this isolated test branch.
 // No company should be published as an actual venue sponsor without club confirmation.
 const DESIGN_EXAMPLES=[
-  {name:'VoxCourt',url:'https://escoreboards.eu/'},
-  {name:'Admiral',url:'https://admiralsports.shop/'},
-  {name:'Wilson',url:'https://www.wilson.com/'},
-  {name:'COSMOTE',url:'https://www.cosmote.gr/'},
-  {name:'ΔΕΗ',url:'https://www.dei.gr/'},
-  {name:'Avance',url:'https://avance.gr/'},
-  {name:'Isostar',url:'https://www.isostar.com/'},
-  {name:'Chalkis Padel Club',url:'https://www.google.com/maps/search/?api=1&query=Chalkis+Padel+Club'}
+  {name:'VoxCourt',logo:`${BASE}voxcourt-live-v3/brand-voxcourt.png`,url:'https://escoreboards.eu/'},
+  {name:'Admiral',logo:`${BASE}voxcourt-live-v3/brand-admiral.png`,url:'https://admiralsports.shop/'},
+  {name:'Wilson',logo:`${BASE}voxcourt-live-v3/brand-wilson.png`,url:'https://www.wilson.com/'},
+  {name:'COSMOTE',logo:`${BASE}voxcourt-live-v3/brand-cosmote.png`,url:'https://www.cosmote.gr/'},
+  {name:'ΔΕΗ',logo:`${BASE}voxcourt-live-v3/brand-dei.png`,url:'https://www.dei.gr/'},
+  {name:'Avance',logo:`${BASE}voxcourt-live-v3/brand-avance.png`,url:'https://avance.gr/'},
+  {name:'Isostar',logo:`${BASE}voxcourt-live-v3/brand-isostar.png`,url:'https://www.isostar.com/'},
+  {name:'Chalkis Padel Club',logo:`${BASE}voxcourt-live-v3/brand-chalkis.png`,url:'https://www.google.com/maps/search/?api=1&query=Chalkis+Padel+Club'}
 ];
 const SHOW_UNVERIFIED_BRANDS_ON_TEST_BRANCH=true;
 
