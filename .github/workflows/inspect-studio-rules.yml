@@ -1,0 +1,24 @@
+name: Inspect V3 Studio placement rules read-only
+on:
+  push:
+    branches: [diagnostic/live-v3-serving-20261011]
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Team B and sponsor styles from published Studio rules
+        run: |
+          python3 - <<'PY'
+          import urllib.request,json,re
+          u='https://voxcourt.com/__vcstudio/published.json?check=20261011'
+          req=urllib.request.Request(u,headers={'Cache-Control':'no-cache'})
+          data=json.load(urllib.request.urlopen(req,timeout=30))
+          rules=data.get('rules',[])
+          print('published status',data.get('version'),'rules',len(rules),'extras',len(data.get('extras',[])))
+          for r in rules:
+            selector=' '.join(str(r.get(k,'')) for k in ['selector','element','id','route','scope'])
+            if re.search(r'nameB|sponsor|matchHero|player-info|photoB',selector,re.I):
+              print('MATCH',json.dumps(r,ensure_ascii=False)[:1800])
+          PY
