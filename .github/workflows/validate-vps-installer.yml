@@ -1,0 +1,23 @@
+name: Validate VoxCourt VPS deployment installer
+on:
+  push:
+    branches:
+      - diagnostic/live-v3-serving-20261011
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify remote installer and standalone enhancer syntax
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          BASE=https://raw.githubusercontent.com/vpalavratzis-escore/tennislive-match/dev
+          curl -fLsS "$BASE/ops/live-v3-vps/deploy-live-v3-vps.sh" -o deploy.sh
+          curl -fLsS "$BASE/ops/live-v3-vps/viewer-standalone.js" -o viewer.js
+          bash -n deploy.sh
+          node --check viewer.js
+          grep -q 'voxcourt-live-v3-vps-styles' viewer.js
+          grep -q 'cp -a' deploy.sh
+          echo 'VPS deployment script shell syntax and viewer JavaScript syntax PASS'
