@@ -1,7 +1,22 @@
 import {test,expect} from "@playwright/test";
 
 test("approved V3 style actually wins against legacy CSS and JS mounts", async ({page}) => {
-  const registry={countries:[{id:"gr",name:"Greece",cities:[{id:"attica",name:"Attica",clubs:[{id:"multi-club",name:"Multi Club",courts:[{id:"tennis-1",name:"Tennis 1",sport:"tennis",state:"https://api.test.local/api/state/gr/attica/multi-club/tennis-1",stream:{type:"hls",url:""}}]}]}]}]}]};
+  const registry = {
+    countries: [{
+      id:"gr", name:"Greece",
+      cities:[{
+        id:"attica", name:"Attica",
+        clubs:[{
+          id:"multi-club", name:"Multi Club",
+          courts:[{
+            id:"tennis-1", name:"Tennis 1",sport:"tennis",
+            state:"https://api.test.local/api/state/gr/attica/multi-club/tennis-1",
+            stream:{type:"hls",url:""}
+          }]
+        }]
+      }]
+    }]
+  };
   await page.route("**/api/public/clubs",r=>r.fulfill({json:registry}));
   await page.route("**/config/clubs.json",r=>r.fulfill({json:registry}));
   await page.route("https://api.test.local/**",r=>{
