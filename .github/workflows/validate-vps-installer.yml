@@ -56,6 +56,11 @@ jobs:
           grep -q 'cp -a' deploy.sh
           grep -q 'exposeStudioMedia(root)' viewer.js
           grep -q 'ensureTeamBName(root)' viewer.js
+          grep -q 'enforceV3Layout(root)' viewer.js
+          grep -q 'monitorStudioSponsorChanges(root)' viewer.js
+          grep -q "set(hero,'background'" viewer.js
+          grep -q "set(teamB,'translate'" viewer.js
+          grep -q "set(card,'translate'" viewer.js
           grep -q 'existingSponsorKeys(grid)' viewer.js
           grep -q 'V3.1' viewer.css
           echo 'V3.1 viewer, sponsors, name, media and installer checks PASS'
