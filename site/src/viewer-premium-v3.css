@@ -230,3 +230,26 @@ body:has(.vc-viewer-page) #app{position:relative!important;z-index:1!important}
 .vc-viewer-page .cam--viewer .videoOverlay .videoOverlay__box{
   position:relative!important;z-index:2!important;
 }
+
+/* V3.2: Make the offline poster a genuine Studio-editable image.
+   Formerly the overlay always painted a CSS background image, so selecting
+   that DIV in Studio and using Replace could not update the rendered poster.
+   IMG#vc3OfflinePosterImage now owns the rendered poster when offline. */
+.vc-viewer-page .cam--viewer .videoOverlay.videoOverlay--show:has(> #vc3OfflinePosterImage) {
+  background:none!important;
+  background-image:none!important;
+  background-color:transparent!important;
+}
+.vc-viewer-page .cam--viewer .videoOverlay #vc3OfflinePosterImage {
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  z-index:0!important;
+  pointer-events:none!important;
+}
+html.vc3-studio-preview .vc-viewer-page .cam--viewer .videoOverlay #vc3OfflinePosterImage {
+  /* Studio's canvas selects media through pointer hit-testing. In production
+     leave the image non-interactive, so it cannot block video controls. */
+  pointer-events:auto!important;
+  cursor:pointer!important;
+}
