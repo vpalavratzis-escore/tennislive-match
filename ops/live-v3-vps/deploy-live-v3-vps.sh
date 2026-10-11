@@ -158,7 +158,6 @@ TEMP_DIR="$(mktemp -d "${STATIC_DIR}/.vc3-upload.XXXXXXXX")"
 cp -a "${STAGING}/." "${TEMP_DIR}/"
 if [[ -d "${V3DIR}" ]]; then rm -rf "${V3DIR}"; fi
 mv "${TEMP_DIR}" "${V3DIR}"
-STAGING=""
 
 # Add a SINGLE versioned script to the end of the actual VPS index page.
 # Its CSS is injected after existing styles; no SPA bundle is overwritten.
@@ -199,6 +198,8 @@ PY
 
 if command -v nginx >/dev/null 2>&1; then nginx -t; fi
 COMPLETED=1
+if [[ -n "${STAGING}" && -d "${STAGING}" ]]; then rm -rf "${STAGING}"; fi
+STAGING=""
 trap - ERR INT TERM
 echo "LIVE WEBSITE UPDATED: https://voxcourt.com/"
 echo "Open an existing court viewer with Ctrl+F5. No process restart required."
