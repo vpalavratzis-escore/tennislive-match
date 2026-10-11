@@ -145,47 +145,93 @@ const DESIGN_EXAMPLES=[
 ];
 const SHOW_UNVERIFIED_BRANDS_ON_TEST_BRANCH=true;
 
+// Keep the owner's real Studio / court sponsor cards. Append reference cards
+// only if they are not already represented; never overwrite DOM-owned logos.
+const sponsorKey=(value)=>String(value||'').toLocaleLowerCase().trim().replace(/[^a-z0-9α-ωά-ώ]+/gu,'');
+const keyForSponsor=(sponsor)=>sponsorKey(sponsor?.name||sponsor?.logo||sponsor?.url||'');
+function existingSponsorKeys(grid){
+  const seen=new Set();
+  for(const node of grid.children){
+    if(node.hasAttribute('data-vc3-generated'))continue;
+    const image=node.querySelector('img');
+    const name=node.getAttribute('data-name')||image?.alt||node.title||node.textContent;
+    const key=sponsorKey(name||image?.src);
+    if(key)seen.add(key);
+  }
+  return seen;
+}
 async function sponsors(root){
   const area=root.querySelector('.vc-sponsors'),grid=area?.querySelector('.vc-sponsor-grid');
   if(!grid)return;
-  grid.replaceChildren(); // Old fake static SVG placeholders are not reused.
-  let entries=[];
+  // Only our own generated cards can be removed. Never delete the owner's cards.
+  grid.querySelectorAll('[data-vc3-generated]').forEach(node=>node.remove());
+  const configured=[];
   try{
-    const config=await getCurrentCourt();
-    entries=Array.isArray(config?.court?.sponsors)&&config.court.sponsors.length?config.court.sponsors:Array.isArray(config?.club?.sponsors)?config.club.sponsors:[];
-    const sport=String(config?.court?.sport||config?.court?.sportId||'');
+    const item=await getCurrentCourt();
+    if(Array.isArray(item?.court?.sponsors))configured.push(...item.court.sponsors);
+    if(Array.isArray(item?.club?.sponsors))configured.push(...item.club.sponsors);
+    const sport=String(item?.court?.sport||item?.court?.sportId||'');
     if(sport){
       root.dataset.premiumSport=sport.toLowerCase();
-      const s=root.querySelector('#premiumSport');if(s)s.textContent=sport.replace(/[-_]/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+      const target=root.querySelector('#premiumSport');
+      if(target)target.textContent=sport.replace(/[-_]/g,' ').replace(/\\b\\w/g,c=>c.toUpperCase());
     }
-  }catch(_){/* The existing viewer handles registry errors. */}
+  }catch(_){/* Native Studio sponsors remain untouched if registry is unavailable. */}
   if(!root.isConnected)return;
-  const label=area.querySelector('.vc-sponsors-heading span');
-  if(!entries.length&&SHOW_UNVERIFIED_BRANDS_ON_TEST_BRANCH){
-    entries=DESIGN_EXAMPLES;
-    if(label)label.textContent='DESIGN REFERENCES';
-  }else if(label){label.textContent='CLUB PARTNERS'}
-  if(!entries.length){area.hidden=true;return}
-  area.hidden=false;
-  for(const sponsor of entries.slice(0,24)){
-    const name=String(sponsor?.name||'Partner');
-    const href=safeHttpUrl(sponsor?.url);
-    const logo=String(sponsor?.logo||'').trim();
+  const seen=existingSponsorKeys(grid);
+  const source=[
+    ...configured.map(item=>({item,example:false})),
+    ...DESIGN_EXAMPLES.map(item=>({item,example:true}))
+  ];
+  let hasExamples=false;
+  for(const {item,example} of source){
+    const name=String(item?.name||'Partner').trim();
+    const key=keyForSponsor(item);
+    if(key&&seen.has(key))continue;
+    if(key)seen.add(key);
+    const logo=String(item?.logo||'').trim();
+    const href=safeHttpUrl(item?.url);
     const outer=el('div','vc-sponsor-card');
+    outer.dataset.vc3Generated='true';
+    if(example){outer.dataset.vc3Example='true';hasExamples=true}
+    outer.title=example?name+' — design reference, not a confirmed sponsor':name;
     const inner=el(href?'a':'div');
     if(href){inner.href=href;inner.target='_blank';inner.rel='noopener noreferrer'}
-    inner.title=name;
     if(logo){
       let src='';
-      try {src=new URL(logo,document.baseURI).href}catch(_){}
+      try{src=new URL(logo,document.baseURI).href}catch(_){}
       if(safeHttpUrl(src)){
         const img=el('img');img.src=src;img.alt=name;img.loading='lazy';
+        img.setAttribute('data-vcstudio-role','sponsor-logo');
         img.onerror=()=>{img.remove();inner.append(el('span','premium-brand-text',name))};
         inner.append(img);
       }else inner.append(el('span','premium-brand-text',name));
     }else inner.append(el('span','premium-brand-text',name));
     outer.append(inner);grid.append(outer);
   }
+  const heading=area.querySelector('.vc-sponsors-heading span');
+  if(heading)heading.textContent=hasExamples?'CLUB PARTNERS + DESIGN REFERENCES':'CLUB PARTNERS';
+  area.hidden=!grid.children.length;
+}
+function ensureTeamBName(root){
+  const name=root.querySelector('#nameB');
+  if(!name||name.dataset.vc3Protected==='yes')return;
+  name.dataset.vc3Protected='yes';
+  let lastNonEmpty=String(name.textContent||'').trim();
+  const repair=()=>{
+    if(!root.isConnected)return;
+    const current=String(name.textContent||'').trim();
+    if(current){lastNonEmpty=current;return}
+    const alternative=[
+      root.querySelector('#miniNameB')?.textContent,
+      root.querySelector('#heroNameB')?.textContent,
+      root.querySelector('#photoBTitle')?.textContent,
+      lastNonEmpty
+    ].map(v=>String(v||'').trim()).find(v=>v&&!/^\\s*$/.test(v));
+    name.textContent=alternative||'Team B';
+  };
+  repair();
+  new MutationObserver(repair).observe(name,{childList:true,subtree:true,characterData:true});
 }
 
 function enhance(root){
@@ -197,6 +243,7 @@ function enhance(root){
   syncNames(root);
   weather(root);
   sponsors(root);
+  ensureTeamBName(root);
 }
 const mountPremiumV3=()=>{
   const root=document.querySelector('.vc-viewer-page');
