@@ -1,0 +1,27 @@
+name: Inspect public Studio selector behaviors (read-only)
+on:
+  push:
+    branches: [diagnostic/live-v3-serving-20261011]
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Find Studio selection and drag markers
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import urllib.request,re
+          for url in ['https://voxcourt.com/__vcstudio/runtime.js','https://voxcourt.com/voxcourt-assets/vc3-viewer-standalone.js']:
+            try:
+              req=urllib.request.Request(url,headers={'Cache-Control':'no-cache'})
+              body=urllib.request.urlopen(req,timeout=25).read().decode('utf-8','replace')
+              print('URL',url,'LENGTH',len(body))
+              for term in ['pointerdown','pointermove','mousedown','selected','selection','editing','editMode','studio','drag','data-vcstudio','transform','translate']:
+                locs=[m.start() for m in re.finditer(re.escape(term),body,re.I)]
+                print('TERM',term,'count',len(locs))
+                for i in locs[:3]:
+                  print('   ',body[max(0,i-110):i+160].replace('\\n',' ')[:270])
+            except Exception as ex:print(str(ex))
+          PY
