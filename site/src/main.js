@@ -18,6 +18,8 @@ import { renderLive } from "./pages/live.js";
 import { renderViewer } from "./pages/viewer.js";
 import { renderController } from "./pages/controller.js";
 import "./viewer-layout-final.css";
+import "./viewer-premium-v3.css";
+import "./viewer-premium-v3.js";
 
 // ====== Router ======
 function route() {
