@@ -60,6 +60,13 @@ await page.addStyleTag({content:`
 .vc-viewer-page .vc-sponsor-grid{translate:none!important}
 .vc-viewer-page .vc-sponsor-grid > *{translate:none!important}
 `});
+await page.evaluate(()=>{
+ const set=(selector,prop,value)=>{const e=document.querySelector(selector);if(e)e.style.setProperty(prop,value,'important')};
+ set('#matchHero','background','rgba(2,20,33,.44)');
+ set('#nameB','translate','none');
+ set('.vc-player-score--b .vc-player-main','translate','none');
+ set('.vc-sponsors','background','rgba(2,24,39,.92)');
+});
 await page.waitForTimeout(150);
 const after=await page.evaluate(()=>{
  const $=s=>document.querySelector(s);
