@@ -273,6 +273,56 @@ function ensureTeamBName(root){
   new MutationObserver(repair).observe(name,{childList:true,subtree:true,characterData:true});
 }
 
+/**
+ * Production Studio currently emits high-specificity translate/background overrides.
+ * A CSS-only patch cannot beat these, even using a later !important sheet.
+ * Inline important is applied only to the three broken presentation surfaces.
+ * Keep editable custom properties for future Studio visual settings.
+ */
+function enforceV3Layout(root){
+  if(!root?.isConnected)return;
+  const set=(node,prop,value)=>{
+    if(!node)return;
+    if(node.style.getPropertyValue(prop)!==value||node.style.getPropertyPriority(prop)!=='important'){
+      node.style.setProperty(prop,value,'important');
+    }
+  };
+  const hero=root.querySelector('#matchHero');
+  set(hero,'background','rgba(2,20,33,var(--vc3-hero-opacity,.44))');
+  set(hero,'background-image','none');
+
+  const teamB=root.querySelector('#nameB');
+  set(teamB,'translate','var(--vc3-team-b-offset,none)');
+  set(teamB,'margin','0');
+  set(root.querySelector('.vc-player-score--b .vc-player-main'),'translate','none');
+
+  const sponsorSection=root.querySelector('.vc-sponsors');
+  set(sponsorSection,'background','rgba(2,24,39,var(--vc3-sponsor-opacity,.92))');
+  const grid=sponsorSection?.querySelector('.vc-sponsor-grid');
+  set(grid,'translate','none');
+  for(const card of grid?.children||[]){
+    set(card,'translate','none');
+  }
+}
+function monitorStudioSponsorChanges(root){
+  const grid=root.querySelector('.vc-sponsor-grid');
+  if(!grid||grid.dataset.vc3StudioObserver)return;
+  grid.dataset.vc3StudioObserver='true';
+  let queue=null;
+  const monitor=new MutationObserver(records=>{
+    if(!root.isConnected){monitor.disconnect();return}
+    enforceV3Layout(root);
+    const nativeChanged=records.some(record=>[...record.addedNodes,...record.removedNodes]
+      .some(node=>node.nodeType===1&&node.getAttribute?.('data-vc3-generated')!=='true'));
+    if(!nativeChanged)return;
+    if(queue)clearTimeout(queue);
+    queue=setTimeout(()=>{
+      queue=null;
+      if(root.isConnected)sponsors(root).then(()=>enforceV3Layout(root));
+    },160);
+  });
+  monitor.observe(grid,{childList:true});
+}
 function enhance(root){
   if(root.dataset.premiumV3Ready==='yes')return;
   root.dataset.premiumV3Ready='yes';
@@ -281,9 +331,15 @@ function enhance(root){
   if(status&&headerText&&status.parentElement!==headerText)headerText.prepend(status);
   syncNames(root);
   weather(root);
-  sponsors(root);
+  sponsors(root).then(()=>enforceV3Layout(root));
   ensureTeamBName(root);
   exposeStudioMedia(root);
+  enforceV3Layout(root);
+  monitorStudioSponsorChanges(root);
+  const pulse=setInterval(()=>{
+    if(!root.isConnected){clearInterval(pulse);return}
+    enforceV3Layout(root);
+  },2000);
 }
 const mountPremiumV3=()=>{
   const root=document.querySelector('.vc-viewer-page');
