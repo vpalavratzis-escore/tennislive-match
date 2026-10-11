@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - feat/live-premium-v3-20261011
+      - fix/live-v3-apply-styles-after-legacy
   workflow_dispatch:
 
 permissions:
