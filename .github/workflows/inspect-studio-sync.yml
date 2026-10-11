@@ -1,0 +1,24 @@
+name: Inspect Studio styles and route matching
+on:
+  push:
+    branches: [diagnostic/live-v3-serving-20261011]
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report live Studio CSS ownership and rule syntax
+        run: |
+          python3 - <<'PY'
+          import urllib.request,re,json
+          js=urllib.request.urlopen('https://voxcourt.com/__vcstudio/runtime.js',timeout=25).read().decode()
+          print('RUNTIME LENGTH',len(js))
+          for key in ['function cssSelector','const cssSelector','const makeCss','styles).map','const compose','function paint','async function refresh','setInterval','fetch(ENDPOINT','style[data-vcstudio','const route=','const applicable=']:
+            i=js.find(key)
+            if i>=0: print('SOURCE around',key, js[max(i-160,0):i+1500])
+          rules=json.load(urllib.request.urlopen('https://voxcourt.com/__vcstudio/published.json',timeout=25))
+          for r in rules.get('rules',[]):
+            if 'vc-player' in str(r.get('selector','')) and 'strong' in str(r.get('selector','')):
+              print('NAME RULE',json.dumps(r,ensure_ascii=False))
+          PY
