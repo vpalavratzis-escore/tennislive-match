@@ -18,8 +18,16 @@ import { renderLive } from "./pages/live.js";
 import { renderViewer } from "./pages/viewer.js";
 import { renderController } from "./pages/controller.js";
 import "./viewer-layout-final.css";
-import "./viewer-premium-v3.css";
-import "./viewer-premium-v3.js";
+// Insert premium CSS AFTER all old rules so the viewer skin wins the cascade.
+import premiumViewerCss from "./viewer-premium-v3.css?inline";
+import { mountPremiumV3 } from "./viewer-premium-v3.js";
+function ensurePremiumViewerStyles(){
+  if (document.getElementById("voxcourt-live-v3-styles")) return;
+  const style = document.createElement("style");
+  style.id = "voxcourt-live-v3-styles";
+  style.textContent = premiumViewerCss;
+  document.head.appendChild(style);
+}
 
 // ====== Router ======
 function route() {
@@ -43,7 +51,11 @@ function route() {
       viewerParts.length >= 4 &&
       viewerParts[0] !== "live"
     ) {
-      return renderViewer(decoded);
+      const result = renderViewer(decoded);
+      // Keep score/camera/replay logic as-is; apply the approved view to the DOM.
+      ensurePremiumViewerStyles();
+      mountPremiumV3();
+      return result;
     }
 
     url.searchParams.delete("p");

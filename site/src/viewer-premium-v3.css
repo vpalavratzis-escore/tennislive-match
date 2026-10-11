@@ -1,5 +1,5 @@
 /* VoxCourt Live Premium V3 — isolated viewer skin. Scope to .vc-viewer-page only.
-   Uses current static volley artwork until the approved V3 custom assets are deposited. */
+   Uses the approved V3 background and poster assets. */
 body:has(.vc-viewer-page){
   background:#041624!important;
   color:#f3f9ff!important;
@@ -131,3 +131,13 @@ body:has(.vc-viewer-page) #app{min-height:100vh}
 @media(max-width:520px){.vc-viewer-page[data-premium-sport="beach-volleyball"] :is(.vc-score-columns,.vc-player-score){grid-template-columns:minmax(0,1fr) 50px 42px!important}}
 .vc-viewer-page .cam--viewer:fullscreen,.vc-viewer-page .cam--viewer.viewer-expanded{width:100vw!important;height:100vh!important;max-height:100vh!important;min-height:100vh!important;aspect-ratio:auto!important;border-radius:0!important}
 body:has(.vc-viewer-page){overflow-x:clip!important}
+
+/* The black video surface can obscure its own background while reconnecting;
+   show the approved V3 court poster on top, solely for the unavailable overlay. */
+.vc-viewer-page .cam--viewer:not(.viewer-mode-replay) .videoOverlay.videoOverlay--show{
+ background-image:linear-gradient(180deg,rgba(0,10,18,.14),rgba(0,10,18,.42)),url("/tennislive-match/voxcourt-live-v3/court-poster.webp")!important;
+ background-position:center!important;background-size:cover!important;
+}
+.vc-viewer-page .cam--viewer:not(.viewer-mode-replay) .videoOverlay.videoOverlay--show .videoOverlay__box{
+ background:rgba(2,11,19,.85)!important;
+}

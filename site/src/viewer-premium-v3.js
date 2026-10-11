@@ -189,9 +189,9 @@ function enhance(root){
   weather(root);
   sponsors(root);
 }
-const mount=()=>{
+export const mountPremiumV3=()=>{
   const root=document.querySelector('.vc-viewer-page');
   if(root&&root!==activeRoot){activeRoot=root;enhance(root)}
 };
 const rootApp=document.getElementById('app');
-if(rootApp){new MutationObserver(mount).observe(rootApp,{childList:true});mount()}
+if(rootApp){new MutationObserver(mountPremiumV3).observe(rootApp,{childList:true});mountPremiumV3()}
