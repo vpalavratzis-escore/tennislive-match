@@ -1,0 +1,21 @@
+name: Verify Studio offline poster replace
+on:
+  push:
+    branches: [fix/studio-offline-poster-replace-20261011]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Run replacement smoke test on real VoxCourt viewer
+        run: |
+          cd site
+          npm ci
+          npx playwright install --with-deps chromium
+          node tests/verify-studio-offline-poster.mjs
