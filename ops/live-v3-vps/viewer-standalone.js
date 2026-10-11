@@ -4,9 +4,14 @@
  */
 // VPS self-contained adapter: no Vite imports, never changes game or video logic.
 async function loadClubRegistry(){
-  for(const endpoint of ['/api/public/clubs','/config/clubs.json']){
+  // Production registry is authoritative; the local JSON is an outage fallback.
+  for(const endpoint of [
+    'https://api.voxcourt.com/api/public/clubs',
+    '/api/public/clubs',
+    '/config/clubs.json'
+  ]){
     try{
-      const res=await fetch(endpoint,{credentials:'same-origin'});
+      const res=await fetch(endpoint,{cache:'no-store'});
       if(res.ok){const data=await res.json();if(Array.isArray(data?.countries))return data}
     }catch(_){}
   }
