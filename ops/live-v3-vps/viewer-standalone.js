@@ -291,10 +291,9 @@ function enforceV3Layout(root){
   set(hero,'background','rgba(2,20,33,var(--vc3-hero-opacity,.44))');
   set(hero,'background-image','none');
 
-  const teamB=root.querySelector('#nameB');
-  set(teamB,'translate','var(--vc3-team-b-offset,none)');
-  set(teamB,'margin','0');
-  set(root.querySelector('.vc-player-score--b .vc-player-main'),'translate','none');
+  // Team labels (both A and B) belong to the Studio editor.
+  // Do not force translate/position/margin inline: inline !important
+  // outranks Studio's published stylesheet and disables its drag controls.
 
   const sponsorSection=root.querySelector('.vc-sponsors');
   set(sponsorSection,'background','rgba(2,24,39,var(--vc3-sponsor-opacity,.92))');

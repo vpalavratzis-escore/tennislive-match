@@ -1,0 +1,21 @@
+name: Verify Studio names follow published positions
+on:
+  push:
+    branches: [fix/studio-team-name-position-20261011]
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install browser and test Studio name binding
+        run: |
+          cd site
+          npm ci
+          npx playwright install --with-deps chromium
+          node tests/verify-studio-name-position.mjs
