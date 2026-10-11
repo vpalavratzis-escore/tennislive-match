@@ -12,7 +12,7 @@ STATIC_PREFIX=""
 UPLOADED_FILES=()
 BACKUP_READY=0
 DOMAIN="https://voxcourt.com"
-VERSION="v3-20261011-hetzner"
+VERSION="v3-20261011-hetzner-$(date -u +%H%M%S)"
 BACKUP="/root/voxcourt-backups/${VERSION}-$(date -u +%Y%m%dT%H%M%SZ)"
 STAGING=""
 COMPLETED=0
@@ -196,7 +196,10 @@ public,version,poster=sys.argv[1:]
 def fetch(p):
     with urlopen(Request('https://voxcourt.com'+p,headers={'Cache-Control':'no-cache'}),timeout=20) as r:
         return r.read(1000000)
-assert fetch(public+'/vc3-court-poster.webp?v='+version)==Path(poster).read_bytes(), 'V3 image not served'
+expected=Path(poster).read_bytes()
+served=fetch(public+'/vc3-court-poster.webp?v='+version)
+if served!=expected:
+    raise RuntimeError(f'V3 image not served: expected {len(expected)} bytes, got {len(served)} bytes; response starts: {served[:90]!r}')
 js=fetch(public+'/vc3-viewer-standalone.js?v='+version)
 assert b'premiumWeather' in js and b'voxcourt-live-v3-vps-styles' in js, 'V3 JS not served'
 html=fetch('/?vc3confirm='+uuid.uuid4().hex)
