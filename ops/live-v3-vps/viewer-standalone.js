@@ -213,6 +213,40 @@ async function sponsors(root){
   if(heading)heading.textContent=hasExamples?'CLUB PARTNERS + DESIGN REFERENCES':'CLUB PARTNERS';
   area.hidden=!grid.children.length;
 }
+// Real image nodes with stable IDs are exposed to the Studio layers/image selector.
+// Visual attributes are separate from score, camera and player source handlers.
+function exposeStudioMedia(root){
+  const fallback=BASE+'voxcourt-live-v3/court-poster.webp';
+  let background=document.getElementById('vc3PageBackgroundImage');
+  if(!background){
+    background=el('img');
+    background.id='vc3PageBackgroundImage';
+    background.alt='VoxCourt page background — replace in Studio';
+    background.setAttribute('data-vcstudio-role','page-background-image');
+    background.setAttribute('data-vcstudio-label','Live page background');
+    background.src=fallback;
+    document.body.prepend(background);
+  }
+  const stage=root.querySelector('.cam--viewer');
+  const overlay=stage?.querySelector('.videoOverlay');
+  if(overlay&&!overlay.querySelector('#vc3OfflinePosterImage')){
+    const img=el('img');
+    img.id='vc3OfflinePosterImage';
+    img.src=fallback;
+    img.alt='Live offline poster — replace in Studio';
+    img.setAttribute('data-vcstudio-role','offline-video-poster');
+    img.setAttribute('data-vcstudio-label','Live offline poster');
+    overlay.prepend(img);
+  }
+  for(const [selector,role] of [
+    ['.vc-club-logo-header','club-logo'],
+    ['#photoA','team-a-image'],
+    ['#photoB','team-b-image']
+  ]){
+    const node=root.querySelector(selector);
+    if(node?.tagName==='IMG')node.setAttribute('data-vcstudio-role',role);
+  }
+}
 function ensureTeamBName(root){
   const name=root.querySelector('#nameB');
   if(!name||name.dataset.vc3Protected==='yes')return;
@@ -244,6 +278,7 @@ function enhance(root){
   weather(root);
   sponsors(root);
   ensureTeamBName(root);
+  exposeStudioMedia(root);
 }
 const mountPremiumV3=()=>{
   const root=document.querySelector('.vc-viewer-page');
