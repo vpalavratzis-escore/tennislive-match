@@ -345,6 +345,12 @@ const mountPremiumV3=()=>{
   if(root&&root!==activeRoot){activeRoot=root;enhance(root)}
 };
 function startPremiumV3(){
+  // The Studio runs the Live page in an iframe. Only there may the offline
+  // poster receive pointer events so its Replace action selects the IMG.
+  // The real public viewer remains untouched for camera/fullscreen controls.
+  if(window.self!==window.top){
+    document.documentElement.classList.add('vc3-studio-preview');
+  }
   const cssUrl='/voxcourt-live-v3/viewer.css?v=20261011-live';
   fetch(cssUrl,{cache:'no-store'}).then(r=>r.ok?r.text():Promise.reject(new Error('V3 CSS not available')))
     .then(css=>{
