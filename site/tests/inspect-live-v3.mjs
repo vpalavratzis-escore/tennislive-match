@@ -51,5 +51,24 @@ console.log('LAYOUT ROOT-CAUSE',JSON.stringify(await page.evaluate(()=>{
   })
 }),null,2));
 
+// Browser-only proof, never written to the real site:
+await page.addStyleTag({content:`
+.vc-viewer-page #matchHero{background:rgba(3,20,33,.49)!important;backdrop-filter:blur(7px)!important}
+.vc-viewer-page #nameB{translate:none!important;padding:0!important;margin:0!important}
+.vc-viewer-page .vc-player-score--b .vc-player-main{translate:none!important}
+.vc-viewer-page .vc-sponsors{background:rgba(2,24,39,.92)!important;translate:none!important}
+.vc-viewer-page .vc-sponsor-grid{translate:none!important}
+.vc-viewer-page .vc-sponsor-grid > *{translate:none!important}
+`});
+await page.waitForTimeout(150);
+const after=await page.evaluate(()=>{
+ const $=s=>document.querySelector(s);
+ const rect=s=>{const r=$(s)?.getBoundingClientRect();return r?[r.x,r.y,r.width,r.height].map(x=>Math.round(x)):null};
+ const cs=s=>{const c=getComputedStyle($(s));return{background:c.backgroundColor,translate:c.translate}};
+ const sel=['#matchHero','#nameB','.vc-player-score--b .vc-player-info','.vc-sponsors','.vc-sponsor-grid > :nth-child(1)','.vc-sponsor-grid > :nth-child(2)','.vc-sponsor-grid > :nth-child(3)'];
+ return sel.map(s=>({s,rect:rect(s),css:cs(s)}));
+});
+console.log('TRIAL FIX RESULTS',JSON.stringify(after));
+
 console.log('ERRORS',JSON.stringify(errors.slice(0,20)));
 await browser.close();
